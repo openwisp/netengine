@@ -5,7 +5,7 @@ SSH base class
 __all__ = ['SSH']
 
 
-import paramiko
+from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 from netengine.exceptions import NetEngineError
 
@@ -15,91 +15,83 @@ class SNMP(object):
     SNMP base backend
     """
     
-    def __init__(self, host, community='public'):
+    def __init__(self, host, community='public', agent='my-agent', port=161):
         """
         :host string: required
         :community string: defaults to public
+        :agent string: defaults to my-agent
+        :port integer: defaults to 161
         """
         self.host = host
-        self.community = community
+        self.community = cmdgen.CommunityData(agent, community, 0)
+        self.transport = cmdgen.UdpTransportTarget((host, port))
+        self.port = port
     
     def __str__(self):
-        """ print a human readable object description """
-        return "<SNMP: %s-%s>" % (self.host, self.community)
+        """ prints a human readable object description """
+        return "<SNMP: %s>" % self.host
     
     def __repr__(self):
-        """ return unicode string represantation """
+        """ returns unicode string represantation """
         return self.__str__()
     
     def __unicode__(self):
         """ unicode __str__() for python2.7 """
         return unicode(self.__str__())
     
-    #def connect(self):
-    #    """
-    #    Initialize SSH session
-    #    
-    #    will raise exception if anything goes wrong
-    #    """
-    #    shell = paramiko.SSHClient()
-    #    shell.load_system_host_keys()
-    #    shell.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    #    
-    #    shell.connect(
-    #        self.host,
-    #        username=self.username,
-    #        password=self.password,
-    #        port=self.port
-    #    )
-    #    self.shell = shell
-    #
-    #def disconnect(self):
-    #    """ closes SSH connection """
-    #    self.shell.close()
-    #
-    #def exec_command(self, command, **kwargs):
-    #    """ alias to paramiko.SSHClient.exec_command """
-    #    # init connection if necessary
-    #    if self.shell is None:
-    #        self.connect()
-    #    
-    #    return self.shell.exec_command(command, **kwargs)
-    #
-    #def run(self, command, **kwargs):
-    #    """
-    #    executes command and returns stdout if success or stderr if error
-    #    """
-    #    stdin, stdout, stderr = self.exec_command(command, **kwargs)
-    #    
-    #    output = stdout.read().strip()
-    #    error = stderr.read().strip()
-    #    
-    #    # if error return error msg
-    #    if error != '':
-    #        return error
-    #    # otherwise return output
-    #    else:
-    #        return output
-    #
-    #def get_interfaces(self):
-    #    """ get device interfaces """
-    #    return ifconfig_to_dict(self.run('ifconfig'))
-    #
-    #def get_ipv6_of_interface(self, interface_name):
-    #    """ return ipv6 address for specified interface """
-    #    command = "ip -6 addr show %s" % interface_name
-    #    
-    #    output = self.run(command)
-    #    
-    #    for line in output.split('\n'):
-    #        line = line.strip()
-    #        
-    #        if 'global' in line:
-    #            parts = line.split(' ')
-    #            ipv6 = parts[1]
-    #            break
-    #    
-    #    return ipv6
+    @property
+    def _command(self):
+        """
+        alias to cmdgen.CommandGenerator()
+        """
+        return cmdgen.CommandGenerator()
+    
+    def _oid(self, oid):
+        """
+        returns valid oid value to be passed to getCmd() or nextCmd()
+        """
+        if type(oid) not in (str, unicode, tuple, list):
+            raise AttributeError('get accepts only strings, tuples or lists')
+        # allow string representations of oids with commas ,
+        elif isinstance(oid, basestring):
+            # ignore spaces
+            oid = oid.replace(' ', '').replace(',', '.')
+        # convert lists and tuples into strings
+        else:
+            # convert each list item to string
+            oid = [str(element) for element in oid]
+            oid = '.'.join(oid)
+        
+        # ensure is string (could be unicode)
+        return str(oid)
+    
+    def get(self, oid):
+        """
+        alias to cmdgen.CommandGenerator().getCmd
+        :oid string|tuple|list: string, tuple or list representing the OID to get
+        
+        example of valid oid parameters:
+            * "1,3,6,1,2,1,1,5,0"
+            * "1, 3, 6, 1, 2, 1, 1, 5, 0"
+            * "1.3.6.1.2.1.1.5.0"
+            * [1, 3, 6, 1, 2, 1, 1, 5, 0]
+            * (1, 3, 6, 1, 2, 1, 1, 5, 0)
+        """
+        return self._command.getCmd(self.community, self.transport, self._oid(oid))
+    
+    def next(self, oid):
+        """
+        alias to cmdgen.CommandGenerator().nextCmd
+        :oid string|tuple|list: string, tuple or list representing the OID to get
+        
+        example of valid oid parameters:
+            * "1,3,6,1,2,1,1,5,0"
+            * "1, 3, 6, 1, 2, 1, 1, 5, 0"
+            * "1.3.6.1.2.1.1.5.0"
+            * [1, 3, 6, 1, 2, 1, 1, 5, 0]
+            * (1, 3, 6, 1, 2, 1, 1, 5, 0)
+        """
+        return self.command.nextCmd(self.community, self.transport, self._oid(oid))
     
     @property
     def olsr(self):

@@ -17,14 +17,17 @@
 
     "base-snmp": {
         "host": "yourhost",
-        "community": "public"
+        "community": "public",
+        "port": 161
     },
     "airos-snmp": {
         "host": "your_airos_device",
-        "community": "public"
+        "community": "public",
+        "port": 161
     },
     "openwrt-snmp": {
         "host": "your_openwrt_device",
-        "community": "public"
+        "community": "public",
+        "port": 161
     }
 }

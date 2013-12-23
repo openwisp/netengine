@@ -4,10 +4,6 @@ from setuptools.command.test import test
 from netengine import get_version
 
 
-global something
-something = 'prova'
-
-
 setup(
     name='netengine',
     version=get_version(),
@@ -17,7 +13,10 @@ setup(
     license='MIT',
     url='https://github.com/nemesisdesign/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
-    install_requires=['paramiko'],
+    install_requires=[
+        'paramiko',
+        'pysnmp'
+    ],
     zip_safe=False,
     classifiers=[
         'Development Status :: 1 - Planning',
