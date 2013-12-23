@@ -51,6 +51,14 @@ SNMP example::
     device.os
     ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
 
+Specific SNMP command example::
+
+    from netengine.backends.snmp import OpenWRT
+    
+    device = OpenWRT('10.40.0.1', community='public')
+    # get a certain OID
+    device.get('1.2.840.10036.3.1.2.1.4.8')
+
 HTTP example::
 
     # TODO

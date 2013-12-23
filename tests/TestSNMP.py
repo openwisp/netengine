@@ -27,8 +27,6 @@ class TestSNMP(unittest.TestCase):
         device = SNMP(self.host, self.community)
         
         with self.assertRaises(NotImplementedError):
-            device.olsr
-        with self.assertRaises(NotImplementedError):
             device.os
         with self.assertRaises(NotImplementedError):
             device.name

@@ -94,14 +94,6 @@ class SNMP(object):
         return self.command.nextCmd(self.community, self.transport, self._oid(oid))
     
     @property
-    def olsr(self):
-        """
-        should return tuple with version and url if OLSR is installed
-        should return None if not installed
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
     def os(self):
         """
         Not Implemented
