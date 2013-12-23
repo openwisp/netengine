@@ -1,1 +1,1 @@
-from TestSSH import TestSSH
+from TestSSH import *

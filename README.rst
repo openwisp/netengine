@@ -9,16 +9,27 @@ Install
 
 Install via pip::
 
-pip install -e git+git://github.com/nemesisdesign/netengine#egg=netengine
+    pip install -e git+git://github.com/nemesisdesign/netengine#egg=netengine
 
 Usage
 =====
 
 Basics::
 
-    from netengine.ssh.ssh import SSH
+    from netengine.backends.ssh import UbiquitiAirOS
     
-    device = SSH('10.40.0.1', 'root', 'password')
+    # ssh based
+    device = UbiquitiAirOS('10.40.0.1', 'root', 'password')
+    
+    device.name
+    'RM5PomeziaSNode'
+    device.model
+    'Rocket M5'
+    device.wireless_channel
+    '5765'
+    
+Specific backend (protocol) commands, SSH example::
+
     print device.run('ls -l')
     -rw-------    1 root     admin         459 Jan 26  2011 dropbear_dss_host_key
     -rw-------    1 root     admin         427 Jan 26  2011 dropbear_rsa_host_key
@@ -27,6 +38,15 @@ Basics::
     -rw-------    1 root     admin        1133 Nov 12 00:27 olsrd.conf
     -rw-r--r--    1 root     admin         786 Dec 21  2011 olsrd6.conf
     -rw-r--r--    1 root     admin         234 Jan  4  2012 radvd.conf
+
+SNMP example::
+
+    # TODO
+
+
+HTTP example::
+
+    # TODO
 
 
 Running tests

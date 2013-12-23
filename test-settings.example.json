@@ -3,5 +3,15 @@
         "host": "yourhost",
         "username": "root",
         "password": "password"
+    },
+    "ubiquiti": {
+        "host": "your_ubiquiti_device",
+        "username": "root",
+        "password": "password"
+    },
+    "openwrt": {
+        "host": "your_openwrt_device",
+        "username": "root",
+        "password": "password"
     }
 }

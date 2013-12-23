@@ -7,13 +7,13 @@ __all__ = ['SSH']
 
 import paramiko
 
-from ..exceptions import NetEngineError
-from ..utils import ifconfig_to_dict
+from netengine.exceptions import NetEngineError
+from netengine.utils import ifconfig_to_dict
 
 
 class SSH(object):
     """
-    SSH base connector class
+    SSH base backend
     """
     
     def __init__(self, host, username, password='', port=22):
@@ -31,7 +31,7 @@ class SSH(object):
     
     def __str__(self):
         """ print a human readable object description """
-        return "<SSH Connector: %s@%s>" % (self.username, self.host)
+        return "<SSH: %s@%s>" % (self.username, self.host)
     
     def __repr__(self):
         """ return unicode string represantation """
@@ -117,16 +117,16 @@ class SSH(object):
         
         return ipv6
     
-    def olsr_installed(self):
+    @property
+    def olsr(self):
         """
-        check if olsr is installed.
-        returns tuple with version and url if installed
-        returns False if not installed
+        returns tuple with version and url if OLSR is installed
+        returns None if not installed
         """
         version_string = self.run('olsrd -v')
         
         if 'not found' in version_string:
-            return False
+            return None
         
         # extract olsr version and url
         lines = version_string.split('\n')
@@ -135,7 +135,8 @@ class SSH(object):
         
         return (version, url)
     
-    def get_os(self):
+    @property
+    def os(self):
         """
         Not Implemented
         
@@ -143,76 +144,87 @@ class SSH(object):
         the first element is the OS name and
         the second element is the OS version
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_device_name(self):
+    @property
+    def name(self):
         """
         Not Implemented
         
         should return a string containing the device name
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_device_model(self):
+    @property
+    def model(self):
         """
         Not Implemented
         
         should return a string containing the device model
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_device_RAM(self):
+    @property
+    def RAM_total(self):
         """
         Not Implemented
         
         should return a string containing the device RAM in bytes
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_ethernet_standard(self):
+    @property
+    def ethernet_standard(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_ethernet_duplex(self):
+    @property
+    def ethernet_duplex(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_channel_width(self):
+    @property
+    def wireless_channel_width(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_mode(self):
+    @property
+    def wireless_mode(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_channel(self):
+    @property
+    def wireless_channel(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_output_power(self):
+    @property
+    def wireless_output_power(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_dbm(self):
+    @property
+    def wireless_dbm(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
     
-    def get_wireless_noise(self):
+    @property
+    def wireless_noise(self):
         """
         Not Implemented
         """
-        raise NotImplementedError()
+        raise NotImplementedError('Not implemented')
