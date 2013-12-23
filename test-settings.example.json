@@ -1,0 +1,7 @@
+{
+    "base-ssh": {
+        "host": "yourhost",
+        "username": "root",
+        "password": "password"
+    }
+}

@@ -4,10 +4,8 @@ from setuptools.command.test import test
 from netengine import get_version
 
 
-#class TestCommand(test):
-#    def run(self):
-#        from tests.runtests import runtests
-#        runtests()
+global something
+something = 'prova'
 
 
 setup(
@@ -19,6 +17,7 @@ setup(
     license='MIT',
     url='https://github.com/nemesisdesign/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
+    install_requires=['paramiko'],
     zip_safe=False,
     classifiers=[
         'Development Status :: 1 - Planning',
@@ -29,5 +28,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: System :: Networking',
     ],
-    #cmdclass={"test": TestCommand},
+    test_suite='nose.collector'
 )
