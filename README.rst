@@ -14,11 +14,10 @@ Install via pip::
 Usage
 =====
 
-Basics::
+SSH example::
 
     from netengine.backends.ssh import AirOS
     
-    # ssh based
     device = AirOS('10.40.0.1', 'root', 'password')
     
     device.name
@@ -41,13 +40,24 @@ Specific backend (protocol) commands, SSH example::
 
 SNMP example::
 
-    # TODO
-
+    from netengine.backends.snmp import AirOS
+    
+    device = AirOS('10.40.0.1', community='public')
+    
+    device.name
+    'RM5PomeziaSNode'
+    device.model
+    'Rocket M5'
+    device.os
+    ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
 
 HTTP example::
 
     # TODO
 
+MUNIN example::
+
+    # TODO
 
 Running tests
 =============
