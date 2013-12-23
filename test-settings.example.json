@@ -4,14 +4,27 @@
         "username": "root",
         "password": "password"
     },
-    "ubiquiti": {
-        "host": "your_ubiquiti_device",
+    "airos-ssh": {
+        "host": "your_airos_device",
         "username": "root",
         "password": "password"
     },
-    "openwrt": {
+    "openwrt-ssh": {
         "host": "your_openwrt_device",
         "username": "root",
         "password": "password"
+    },
+
+    "base-snmp": {
+        "host": "yourhost",
+        "community": "public"
+    },
+    "airos-snmp": {
+        "host": "your_airos_device",
+        "community": "public"
+    },
+    "openwrt-snmp": {
+        "host": "your_openwrt_device",
+        "community": "public"
     }
 }
