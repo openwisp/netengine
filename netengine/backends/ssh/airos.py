@@ -2,13 +2,13 @@
 Class to extract information from Ubiquiti AirOS devices
 """
 
-__all__ = ['UbiquitiAirOS']
+__all__ = ['AirOS']
 
 
 from netengine.backends.ssh import SSH
 
 
-class UbiquitiAirOS(SSH):
+class AirOS(SSH):
     """
     Ubiquiti AirOS SSH backend
     """

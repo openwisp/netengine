@@ -1,11 +1,11 @@
 from .base import SSH
 from .openwrt import OpenWRT
-from .ubiquitiairos import UbiquitiAirOS
+from .airos import AirOS
 
 
 __all__ = [
     'SSH',
     'OpenWRT',
-    'UbiquitiAirOS'
+    'AirOS'
 ]
 

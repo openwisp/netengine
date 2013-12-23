@@ -16,10 +16,10 @@ Usage
 
 Basics::
 
-    from netengine.backends.ssh import UbiquitiAirOS
+    from netengine.backends.ssh import AirOS
     
     # ssh based
-    device = UbiquitiAirOS('10.40.0.1', 'root', 'password')
+    device = AirOS('10.40.0.1', 'root', 'password')
     
     device.name
     'RM5PomeziaSNode'

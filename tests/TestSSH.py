@@ -6,7 +6,7 @@ from .settings import settings
 
 __all__ = [
     'TestSSH',
-    'TestUbiquitiAirOS',
+    'TestAirOS',
     'TestOpenWRT'
 ]
 
@@ -57,14 +57,14 @@ class TestSSH(unittest.TestCase):
             device.wireless_noise
 
 
-class TestUbiquitiAirOS(unittest.TestCase):
+class TestAirOS(unittest.TestCase):
     
     def setUp(self):
-        self.host = settings['ubiquiti']['host']
-        self.username = settings['ubiquiti']['username']
-        self.password = settings['ubiquiti']['password']
+        self.host = settings['airos-ssh']['host']
+        self.username = settings['airos-ssh']['username']
+        self.password = settings['airos-ssh']['password']
         
-        self.device = UbiquitiAirOS(self.host, self.username, self.password)
+        self.device = AirOS(self.host, self.username, self.password)
         self.device.connect()
     
     def test_properties(self):
@@ -90,9 +90,9 @@ class TestUbiquitiAirOS(unittest.TestCase):
 class TestOpenWRT(unittest.TestCase):
     
     def setUp(self):
-        self.host = settings['openwrt']['host']
-        self.username = settings['openwrt']['username']
-        self.password = settings['openwrt']['password']
+        self.host = settings['openwrt-ssh']['host']
+        self.username = settings['openwrt-ssh']['username']
+        self.password = settings['openwrt-ssh']['password']
         
         self.device = OpenWRT(self.host, self.username, self.password)
         self.device.connect()
