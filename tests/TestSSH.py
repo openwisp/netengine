@@ -16,9 +16,10 @@ class TestSSH(unittest.TestCase):
     def setUp(self):
         self.host = settings['base-ssh']['host']
         self.username = settings['base-ssh']['username']
-        self.password = settings['base-ssh']['password']
+        self.password = settings['base-ssh'].get('password', '')
+        self.port = settings['base-ssh'].get('port', 22)
         
-        self.device = SSH(self.host, self.username, self.password)
+        self.device = SSH(self.host, self.username, self.password, self.port)
         self.device.connect()
     
     def test_wrong_connection(self):
@@ -55,6 +56,8 @@ class TestSSH(unittest.TestCase):
             device.wireless_dbm
         with self.assertRaises(NotImplementedError):
             device.wireless_noise
+        
+        device.disconnect()
 
 
 class TestAirOS(unittest.TestCase):
@@ -63,16 +66,16 @@ class TestAirOS(unittest.TestCase):
         self.host = settings['airos-ssh']['host']
         self.username = settings['airos-ssh']['username']
         self.password = settings['airos-ssh']['password']
+        self.port = settings['airos-ssh'].get('port', 22)
         
-        self.device = AirOS(self.host, self.username, self.password)
+        self.device = AirOS(self.host, self.username, self.password, self.port)
         self.device.connect()
     
     def test_properties(self):
         device = self.device
         
-        device.olsr
-        device.ubntbox
-        device.systemcfg
+        device._ubntbox
+        device._systemcfg
         device.os
         device.name
         device.model
@@ -85,6 +88,8 @@ class TestAirOS(unittest.TestCase):
         device.wireless_output_power
         device.wireless_dbm
         device.wireless_noise
+        device.olsr
+        device.disconnect()
 
 
 class TestOpenWRT(unittest.TestCase):
@@ -93,16 +98,18 @@ class TestOpenWRT(unittest.TestCase):
         self.host = settings['openwrt-ssh']['host']
         self.username = settings['openwrt-ssh']['username']
         self.password = settings['openwrt-ssh']['password']
+        self.port = settings['openwrt-ssh'].get('port', 22)
         
-        self.device = OpenWRT(self.host, self.username, self.password)
+        self.device = OpenWRT(self.host, self.username, self.password, self.port)
         self.device.connect()
     
     def test_properties(self):
         device = self.device
         
-        device.olsr
         device.os
         device.name
+        device.olsr
+        device.disconnect()
 
 
 if __name__ == '__main__':

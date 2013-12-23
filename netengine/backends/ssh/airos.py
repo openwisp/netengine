@@ -13,20 +13,20 @@ class AirOS(SSH):
     Ubiquiti AirOS SSH backend
     """
     
-    _ubntbox = None
-    _systemcfg = None
+    __ubntbox = None
+    __systemcfg = None
     
     def __str__(self):
         """ print a human readable object description """
         return u"<SSH (Ubiquity AirOS): %s@%s>" % (self.username, self.host)
     
     @property
-    def ubntbox(self):
+    def _ubntbox(self):
         """
         returns "ubntbox mca-status" output in a python dictionary
         """
         # get result if not present in memory yet
-        if not self._ubntbox:
+        if not self.__ubntbox:
             output = self.run('ubntbox mca-status')
             
             info = {}
@@ -46,18 +46,18 @@ class AirOS(SSH):
                 else:
                     pass
         
-            self._ubntbox = info
+            self.__ubntbox = info
         
         # return output
-        return self._ubntbox
+        return self.__ubntbox
     
     @property
-    def systemcfg(self):
+    def _systemcfg(self):
         """
         return main system configuration in a python dictionary
         """
         # if config hasn't been retrieved yet do it now
-        if not self._systemcfg:
+        if not self.__systemcfg:
             output = self.run('cat /tmp/system.cfg')
         
             info = {}
@@ -68,15 +68,15 @@ class AirOS(SSH):
                 if len(parts) == 2:
                     info[parts[0]] = parts[1]
             
-            self._systemcfg = info
+            self.__systemcfg = info
         
         # return config
-        return self._systemcfg
+        return self.__systemcfg
     
     @property
     def os(self):
         """ get OS string, return tuple with OS name and OS version """
-        return ('AirOS', self.ubntbox['firmwareVersion'])
+        return ('AirOS', self._ubntbox['firmwareVersion'])
     
     @property
     def name(self):
@@ -86,20 +86,20 @@ class AirOS(SSH):
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
-        return self.ubntbox['platform']
+        return self._ubntbox['platform']
     
     @property
     def RAM_total(self):
-        return int(self.ubntbox['memTotal'])
+        return int(self._ubntbox['memTotal'])
     
     @property
     def ethernet_standard(self):
         """ determine ethernet standard """
-        if '100Mbps' in self.ubntbox['lanSpeed']:
+        if '100Mbps' in self._ubntbox['lanSpeed']:
             return 'fast'
-        elif '1000Mbps' in self.ubntbox['lanSpeed']:
+        elif '1000Mbps' in self._ubntbox['lanSpeed']:
             return 'gigabit'
-        elif '10Mbps' in self.ubntbox['lanSpeed']:
+        elif '10Mbps' in self._ubntbox['lanSpeed']:
             return 'legacy'
         else:
             return None
@@ -107,17 +107,17 @@ class AirOS(SSH):
     @property
     def ethernet_duplex(self):
         """ determine if ethernet interface is full-duplex or not """
-        if 'Full' in self.ubntbox['lanSpeed']:
+        if 'Full' in self._ubntbox['lanSpeed']:
             return 'full'
-        elif 'Half' in self.ubntbox['lanSpeed']:
+        elif 'Half' in self._ubntbox['lanSpeed']:
             return 'half'
     
     @property
     def wireless_channel_width(self):
         """ retrieve wireless channel width """
-        if '20' in self.systemcfg['radio.1.ieee_mode']:
+        if '20' in self._systemcfg['radio.1.ieee_mode']:
             return 20
-        elif '40' in self.systemcfg['radio.1.ieee_mode']:
+        elif '40' in self._systemcfg['radio.1.ieee_mode']:
             return 40
         else:
             return None
@@ -125,24 +125,24 @@ class AirOS(SSH):
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
-        return self.ubntbox['wlanOpmode']
+        return self._ubntbox['wlanOpmode']
     
     @property
     def wireless_channel(self):
         """ retrieve wireless channel / frequency """
-        return self.ubntbox['freq']
+        return self._ubntbox['freq']
     
     @property
     def wireless_output_power(self):
         """ retrieve output power """
-        return int(self.systemcfg['radio.1.txpower'])
+        return int(self._systemcfg['radio.1.txpower'])
     
     @property
     def wireless_dbm(self):
         """ get dbm """
-        return self.ubntbox['signal']
+        return self._ubntbox['signal']
     
     @property
     def wireless_noise(self):
         """ retrieve noise """
-        return self.ubntbox['noise']
+        return self._ubntbox['noise']

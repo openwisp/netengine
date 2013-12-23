@@ -21,7 +21,7 @@ class SSH(object):
         :host string: required
         :username string: required
         :password string: defaults to empty string
-        :port string: defaults to 22
+        :port integer: defaults to 22
         """
         self.host = host
         self.username = username
