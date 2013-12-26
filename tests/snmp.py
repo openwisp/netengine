@@ -6,8 +6,8 @@ from .settings import settings
 
 __all__ = [
     'TestSNMP',
-    'TestAirOS',
-    'TestOpenWRT'
+    'TestSNMPAirOS',
+    'TestSNMPOpenWRT'
 ]
 
 
@@ -20,7 +20,7 @@ class TestSNMP(unittest.TestCase):
         
     def test_instantiation(self):
         device = SNMP(self.host, self.community, self.port)
-        
+        self.assertTrue(device.__netengine__)
         self.assertIn('SNMP', str(device))
     
     def test_not_implemented_methods(self):
@@ -52,7 +52,7 @@ class TestSNMP(unittest.TestCase):
             device.wireless_noise
 
 
-class TestAirOS(unittest.TestCase):
+class TestSNMPAirOS(unittest.TestCase):
     
     def setUp(self):
         self.host = settings['airos-snmp']['host']
@@ -84,7 +84,7 @@ class TestAirOS(unittest.TestCase):
         device.uptime_tuple
 
 
-class TestOpenWRT(unittest.TestCase):
+class TestSNMPOpenWRT(unittest.TestCase):
     
     def setUp(self):
         self.host = settings['openwrt-snmp']['host']
@@ -92,7 +92,3 @@ class TestOpenWRT(unittest.TestCase):
         self.port = settings['openwrt-snmp'].get('port', 161)
         
         self.device = OpenWRT(self.host, self.community, self.port)
-
-
-if __name__ == '__main__':
-    unittest.main()

@@ -33,7 +33,7 @@ def _extract(ifconfig_output):
     return {}
  
 
-def ifconfig_to_dict(ifconfig):
+def ifconfig_to_python(ifconfig):
     interfaces = [ _extract(interface) for interface in ifconfig.split('\n\n') if interface.strip() ]
     return interfaces
 

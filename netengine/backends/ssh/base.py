@@ -1,17 +1,12 @@
-"""
-SSH base class
-"""
+import paramiko
+from netengine.backends import BaseBackend
+from netengine.utils import ifconfig_to_python
+
 
 __all__ = ['SSH']
 
 
-import paramiko
-
-from netengine.exceptions import NetEngineError
-from netengine.utils import ifconfig_to_dict
-
-
-class SSH(object):
+class SSH(BaseBackend):
     """
     SSH base backend
     """
@@ -32,14 +27,6 @@ class SSH(object):
     def __str__(self):
         """ print a human readable object description """
         return "<SSH: %s@%s>" % (self.username, self.host)
-    
-    def __repr__(self):
-        """ return unicode string represantation """
-        return self.__str__()
-    
-    def __unicode__(self):
-        """ unicode __str__() for python2.7 """
-        return unicode(self.__str__())
     
     def __del__(self):
         """
@@ -99,13 +86,15 @@ class SSH(object):
     
     def get_interfaces(self):
         """ get device interfaces """
-        return ifconfig_to_dict(self.run('ifconfig'))
+        return ifconfig_to_python(self.run('ifconfig'))
     
     def get_ipv6_of_interface(self, interface_name):
         """ return ipv6 address for specified interface """
         command = "ip -6 addr show %s" % interface_name
         
         output = self.run(command)
+        
+        ipv6 = None
         
         for line in output.split('\n'):
             line = line.strip()
@@ -117,6 +106,7 @@ class SSH(object):
         
         return ipv6
     
+    # TODO: this sucks
     @property
     def olsr(self):
         """
@@ -134,97 +124,3 @@ class SSH(object):
         url = lines[2].strip()
         
         return (version, url)
-    
-    @property
-    def os(self):
-        """
-        Not Implemented
-        
-        should return a tuple in which
-        the first element is the OS name and
-        the second element is the OS version
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def name(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device name
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def model(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device model
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def RAM_total(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device RAM in bytes
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def ethernet_standard(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def ethernet_duplex(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_channel_width(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_mode(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_channel(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_output_power(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_dbm(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_noise(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')

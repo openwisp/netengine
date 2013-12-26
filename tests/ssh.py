@@ -6,8 +6,8 @@ from .settings import settings
 
 __all__ = [
     'TestSSH',
-    'TestAirOS',
-    'TestOpenWRT'
+    'TestSSHAirOS',
+    'TestSSHOpenWRT'
 ]
 
 
@@ -20,6 +20,7 @@ class TestSSH(unittest.TestCase):
         self.port = settings['base-ssh'].get('port', 22)
         
         self.device = SSH(self.host, self.username, self.password, self.port)
+        self.assertTrue(self.device.__netengine__)
         self.device.connect()
     
     def test_wrong_connection(self):
@@ -60,7 +61,7 @@ class TestSSH(unittest.TestCase):
         device.disconnect()
 
 
-class TestAirOS(unittest.TestCase):
+class TestSSHAirOS(unittest.TestCase):
     
     def setUp(self):
         self.host = settings['airos-ssh']['host']
@@ -90,9 +91,20 @@ class TestAirOS(unittest.TestCase):
         device.wireless_noise
         device.olsr
         device.disconnect()
+    
+    def test_run(self):
+        self.device.run('ls -l')
+        self.device.disconnect()
+    
+    def test_temp_methods(self):
+        device = self.device
+        self.assertTrue(type(device.get_interfaces()) is list)
+        self.assertTrue(type(device.get_ipv6_of_interface('eth0')) is str)
+        self.assertTrue(type(device.get_ipv6_of_interface('wrong')) is type(None))
+        device.disconnect()
 
 
-class TestOpenWRT(unittest.TestCase):
+class TestSSHOpenWRT(unittest.TestCase):
     
     def setUp(self):
         self.host = settings['openwrt-ssh']['host']
@@ -110,7 +122,3 @@ class TestOpenWRT(unittest.TestCase):
         device.name
         device.olsr
         device.disconnect()
-
-
-if __name__ == '__main__':
-    unittest.main()

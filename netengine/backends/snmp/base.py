@@ -1,16 +1,11 @@
-"""
-SSH base class
-"""
-
-__all__ = ['SSH']
-
-
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+from netengine.backends import BaseBackend
 
-from netengine.exceptions import NetEngineError
+
+__all__ = ['SNMP']
 
 
-class SNMP(object):
+class SNMP(BaseBackend):
     """
     SNMP base backend
     """
@@ -92,97 +87,3 @@ class SNMP(object):
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
         return self.command.nextCmd(self.community, self.transport, self._oid(oid))
-    
-    @property
-    def os(self):
-        """
-        Not Implemented
-        
-        should return a tuple in which
-        the first element is the OS name and
-        the second element is the OS version
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def name(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device name
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def model(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device model
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def RAM_total(self):
-        """
-        Not Implemented
-        
-        should return a string containing the device RAM in bytes
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def ethernet_standard(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def ethernet_duplex(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_channel_width(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_mode(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_channel(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_output_power(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_dbm(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')
-    
-    @property
-    def wireless_noise(self):
-        """
-        Not Implemented
-        """
-        raise NotImplementedError('Not implemented')

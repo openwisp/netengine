@@ -24,8 +24,8 @@ SSH example::
     'RM5PomeziaSNode'
     device.model
     'Rocket M5'
-    device.wireless_channel
-    '5765'
+    device.os
+    ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
     
 Specific backend (protocol) commands, SSH example::
 
@@ -58,6 +58,7 @@ Specific SNMP command example::
     device = OpenWRT('10.40.0.1', community='public')
     # get a certain OID
     device.get('1.2.840.10036.3.1.2.1.4.8')
+    
 
 HTTP example::
 
@@ -92,3 +93,56 @@ Run tests with::
 See test coverage with::
 
     nosetests --with-coverage --cover-package=netengine
+
+Run specific tests by specifying the relative path::
+
+    # base tests
+    nosetests tests.base
+
+    # snmp tests
+    nosetests tests.snmp
+    
+    # ssh tests
+    nosetests tests.ssh
+
+Contribute
+==========
+
+Mailing List: `ninux-dev mailing list`_.
+
+1. Fork this repo
+2. Write code
+3. Write tests for your code
+4. Ensure all tests pass
+5. Ensure test coverage is not under 90%
+6. Document your changes
+7. Send pull request
+
+.. _ninux-dev mailing list: http://ml.ninux.org/mailman/listinfo/ninux-dev
+
+License
+=======
+
+Copyright (c) 2013 Federico Capoano
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+Except as contained in this notice, the name(s) of the above copyright holders
+shall not be used in advertising or otherwise to promote the sale,
+use or other dealings in this Software without prior written authorization.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
