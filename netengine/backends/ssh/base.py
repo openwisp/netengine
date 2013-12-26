@@ -11,11 +11,11 @@ class SSH(BaseBackend):
     SSH base backend
     """
     
-    def __init__(self, host, username, password='', port=22):
+    def __init__(self, host, username, password, port=22):
         """
         :host string: required
         :username string: required
-        :password string: defaults to empty string
+        :password string: required
         :port integer: defaults to 22
         """
         self.host = host
