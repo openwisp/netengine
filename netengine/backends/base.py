@@ -19,6 +19,9 @@ class BaseBackend(object):
         """ unicode __str__() for python2.7 """
         return unicode(self.__str__())
     
+    def validate(self):
+        raise NotImplementedError('Not implemented')
+    
     @property
     def os(self):
         """

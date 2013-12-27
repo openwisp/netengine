@@ -1,5 +1,6 @@
 import unittest
 from netengine.backends.snmp import *
+from netengine.exceptions import NetEngineError
 
 from .settings import settings
 
@@ -61,6 +62,17 @@ class TestSNMPAirOS(unittest.TestCase):
         
         self.device = AirOS(self.host, self.community, port=self.port)
     
+    def test_get_value_error(self):
+        with self.assertRaises(NetEngineError):
+            self.device.get_value('.')
+    
+    def test_validate_negative_result(self):
+        wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
+        self.assertRaises(NetEngineError, wrong.validate)
+    
+    def test_validate_positive_result(self):
+        self.device.validate()
+    
     def test_get(self):
         with self.assertRaises(AttributeError):
             self.device.get({})
@@ -92,3 +104,5 @@ class TestSNMPOpenWRT(unittest.TestCase):
         self.port = settings['openwrt-snmp'].get('port', 161)
         
         self.device = OpenWRT(self.host, self.community, self.port)
+    
+    # validation?

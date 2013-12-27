@@ -28,6 +28,9 @@ class TestBaseBackend(unittest.TestCase):
         self.assertTrue(device.__netengine__)
         
         with self.assertRaises(NotImplementedError):
+            device.validate()
+        
+        with self.assertRaises(NotImplementedError):
             str(device)
         
         with self.assertRaises(NotImplementedError):

@@ -1,5 +1,6 @@
 import unittest
 from netengine.backends.ssh import *
+from netengine.exceptions import NetEngineError
 
 from .settings import settings
 
@@ -23,9 +24,13 @@ class TestSSH(unittest.TestCase):
         self.assertTrue(self.device.__netengine__)
         self.device.connect()
     
-    def test_wrong_connection(self):
+    def test_validate_negative_result(self):
         wrong = SSH('10.40.0.254', 'root', 'pwd')
-        self.assertRaises(Exception, wrong.connect)
+        self.assertRaises(NetEngineError, wrong.validate)
+    
+    def test_validate_positive_result(self):
+        self.device.disconnect()
+        self.device.validate()
         
     def test_olsr(self):
         print self.device.olsr

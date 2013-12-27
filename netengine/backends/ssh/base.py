@@ -1,5 +1,6 @@
 import paramiko
 from netengine.backends import BaseBackend
+from netengine.exceptions import NetEngineError
 from netengine.utils import ifconfig_to_python
 
 
@@ -37,6 +38,17 @@ class SSH(BaseBackend):
             self.disconnect()
         except AttributeError:
             pass
+    
+    def validate(self):
+        """
+        raises NetEngineError exception if anything is wrong with the connection
+        for example: wrong host, invalid credentials
+        """
+        try:
+            self.connect()
+            self.disconnect()
+        except Exception as e:
+            raise NetEngineError(e)
     
     def connect(self):
         """

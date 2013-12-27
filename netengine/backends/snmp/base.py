@@ -1,5 +1,6 @@
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from netengine.backends import BaseBackend
+from netengine.exceptions import NetEngineError
 
 
 __all__ = ['SNMP']
@@ -87,3 +88,14 @@ class SNMP(BaseBackend):
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
         return self.command.nextCmd(self.community, self.transport, self._oid(oid))
+    
+    def get_value(self, oid):
+        """
+        returns value of oid, or raises NetEngineError Exception is anything wrong
+        :oid string|tuple|list: string, tuple or list representing the OID to get
+        """
+        result = self.get(oid)
+        try:
+            return str(result[3][0][1])  # snmp stores results in several arrays
+        except IndexError:
+            raise NetEngineError(str(result[0]))
