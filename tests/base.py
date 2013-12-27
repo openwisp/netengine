@@ -1,7 +1,7 @@
 import unittest
 
 from netengine import get_version, __version__
-from netengine.backends import BaseBackend
+from netengine.backends import BaseBackend, Dummy
 from netengine.exceptions import NetEngineError
 
 
@@ -17,6 +17,10 @@ class TestBaseBackend(unittest.TestCase):
     def test_version(self):
         get_version()
         __version__
+    
+    def test_dummy_backend(self):
+        dummy = Dummy('10.40.0.1')
+        self.assertIn('Dummy NetEngine', str(dummy))
     
     def test_base_backend(self):
         device = BaseBackend()
