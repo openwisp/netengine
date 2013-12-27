@@ -1,7 +1,7 @@
 import unittest
 
 from netengine import get_version, __version__
-from netengine.backends import BaseBackend, Dummy
+from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 
 
@@ -10,17 +10,14 @@ __all__ = ['TestBaseBackend']
 
 class TestBaseBackend(unittest.TestCase):
     
-    def test_netengine_exception(self):
-        with self.assertRaises(NetEngineError):
-            raise NetEngineError('test')
-    
     def test_version(self):
         get_version()
         __version__
     
-    def test_dummy_backend(self):
-        dummy = Dummy('10.40.0.1')
-        self.assertIn('Dummy NetEngine', str(dummy))
+    def test_dict(self):
+        device = BaseBackend()
+        dictionary = device._dict({})
+        self.assertTrue(isinstance(dictionary, dict))
     
     def test_base_backend(self):
         device = BaseBackend()
@@ -29,6 +26,12 @@ class TestBaseBackend(unittest.TestCase):
         
         with self.assertRaises(NotImplementedError):
             device.validate()
+        
+        with self.assertRaises(NotImplementedError):
+            device.to_dict()
+        
+        with self.assertRaises(NotImplementedError):
+            device.to_json()
         
         with self.assertRaises(NotImplementedError):
             str(device)

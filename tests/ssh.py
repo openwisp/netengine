@@ -1,4 +1,6 @@
+import json
 import unittest
+
 from netengine.backends.ssh import *
 from netengine.exceptions import NetEngineError
 
@@ -76,6 +78,15 @@ class TestSSHAirOS(unittest.TestCase):
         
         self.device = AirOS(self.host, self.username, self.password, self.port)
         self.device.connect()
+    
+    def test_to_dict(self):
+        self.assertTrue(isinstance(self.device.to_dict(), dict))
+    
+    def test_to_json(self):
+        json_string = self.device.to_json()
+        self.assertTrue(isinstance(json_string, basestring))
+        dictionary = json.loads(json_string)
+        self.device.disconnect()
     
     def test_properties(self):
         device = self.device

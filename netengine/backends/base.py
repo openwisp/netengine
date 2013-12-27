@@ -1,3 +1,11 @@
+import json
+
+try:
+    from collections import OrderedDict
+except ImportError:
+    OrderedDict = dict  # python < 2.7
+
+
 __all__ = ['BaseBackend']
 
 
@@ -7,6 +15,7 @@ class BaseBackend(object):
     """
     
     __netengine__ = True
+    _dict = OrderedDict
     
     def __str__(self):
         raise NotImplementedError("Not implemented, must be extended")
@@ -21,6 +30,13 @@ class BaseBackend(object):
     
     def validate(self):
         raise NotImplementedError('Not implemented')
+    
+    def to_dict(self):
+        raise NotImplementedError('Not implemented')
+    
+    def to_json(self, **kwargs):
+        dictionary = self.to_dict()
+        return json.dumps(dictionary, **kwargs)
     
     @property
     def os(self):
