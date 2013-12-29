@@ -75,7 +75,7 @@ class SSH(BaseBackend):
     def exec_command(self, command, **kwargs):
         """ alias to paramiko.SSHClient.exec_command """
         # init connection if necessary
-        if self.shell is None:
+        if self.shell is None or self.shell.get_transport() is None:
             self.connect()
         
         return self.shell.exec_command(command, **kwargs)
