@@ -24,8 +24,10 @@ class Dummy(BaseBackend):
     def to_dict(self):
         return self._dict({
             "name": "dummy",
+            "type": "radio",
             "os": "dummyOS",
             "os_version": "0.1",
+            "manufacturer": "dummy inc.",
             "model": "dummy model",
             "RAM_total": 65536,
             "uptime": 0,
@@ -57,9 +59,9 @@ class Dummy(BaseBackend):
                     ],
                     "vap": [
                         {
-                            "ssid": "dummyssid",
-                            "bssid": None,
-                            "encryption": None
+                            "essid": "dummyssid",
+                            "bssid": "",
+                            "encryption": ""
                         }
                     ]
                 },
@@ -88,7 +90,7 @@ class Dummy(BaseBackend):
             "routing_protocols": [
                 {
                     "name": "olsr",
-                    "version": "0.6.3"
+                    "version": "dummy version"
                 }
             ]
         })
