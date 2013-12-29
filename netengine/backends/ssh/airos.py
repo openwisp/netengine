@@ -206,9 +206,9 @@ class AirOS(SSH):
                     ],
                     "vap": [
                         self._dict({
-                            "ssid": None,
-                            "bssid": None,
-                            "encryption": None
+                            "essid": "placeholder",
+                            "bssid": "",
+                            "encryption": ""
                         })
                     ]
                 })
@@ -249,8 +249,10 @@ class AirOS(SSH):
     def to_dict(self):
         return self._dict({
             "name": self.name,
+            "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
+            "manufacturer": "Ubiquiti Networks",
             "model": self.model,
             "RAM_total": self.RAM_total,
             "uptime": None,
