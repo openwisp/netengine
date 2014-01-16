@@ -10,3 +10,5 @@ build
 .idea
 .coverage
 test-settings.json
+*.#
+python
