@@ -66,3 +66,6 @@ class OpenWRT(SSH):
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
         return output.split('[')[1].replace(']','')
+
+    def RAM_total(self):
+        return int(self.run('cat /proc/meminfo | grep MemTotal | awk \'{print $2}\''))
