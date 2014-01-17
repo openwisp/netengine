@@ -138,3 +138,6 @@ class TestSSHOpenWRT(unittest.TestCase):
         device.name
         device.olsr
         device.disconnect()
+    
+    def test_wireless_mode(self):
+        self.assertTrue(self.device.wireless_mode in ['ap', 'sta'])
