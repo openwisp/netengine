@@ -83,7 +83,7 @@ Clone repo::
 
 Edit settings json file according to your network::
 
-    cp test-settings.json.example test-settings.json
+    cp test-settings.example.json test-settings.json
     vim test-settings.json
 
 Run tests with::

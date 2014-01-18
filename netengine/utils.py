@@ -8,12 +8,16 @@ import json
 
 def _extract(ifconfig_output):
     mo = re.search(r'^(?P<interface>\w+|\w+:\d+)\s+' +
-                     r'Link encap:(?P<link_encap>\S+)\s+' +
-                     r'(HWaddr\s+(?P<hardware_address>\S+))?' +
-                     r'(\s+inet addr:(?P<ip_address>\S+))?' +
-                     r'(\s+inet6 addr:(?P<ipv6_address>\S+)Scope:Global)?' +
-                     r'(\s+Bcast:(?P<broadcast_address>\S+)\s+)?' +
-                     r'(Mask:(?P<net_mask>\S+)\s+)?',
+                   r'Link encap:(?P<link_encap>\S+)\s+' +
+                   r'(HWaddr\s+(?P<hardware_address>\S+))?' +
+                   r'(\s+inet addr:(?P<ip_address>\S+))?' +
+                   r'(\s+inet6 addr: (?P<ipv6_address_global>\S+)\s+Scope:Global)?' +
+                   r'(\s+Bcast:(?P<broadcast_address>\S+)\s+)?' +
+                   r'(Mask:(?P<net_mask>\S+)\s+)?'+
+                   r'(inet6 addr: (?P<ipv6_address_link>\S+)\s+Scope:Link)?' +
+                   r'((\s|\w)+MTU:(?P<mtu>\S+)\s+)?'+
+                   r'(RX packets:(?P<rx_packets>\S+)\s+)?'+
+                   r'(TX packets:(?P<tx_packets>\S+)\s+)?',
                      ifconfig_output, re.MULTILINE|re.IGNORECASE )
     if mo:
         info = mo.groupdict('')

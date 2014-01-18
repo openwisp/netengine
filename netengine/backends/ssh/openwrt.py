@@ -67,7 +67,6 @@ class OpenWRT(SSH):
         # and we'll extract only the string between square brackets
         return output.split('[')[1].replace(']','')
 
-
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
@@ -80,4 +79,6 @@ class OpenWRT(SSH):
         else:
             return "sta"
 
+    def RAM_total(self):
+        return int(self.run('cat /proc/meminfo | grep MemTotal | awk \'{print $2}\''))
 
