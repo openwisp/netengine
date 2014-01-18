@@ -79,6 +79,7 @@ class OpenWRT(SSH):
         else:
             return "sta"
 
+    @property
     def RAM_total(self):
-        return int(self.run('cat /proc/meminfo | grep MemTotal | awk \'{print $2}\''))
+        return int(self.run("cat /proc/meminfo | grep MemTotal | awk '{print $2}'"))
 
