@@ -16,8 +16,14 @@ def _extract(ifconfig_output):
                    r'(Mask:(?P<net_mask>\S+)\s+)?'+
                    r'(inet6 addr: (?P<ipv6_address_link>\S+)\s+Scope:Link)?' +
                    r'((\s|\w)+MTU:(?P<mtu>\S+)\s+)?'+
-                   r'(RX packets:(?P<rx_packets>\S+)\s+)?'+
-                   r'(TX packets:(?P<tx_packets>\S+)\s+)?',
+                   r'(Metric:(?P<metric>\S+)\s+)?'+
+                   r'(RX packets:(?P<rx_packets>\S+)\s+errors:\d+ dropped:\d+ overruns:\d+ frame:\d+\s+)?'+
+                   r'(TX packets:(?P<tx_packets>\S+)\s+errors:\d+ dropped:\d+ overruns:\d+ carrier:\d+\s+)?'+
+                   r'(collisions:(?P<collisions>\S+)\s+)?'+
+                   r'(txqueuelen:(?P<txqueuelen>\S+)\s+)?'+
+                   r'(RX bytes:(?P<rx_bytes>\S+)\s+\((\d|\s|\.|\w)+\)\s+)?'+
+                   r'(TX bytes:(?P<tx_bytes>\S+)\s+\((\d|\s|\.|\w)+\)?)?',
+                   
                      ifconfig_output, re.MULTILINE|re.IGNORECASE )
     if mo:
         info = mo.groupdict('')
