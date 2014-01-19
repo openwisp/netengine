@@ -26,20 +26,7 @@ def _extract(ifconfig_output):
                    
                      ifconfig_output, re.MULTILINE|re.IGNORECASE )
     if mo:
-        info = mo.groupdict('')
-        info['running'] = False
-        info['up'] = False
-        info['multicast'] = False
-        info['broadcast'] = False
-        if 'RUNNING' in ifconfig_output:
-            info['running'] = True
-        if 'UP' in ifconfig_output:
-            info['up'] = True
-        if 'BROADCAST' in ifconfig_output:
-            info['broadcast'] = True
-        if 'MULTICAST' in ifconfig_output:
-            info['multicast'] = True
-        return info
+        return mo.groupdict('')
     return {}
  
 
