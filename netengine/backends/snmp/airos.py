@@ -24,7 +24,9 @@ class AirOS(SNMP):
         raises NetEngineError exception if anything is wrong with the connection
         for example: wrong host, invalid community
         """
-        self.name
+        # this triggers a connection which
+        # will raise an exception if anything is wrong
+        name = self.name
     
     @property
     def os(self):
