@@ -87,7 +87,7 @@ class SNMP(BaseBackend):
             * [1, 3, 6, 1, 2, 1, 1, 5, 0]
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
-        return self.command.nextCmd(self.community, self.transport, self._oid(oid))
+        return self._command.nextCmd(self.community, self.transport, self._oid(oid))
     
     def get_value(self, oid):
         """

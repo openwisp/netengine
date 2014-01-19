@@ -26,7 +26,7 @@ class AirOS(SNMP):
         """
         # this triggers a connection which
         # will raise an exception if anything is wrong
-        name = self.name
+        return self.name
     
     @property
     def os(self):
