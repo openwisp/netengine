@@ -2,6 +2,14 @@
 netengine
 =========
 
+.. image:: https://landscape.io/github/nemesisdesign/netengine/master/landscape.png
+   :target: https://landscape.io/github/nemesisdesign/netengine/master
+   :alt: Code Health
+
+.. image:: https://requires.io/github/nemesisdesign/netengine/requirements.png?branch=master
+   :target: https://requires.io/github/nemesisdesign/netengine/requirements/?branch=master
+   :alt: Requirements Status
+
 Abstraction layer for extracting information from network devices.
 
 Install
@@ -108,16 +116,17 @@ Run specific tests by specifying the relative path::
 Contribute
 ==========
 
-Mailing List: `ninux-dev mailing list`_.
+1. Join the `ninux-dev mailing list`_
+2. Fork this repo
+3. Follow `PEP8, Style Guide for Python Code`_
+4. Write code
+5. Write tests for your code
+6. Ensure all tests pass
+7. Ensure test coverage is not under 90%
+8. Document your changes
+9. Send pull request
 
-1. Fork this repo
-2. Write code
-3. Write tests for your code
-4. Ensure all tests pass
-5. Ensure test coverage is not under 90%
-6. Document your changes
-7. Send pull request
-
+.. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
 .. _ninux-dev mailing list: http://ml.ninux.org/mailman/listinfo/ninux-dev
 
 License
