@@ -34,6 +34,8 @@ SSH example::
     'Rocket M5'
     device.os
     ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
+
+    device.to_json()
     
 Specific backend (protocol) commands, SSH example::
 
