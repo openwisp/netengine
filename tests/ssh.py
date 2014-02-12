@@ -152,3 +152,6 @@ class TestSSHOpenWRT(unittest.TestCase):
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
+    def test_uptime(self):
+        self.assertTrue(type(self.device.uptime) == int)
+

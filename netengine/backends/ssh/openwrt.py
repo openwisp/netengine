@@ -83,3 +83,12 @@ class OpenWRT(SSH):
     def RAM_total(self):
         return int(self.run("cat /proc/meminfo | grep MemTotal | awk '{print $2}'"))
 
+    @property
+    def uptime(self):
+        """
+        returns an integer representing the number of seconds of uptime
+        """
+        output = self.run('cat /proc/uptime')
+        seconds = float(output.split()[0])
+        return int(seconds)
+
