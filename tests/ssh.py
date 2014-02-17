@@ -155,6 +155,9 @@ class TestSSHOpenWRT(unittest.TestCase):
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
 
+    def test_uptime_tuple(self):
+        self.assertTrue(type(self.device.uptime_tuple) == tuple)
+
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
 
