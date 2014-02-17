@@ -92,3 +92,19 @@ class OpenWRT(SSH):
         seconds = float(output.split()[0])
         return int(seconds)
 
+    def to_dict(self):
+        return self._dict({
+            "name": self.name,
+            "type": "radio",
+            "os": self.os[0],
+            "os_version": self.os[1],
+            "manufacturer": None,
+            "model": self.model,
+            "RAM_total": self.RAM_total,
+            "uptime": self.uptime,
+            "uptime_tuple": None,
+            "interfaces": None,
+            "antennas": [],
+            "routing_protocols": None,
+        })
+
