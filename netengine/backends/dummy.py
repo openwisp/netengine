@@ -16,7 +16,7 @@ class Dummy(BaseBackend):
         for example: wrong host, invalid credentials
         """
         
-        '''	Validation of self.port '''
+        	'''	Validation of self.port '''
 	 	try:
 			if self.port<0 or self.port>65535:
 				''' If self.port is not valid, raise NetEngineError '''
