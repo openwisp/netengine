@@ -16,28 +16,28 @@ class Dummy(BaseBackend):
         for example: wrong host, invalid credentials
         """
         
-	'''	Validation of self.port '''
- 	try:
-		if self.port<0 or self.port>65535:
-			''' If self.port is not valid, raise NetEngineError '''
-			raise Exception("NetEngineError")
-	except:
-		raise Exception("NetEngineError")
-		
+        '''	Validation of self.port '''
+        try:
+            if self.port<0 or self.port>65535:
+                ''' If self.port is not valid, raise NetEngineError '''
+                raise Exception("NetEngineError")
+        except:
+            raise Exception("NetEngineError")
+                
 
-	''' validation of self.host '''
-	try:
-		validate_host_list = self.host.split(".")
-		if len(validate_host_list)!=4:
-			raise Exception("NetEngineError")
-		for validate_host_var in validate_host_list:
-			if int(validate_host_var)<0 or int(validate_host_var)>255:
-				''' If self.host is not valid, raise NetEngineError '''
-				raise Exception("NetEngineError")
-	except:
-		raise Exception("NetEngineError")
+        ''' validation of self.host '''
+        try:
+            validate_host_list = self.host.split(".")
+            if len(validate_host_list)!=4:
+                raise Exception("NetEngineError")
+            for validate_host_var in validate_host_list:
+                if int(validate_host_var)<0 or int(validate_host_var)>255:
+                    ''' If self.host is not valid, raise NetEngineError '''
+                    raise Exception("NetEngineError")
+        except:
+            raise Exception("NetEngineError")
 
-    
+
     def __str__(self):
         """ print a human readable object description """
         return u"<Dummy NetEngine %s>" % self.host
