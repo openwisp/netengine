@@ -169,7 +169,7 @@ class AirOS(SSH):
                     "type": "ethernet",
                     "name": interface['interface'],
                     "mac_address": interface['hardware_address'],
-                    "mtu": 1500,  # TODO
+                    "mtu": interface['mtu'],
                     "standard": self.ethernet_standard,
                     "duplex": self.ethernet_duplex,
                     "tx_rate": None,
@@ -188,7 +188,7 @@ class AirOS(SSH):
                     "type": "wireless",
                     "name": interface['interface'],
                     "mac_address": interface['hardware_address'],
-                    "mtu": 1500,  # TODO
+                    "mtu": interface['mtu'],
                     "standard": "802.11n",
                     "channel": self.wireless_channel,
                     "channel_width": self.wireless_channel_width,
