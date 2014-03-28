@@ -128,7 +128,7 @@ class SSH(BaseBackend):
         version_string = self.run('olsrd -v')
         
         if 'not found' in version_string:
-            return None
+            return False
         
         # extract olsr version and url
         lines = version_string.split('\n')
