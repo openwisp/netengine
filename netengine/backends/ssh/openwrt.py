@@ -62,6 +62,8 @@ class OpenWRT(SSH):
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
         output = output = self.run('iwinfo | grep -i hardware')
+	if "not found" in output:
+        	return None
         # will return something like
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
