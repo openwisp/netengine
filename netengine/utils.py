@@ -40,3 +40,4 @@ def ifconfig_to_python(ifconfig):
 def ifconfig_to_json(ifconfig, indent=4):
     interfaces = ifconfig_to_python(ifconfig)
     return json.dumps(interfaces, indent=indent)
+

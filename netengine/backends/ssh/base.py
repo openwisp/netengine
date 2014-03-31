@@ -1,4 +1,5 @@
 import paramiko
+import re
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 from netengine.utils import ifconfig_to_python
@@ -136,3 +137,5 @@ class SSH(BaseBackend):
         url = lines[2].strip()
         
         return (version, url)
+
+    

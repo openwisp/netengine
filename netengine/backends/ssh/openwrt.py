@@ -7,7 +7,6 @@ __all__ = ['OpenWRT']
 
 from netengine.backends.ssh import SSH
 
-
 class OpenWRT(SSH):
     """
     OpenWRT SSH backend
@@ -107,14 +106,13 @@ class OpenWRT(SSH):
 	output = days, hours, minutes 
 	return output
 
-
     def to_dict(self):
         return self._dict({
             "name": self.name,
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": None,
+            "manufacturer": self.get_manufacturer(),
             "model": self.model,
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,

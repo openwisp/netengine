@@ -1,4 +1,6 @@
 import json
+import netengine
+import os
 
 try:
     from collections import OrderedDict
@@ -37,6 +39,19 @@ class BaseBackend(object):
     def to_json(self, **kwargs):
         dictionary = self.to_dict()
         return json.dumps(dictionary, **kwargs)
+
+    def get_manufacturer(self):
+	""" returns the manufacturer of the network interface """
+	base = netengine.__file__
+	file_path = os.path.dirname(os.path.dirname(base))
+	manufacturer_file = open(os.path.join(file_path,"netengine/resources/manufacturer.txt"))
+	res = ""
+	mac_addr = self.get_interfaces()[1]['hardware_address']
+	mac_address1 = mac_addr[0:8].replace(":","")
+	for line in manufacturer_file.readlines():
+		if mac_address1.encode() in line:
+			res = line.split(mac_address1)[1].replace("(base 16)","").split()
+			return ",".join(res).replace(","," ")
     
     @property
     def os(self):
