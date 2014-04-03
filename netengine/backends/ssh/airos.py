@@ -157,7 +157,7 @@ class AirOS(SSH):
         
         for interface in interfaces:
             # if this is an interesting interface
-            if interface['ip_address'] == '':
+            if interface.get('ip_address', '') == '':
                 continue
             
             result = None
