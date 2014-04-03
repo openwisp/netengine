@@ -9,53 +9,58 @@ class Dummy(BaseBackend):
         """ dummy netengine backend for development or testing """
         self.host = host
         self.port = port
-    
+
     def validate(self):
         """
         raises NetEngineError exception if anything is wrong with the connection
         for example: wrong host, invalid credentials
         """
         pass
-    
+
     def __str__(self):
         """ print a human readable object description """
         return u"<Dummy NetEngine %s>" % self.host
 
     def get_interfaces(self):
-        return [{}, 
-		{'ipv6_address_link': '', 
-		'hardware_address': u'00:16:3E:26:9D:13', 
-		'rx_packets': u'147684', 
-		'broadcast_address': '', 
-		'rx_bytes': u'12956143', 
-		'link_encap': u'Ethernet', 
-		'metric': u'1', 
-		'txqueuelen': u'1000', 
-		'net_mask': '', 
-		'ip_address': '', 
-		'collisions': u'0', 
-		'interface': u'eth0', 
-		'tx_bytes': u'12523266', 
-		'mtu': u'1500', 
-		'tx_packets': u'132602', 
-		'ipv6_address_global': ''
-		}, {
-		'ipv6_address_link': '', 
-		'hardware_address': '', 
-		'rx_packets': '', 
-		'broadcast_address': '', 
-		'rx_bytes': '', 
-		'link_encap': u'Local', 
-		'metric': '', 
-		'txqueuelen': '', 
-		'net_mask': '', 
-		'ip_address': '', 
-		'collisions': '', 
-		'interface': u'lo', 
-		'tx_bytes': '', 
-		'mtu': '', 
-		'tx_packets': '', 
-		'ipv6_address_global': ''}]
+        return [
+            {},
+            {
+                "ipv6_address_link": "",
+                "hardware_address": u"00:16:3E:26:9D:13",
+                "rx_packets": u"147684",
+                "broadcast_address": "",
+                "rx_bytes": u"12956143",
+                "link_encap": u"Ethernet",
+                "metric": u"1",
+                "txqueuelen": u"1000",
+                "net_mask": "",
+                "ip_address": "",
+                "collisions": u"0",
+                "interface": u"eth0",
+                "tx_bytes": u"12523266",
+                "mtu": u"1500",
+                "tx_packets": u"132602",
+                "ipv6_address_global": ""
+            },
+            {
+                "ipv6_address_link": "",
+                "hardware_address": "",
+                "rx_packets": "",
+                "broadcast_address": "",
+                "rx_bytes": "",
+                "link_encap": u"Local",
+                "metric": "",
+                "txqueuelen": "",
+                "net_mask": "",
+                "ip_address": "",
+                "collisions": "",
+                "interface": u"lo",
+                "tx_bytes": "",
+                "mtu": "",
+                "tx_packets": "",
+                "ipv6_address_global": ""
+            }
+        ]
 
     def to_dict(self):
         return self._dict({
@@ -86,11 +91,11 @@ class Dummy(BaseBackend):
                     "ip": [
                         {
                             "version": 4,
-                            "address": '192.168.1.1'
+                            "address": "192.168.1.1"
                         },
                         {
                             "version": 6,
-                            "address": '2001:4c00:893b:fede::1'
+                            "address": "2001:4c00:893b:fede::1"
                         }
                     ],
                     "vap": [
@@ -113,11 +118,11 @@ class Dummy(BaseBackend):
                     "ip": [
                         {
                             "version": 4,
-                            "address": '192.168.1.2'
+                            "address": "192.168.1.2"
                         },
                         {
                             "version": 6,
-                            "address": '2001:4c00:893b:fede::2'
+                            "address": "2001:4c00:893b:fede::2"
                         }
                     ]
                 }
