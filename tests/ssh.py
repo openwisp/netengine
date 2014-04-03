@@ -160,8 +160,10 @@ class TestSSHOpenWRT(unittest.TestCase):
 
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
-    
+
     def test_filter_interfaces(self):
-	self.assertTrue(isinstance(self.device._filter_interfaces(), list))
-    
+        self.assertTrue(isinstance(self.device._filter_interfaces(), list))
+
+    def test_filter_routing_protocols(self):
+        self.assertTrue(isinstance(self.device._filter_routing_protocols(), list))
 
