@@ -11,25 +11,25 @@ class OpenWRT(SSH):
     """
     OpenWRT SSH backend
     """
-    
+
     def __str__(self):
         """ print a human readable object description """
         return u"<SSH (OpenWRT): %s@%s>" % (self.username, self.host)
-    
+
     @property
     def name(self):
         """ get device name """
         return self.run('uname -a').split(' ')[1]
-    
+
     @property
     def os(self):
         """ get os name and version, return as tuple """
         # cache command output
         output = self.run('cat /etc/openwrt_release')
-        
+
         # init empty dict
         info = {}
-        
+
         # loop over lines of output
         # parse output and store in python dict
         for line in output.split('\n'):
@@ -39,30 +39,32 @@ class OpenWRT(SSH):
             value = value.replace('"', '')
             # fill!
             info[key] = value
-        
+
         os = info['id']
         version = info['release']
-        
+
         if info['description']:
-            
+
             if info['revision']:
                 additional_info = "%(description)s, %(revision)s" % info
             else:
                 additional_info = "%(description)s" % info
-            
+
             # remove redundant OpenWRT occuerrence
             additional_info = additional_info.replace('OpenWrt ', '')
-            
+
             version = "%s (%s)" % (version, additional_info)
-       
+
         return (os, version)
-    
+
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
-        output = output = self.run('iwinfo | grep -i hardware')
-	if "not found" in output:
-        	return None
+        output = self.run('iwinfo | grep -i hardware')
+
+        if "not found" in output:
+            return None
+
         # will return something like
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
@@ -100,39 +102,41 @@ class OpenWRT(SSH):
         """
         uptime = float(self.run('cat /proc/uptime').split()[0])
         seconds = int(uptime)
-	minutes = int(seconds // 60)
-	hours = int(minutes // 60)
-	days = int(hours // 24)
-	output = days, hours, minutes 
-	return output
+        minutes = int(seconds // 60)
+        hours = int(minutes // 60)
+        days = int(hours // 24)
+        output = days, hours, minutes
+        return output
 
     def _filter_interfaces(self):
-	    interfaces = self.get_interfaces()
-	    results = []
+        interfaces = self.get_interfaces()
+        results = []
 
-	    for interface in interfaces:
-		    if interface.get('interface', False) == False:
-			    continue
+        for interface in interfaces:
+            if interface.get('interface', False) is False:
+                continue
 
-		    elif 'eth' in interface['interface']:
-			    	result = self._dict({
-				    	"type" : "ethernet",
-				    	"name" : interface['interface'],
-				    	"mac_address" : interface['hardware_address'],
-				    	"mtu" : 1500,
-				    	"standard" : None,
-				    	"duplex" : None,
-				    	"tx_rate" : None,
-				    	"ip" :[
-					    	self._dict({
-						    	"version" : 4,
-						    	"address" : interface['ip_address']
-						    	})
-				    		]
-			    	})
-				if result:
-					results.append(result)
-		    return results
+            elif 'eth' in interface['interface']:
+                result = self._dict({
+                    "type" : "ethernet",
+                    "name" : interface['interface'],
+                    "mac_address" : interface['hardware_address'],
+                    "mtu" : 1500,
+                    "standard" : None,
+                    "duplex" : None,
+                    "tx_rate" : None,
+                    "ip" :[
+                        self._dict({
+                            "version" : 4,
+                            "address" : interface['ip_address']
+                        })
+                    ]
+                })
+
+            if result:
+                results.append(result)
+
+        return results
 
     def to_dict(self):
         return self._dict({
@@ -149,4 +153,3 @@ class OpenWRT(SSH):
             "antennas": [],
             "routing_protocols": None,
         })
-
