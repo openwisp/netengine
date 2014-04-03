@@ -138,6 +138,16 @@ class OpenWRT(SSH):
 
         return results
 
+    def _filter_routing_protocols(self):
+        results = []
+        olsr = self.olsr
+        if olsr:
+            results.append(self._dict({
+            "name" : "olsr",
+            "version" : olsr[0]
+            }))
+        return results
+
     def to_dict(self):
         return self._dict({
             "name": self.name,
@@ -151,5 +161,5 @@ class OpenWRT(SSH):
             "uptime_tuple": self.uptime_tuple,
             "interfaces": self._filter_interfaces(),
             "antennas": [],
-            "routing_protocols": None,
+            "routing_protocols": self._filter_routing_protocols(),
         })
