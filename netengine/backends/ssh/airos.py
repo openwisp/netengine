@@ -157,7 +157,7 @@ class AirOS(SSH):
         
         for interface in interfaces:
             # if this is an interesting interface
-            if interface['ip_address'] == '':
+            if interface.get('ip_address', '') == '':
                 continue
             
             result = None
@@ -216,7 +216,7 @@ class AirOS(SSH):
                 # TODO!!! VPN, BRIDGES, VLANS, etc..
                 pass
             
-            if(result):
+            if result:
                 
                 # check if it has an ipv6 address
                 ipv6_address = self.get_ipv6_of_interface(interface['interface'])

@@ -52,7 +52,7 @@ class BaseBackend(object):
 		if mac_address1.encode() in line:
 			res = line.split(mac_address1)[1].replace("(base 16)","").split()
 			return ",".join(res).replace(","," ")
-    
+
     @property
     def os(self):
         """
