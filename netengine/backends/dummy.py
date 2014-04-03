@@ -56,7 +56,7 @@ class Dummy(BaseBackend):
 		'mtu': '', 
 		'tx_packets': '', 
 		'ipv6_address_global': ''}]
-  
+
     def to_dict(self):
         return self._dict({
             "name": "dummy",

@@ -106,6 +106,34 @@ class OpenWRT(SSH):
 	output = days, hours, minutes 
 	return output
 
+    def _filter_interfaces(self):
+	    interfaces = self.get_interfaces()
+	    results = []
+
+	    for interface in interfaces:
+		    if interface.get('interface', False) == False:
+			    continue
+
+		    elif 'eth' in interface['interface']:
+			    	result = self._dict({
+				    	"type" : "ethernet",
+				    	"name" : interface['interface'],
+				    	"mac_address" : interface['hardware_address'],
+				    	"mtu" : 1500,
+				    	"standard" : None,
+				    	"duplex" : None,
+				    	"tx_rate" : None,
+				    	"ip" :[
+					    	self._dict({
+						    	"version" : 4,
+						    	"address" : interface['ip_address']
+						    	})
+				    		]
+			    	})
+				if result:
+					results.append(result)
+		    return results
+
     def to_dict(self):
         return self._dict({
             "name": self.name,
@@ -117,7 +145,7 @@ class OpenWRT(SSH):
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
-            "interfaces": None,
+            "interfaces": self._filter_interfaces(),
             "antennas": [],
             "routing_protocols": None,
         })
