@@ -106,3 +106,18 @@ class TestSNMPOpenWRT(unittest.TestCase):
         self.device = OpenWRT(self.host, self.community, self.port)
     
     # validation?
+    
+    def test_os(self):
+        self.assertTrue(type(self.device.os) == tuple)
+
+    def test_name(self):
+        self.assertTrue(type(self.device.name) == str)
+    
+    def test_uptime(self):
+        self.assertTrue(type(self.device.uptime) == int)
+
+    def test_uptime_tuple(self):
+        self.assertTrue(type(self.device.uptime_tuple) == tuple)
+    
+    def test_get_interfaces(self):
+        self.assertTrue(type(self.device.get_interfaces) == list)

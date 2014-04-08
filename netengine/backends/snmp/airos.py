@@ -6,7 +6,6 @@ __all__ = ['AirOS']
 
 
 from datetime import timedelta
-
 from netengine.backends.snmp import SNMP
 
 
@@ -73,3 +72,6 @@ class AirOS(SNMP):
         td = timedelta(seconds=self.uptime)
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
+    
+    
+    
