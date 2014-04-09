@@ -11,6 +11,7 @@ class SNMP(BaseBackend):
     SNMP base backend
     """
     
+    
     def __init__(self, host, community='public', agent='my-agent', port=161):
         """
         :host string: required
