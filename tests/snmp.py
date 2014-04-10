@@ -97,7 +97,10 @@ class TestSNMPAirOS(unittest.TestCase):
     
     def test_os(self):
         self.assertTrue(type(self.device.os) == tuple)
-
+        
+    def test_get_interfaces(self):
+        self.assertTrue(type(self.device.get_interfaces) == list)
+        
 
 class TestSNMPOpenWRT(unittest.TestCase):
     

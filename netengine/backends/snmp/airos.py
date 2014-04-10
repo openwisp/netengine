@@ -72,3 +72,16 @@ class AirOS(SNMP):
         td = timedelta(seconds=self.uptime)
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
+    
+    @property
+    def get_interfaces(self):
+        """
+        returns the list of all the interfaces of the device
+        """
+        interfaces = []
+        value_to_get = '1.3.6.1.2.1.2.2.1.2.'
+        for i in range (1,8):
+            value_to_get1 = value_to_get+str(i)
+            if value_to_get1:
+                interfaces.append(self.get_value(value_to_get1))
+        return filter(None,interfaces)
