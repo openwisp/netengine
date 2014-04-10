@@ -95,6 +95,9 @@ class TestSNMPAirOS(unittest.TestCase):
         device.uptime
         device.uptime_tuple
     
+    def test_name(self):
+        self.assertTrue(type(self.device.name) == str)
+    
     def test_os(self):
         self.assertTrue(type(self.device.os) == tuple)
         
