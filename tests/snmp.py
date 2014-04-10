@@ -94,6 +94,9 @@ class TestSNMPAirOS(unittest.TestCase):
         device.os
         device.uptime
         device.uptime_tuple
+    
+    def test_os(self):
+        self.assertTrue(type(self.device.os) == tuple)
 
 
 class TestSNMPOpenWRT(unittest.TestCase):

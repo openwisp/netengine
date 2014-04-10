@@ -33,7 +33,7 @@ class AirOS(SNMP):
         returns (os_name, os_version)
         """
         os_name = 'AirOS'
-        os_version = self.get_value('1.2.840.10036.3.1.2.1.4.8')
+        os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
     
     @property
@@ -72,6 +72,3 @@ class AirOS(SNMP):
         td = timedelta(seconds=self.uptime)
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
-    
-    
-    
