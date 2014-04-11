@@ -51,6 +51,19 @@ class AirOS(SNMP):
         return self.get_value('1.2.840.10036.3.1.2.1.3.5')
     
     @property
+    def firmware(self):
+        """
+        returns a string containing the device firmware
+        """
+        tmp = self.get_value('1.2.840.10036.3.1.2.1.4.5').split('.')
+        length = len(tmp)
+        i = 0
+        for piece in tmp:
+            if "v" in piece:
+                return ('.'.join(tmp[i:length]))
+            i = i + 1
+        
+    @property
     def manufacturer(self):
         """
         returns a string containing the device manufacturer

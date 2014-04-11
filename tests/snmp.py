@@ -106,6 +106,15 @@ class TestSNMPAirOS(unittest.TestCase):
 
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
+    
+    def test_manufacturer(self):
+        self.assertTrue(type(self.device.name) == str)
+    
+    def test_model(self):
+        self.assertTrue(type(self.device.model) == str)
+    
+    def test_firmware(self):
+        self.assertTrue(type(self.device.firmware) == str)
 
 class TestSNMPOpenWRT(unittest.TestCase):
     
@@ -121,12 +130,6 @@ class TestSNMPOpenWRT(unittest.TestCase):
 
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
-    
-    def test_manufacturer(self):
-        self.assertTrue(type(self.device.name) == str)
-    
-    def tesst_model(self):
-        self.assertTrue(type(self.device.model) == str)    
     
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
