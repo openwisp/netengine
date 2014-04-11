@@ -51,6 +51,13 @@ class AirOS(SNMP):
         return self.get_value('1.2.840.10036.3.1.2.1.3.5')
     
     @property
+    def manufacturer(self):
+        """
+        returns a string containing the device manufacturer
+        """
+        return self.get_value('1.2.840.10036.3.1.2.1.2.5')
+    
+    @property
     def ssid(self):
         """
         returns a string containing the wireless ssid
