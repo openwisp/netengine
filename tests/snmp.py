@@ -115,6 +115,9 @@ class TestSNMPAirOS(unittest.TestCase):
     
     def test_firmware(self):
         self.assertTrue(type(self.device.firmware) == str)
+        
+    def test_uptime(self):
+        self.assertTrue(type(self.device.uptime) == int)
 
 class TestSNMPOpenWRT(unittest.TestCase):
     
