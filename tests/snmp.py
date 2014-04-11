@@ -122,6 +122,9 @@ class TestSNMPOpenWRT(unittest.TestCase):
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
     
+    def tesst_model(self):
+        self.assertTrue(type(self.device.model) == str)    
+    
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
 
