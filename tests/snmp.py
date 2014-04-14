@@ -94,7 +94,33 @@ class TestSNMPAirOS(unittest.TestCase):
         device.os
         device.uptime
         device.uptime_tuple
+    
+    def test_name(self):
+        self.assertTrue(type(self.device.name) == str)
+    
+    def test_os(self):
+        self.assertTrue(type(self.device.os) == tuple)
+        
+    def test_get_interfaces(self):
+        self.assertTrue(type(self.device.get_interfaces) == list)
 
+    def test_to_dict(self):
+        self.assertTrue(isinstance(self.device.to_dict(), dict))
+    
+    def test_manufacturer(self):
+        self.assertTrue(type(self.device.name) == str)
+    
+    def test_model(self):
+        self.assertTrue(type(self.device.model) == str)
+    
+    def test_firmware(self):
+        self.assertTrue(type(self.device.firmware) == str)
+        
+    def test_uptime(self):
+        self.assertTrue(type(self.device.uptime) == int)
+        
+    def test_uptime_tuple(self):
+        self.assertTrue(type(self.device.uptime_tuple) == tuple)
 
 class TestSNMPOpenWRT(unittest.TestCase):
     
@@ -104,9 +130,7 @@ class TestSNMPOpenWRT(unittest.TestCase):
         self.port = settings['openwrt-snmp'].get('port', 161)
         
         self.device = OpenWRT(self.host, self.community, self.port)
-    
-    # validation?
-    
+        
     def test_os(self):
         self.assertTrue(type(self.device.os) == tuple)
 
@@ -121,3 +145,9 @@ class TestSNMPOpenWRT(unittest.TestCase):
     
     def test_get_interfaces(self):
         self.assertTrue(type(self.device.get_interfaces) == list)
+    
+    def test_RAM_total(self):
+        self.assertTrue(type(self.device.RAM_total) == int)
+        
+    def test_to_dict(self):
+        self.assertTrue(isinstance(self.device.to_dict(), dict))

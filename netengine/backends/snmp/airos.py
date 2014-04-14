@@ -33,7 +33,7 @@ class AirOS(SNMP):
         returns (os_name, os_version)
         """
         os_name = 'AirOS'
-        os_version = self.get_value('1.2.840.10036.3.1.2.1.4.8')
+        os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
     
     @property
@@ -48,7 +48,27 @@ class AirOS(SNMP):
         """
         returns a string containing the device model
         """
-        return self.get_value('1.2.840.10036.3.1.2.1.3.8')
+        return self.get_value('1.2.840.10036.3.1.2.1.3.5')
+    
+    @property
+    def firmware(self):
+        """
+        returns a string containing the device firmware
+        """
+        tmp = self.get_value('1.2.840.10036.3.1.2.1.4.5').split('.')
+        length = len(tmp)
+        i = 0
+        for piece in tmp:
+            if "v" in piece:
+                return '.'.join(tmp[i:length])
+            i = i + 1
+        
+    @property
+    def manufacturer(self):
+        """
+        returns a string containing the device manufacturer
+        """
+        return self.get_value('1.2.840.10036.3.1.2.1.2.5')
     
     @property
     def ssid(self):
@@ -73,5 +93,31 @@ class AirOS(SNMP):
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
     
+    @property
+    def get_interfaces(self):
+        """
+        returns the list of all the interfaces of the device
+        """
+        interfaces = []
+        value_to_get = '1.3.6.1.2.1.2.2.1.2.'
+        for i in range (1,8):
+            value_to_get1 = value_to_get+str(i)
+            if value_to_get1:
+                interfaces.append(self.get_value(value_to_get1))
+        return filter(None,interfaces)
     
-    
+    def to_dict(self):
+        return self._dict({
+            "name": self.name,
+            "type": "radio",
+            "os": self.os[0],
+            "os_version": self.os[1],
+            "manufacturer": self.manufacturer,
+            "model": self.model,
+            "RAM_total": None,
+            "uptime": self.uptime,
+            "uptime_tuple": self.uptime_tuple,
+            "interfaces": self.get_interfaces,
+            "antennas": [],
+            "routing_protocols": None,
+        })

@@ -72,3 +72,26 @@ class OpenWRT(SNMP):
             if value_to_get1:
                 interfaces.append(self.get_value(value_to_get1))
         return filter(None,interfaces)
+    
+    @property
+    def RAM_total(self):
+        """
+        returns the total RAM of the device
+        """
+        return int(self.get_value("1.3.6.1.2.1.25.2.3.1.5.1"))
+        
+    def to_dict(self):
+        return self._dict({
+            "name": self.name,
+            "type": "radio",
+            "os": self.os[0],
+            "os_version": self.os[1],
+            "manufacturer": None,
+            "model": None,
+            "RAM_total": self.RAM_total,
+            "uptime": self.uptime,
+            "uptime_tuple": self.uptime_tuple,
+            "interfaces": self.get_interfaces,
+            "antennas": [],
+            "routing_protocols": None,
+        })
