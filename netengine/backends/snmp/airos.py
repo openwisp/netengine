@@ -48,7 +48,11 @@ class AirOS(SNMP):
         """
         returns a string containing the device model
         """
-        return self.get_value('1.2.840.10036.3.1.2.1.3.5')
+        oids = ['1.2.840.10036.3.1.2.1.3.5','1.2.840.10036.3.1.2.1.3.8']
+        for oid in oids:
+            model = self.get_value(oid)
+            if model != '':
+                return model
     
     @property
     def firmware(self):
