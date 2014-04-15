@@ -117,6 +117,15 @@ class AirOS(SNMP):
                 interfaces.append(self.get_value(value_to_get1))
         return filter(None,interfaces)
     
+    @property
+    def get_signal_strength(self):
+        """
+        returns the signal strength for the older tested version of AirOS
+        """
+        sign = self.get_value('1.3.6.1.4.1.14988.1.1.1.1.1.4.8')
+        if sign != '':
+            return int(sign)
+    
     def to_dict(self):
         return self._dict({
             "name": self.name,
