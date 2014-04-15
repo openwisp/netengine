@@ -71,7 +71,11 @@ class AirOS(SNMP):
         """
         returns a string containing the device manufacturer
         """
-        return self.get_value('1.2.840.10036.3.1.2.1.2.5')
+        oids = ['1.2.840.10036.3.1.2.1.2.5','1.2.840.10036.3.1.2.1.2.8']
+        for oid in oids:
+            manufacturer = self.get_value(oid)
+            if manufacturer != '':
+                return manufacturer
     
     @property
     def ssid(self):
