@@ -71,7 +71,7 @@ class AirOS(SNMP):
                     i = i + 1
         
     @property
-    def get_manufacturer(self):
+    def manufacturer(self):
         """
         returns a string containing the device manufacturer
         """
@@ -118,6 +118,23 @@ class AirOS(SNMP):
         return filter(None,interfaces)
     
     @property
+    def get_interfaces_mtu(self):
+        """
+        Returns an ordereed dict with the interface and its MTU
+        """
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2."
+        tmp = list(starting)
+        tmp[18] = str(4)
+        to = ''.join(tmp)
+        for i in range(1,10):
+            if self.get_value(starting + str(i)) != "":
+                result = self._dict({"interface" : self.get_value(starting + str(i)),
+                                     "mtu" : self.get_value(to + str(i))})
+                results.append(result)
+        return results
+                
+    @property
     def get_signal_strength(self):
         """
         returns the signal strength for the older tested version of AirOS
@@ -132,7 +149,7 @@ class AirOS(SNMP):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": self.get_manufacturer,
+            "manufacturer": self.manufacturer,
             "model": self.model,
             "RAM_total": None,
             "uptime": self.uptime,

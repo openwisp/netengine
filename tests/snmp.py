@@ -104,6 +104,9 @@ class TestSNMPAirOS(unittest.TestCase):
     def test_get_interfaces(self):
         self.assertTrue(type(self.device.get_interfaces) == list)
     
+    def test_get_interfaces_mtu(self):
+        self.assertTrue(type(self.device.get_interfaces_mtu) == list)
+    
     def test_get_signal_strength(self):
         self.assertTrue(type(self.device.get_signal_strength) in [int, type(None)])
 
