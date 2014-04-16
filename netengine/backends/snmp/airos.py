@@ -71,7 +71,7 @@ class AirOS(SNMP):
                     i = i + 1
         
     @property
-    def manufacturer(self):
+    def get_manufacturer(self):
         """
         returns a string containing the device manufacturer
         """
@@ -132,7 +132,7 @@ class AirOS(SNMP):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": self.manufacturer,
+            "manufacturer": self.get_manufacturer,
             "model": self.model,
             "RAM_total": None,
             "uptime": self.uptime,
