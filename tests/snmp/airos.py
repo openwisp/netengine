@@ -1,56 +1,11 @@
 import unittest
-from netengine.backends.snmp import *
+from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 
-from .settings import settings
+from ..settings import settings
 
 
-__all__ = [
-    'TestSNMP',
-    'TestSNMPAirOS',
-    'TestSNMPOpenWRT'
-]
-
-
-class TestSNMP(unittest.TestCase):
-
-    def setUp(self):
-        self.host = settings['base-snmp']['host']
-        self.community = settings['base-snmp']['community']
-        self.port = settings['base-snmp'].get('port', 161)
-        
-    def test_instantiation(self):
-        device = SNMP(self.host, self.community, self.port)
-        self.assertTrue(device.__netengine__)
-        self.assertIn('SNMP', str(device))
-    
-    def test_not_implemented_methods(self):
-        device = SNMP(self.host, self.community)
-        
-        with self.assertRaises(NotImplementedError):
-            device.os
-        with self.assertRaises(NotImplementedError):
-            device.name
-        with self.assertRaises(NotImplementedError):
-            device.model
-        with self.assertRaises(NotImplementedError):
-            device.RAM_total
-        with self.assertRaises(NotImplementedError):
-            device.ethernet_standard
-        with self.assertRaises(NotImplementedError):
-            device.ethernet_duplex
-        with self.assertRaises(NotImplementedError):
-            device.wireless_channel_width
-        with self.assertRaises(NotImplementedError):
-            device.wireless_mode
-        with self.assertRaises(NotImplementedError):
-            device.wireless_channel
-        with self.assertRaises(NotImplementedError):
-            device.wireless_output_power
-        with self.assertRaises(NotImplementedError):
-            device.wireless_dbm
-        with self.assertRaises(NotImplementedError):
-            device.wireless_noise
+__all__ = ['TestSNMPAirOS']
 
 
 class TestSNMPAirOS(unittest.TestCase):
@@ -136,33 +91,3 @@ class TestSNMPAirOS(unittest.TestCase):
         
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
-
-class TestSNMPOpenWRT(unittest.TestCase):
-    
-    def setUp(self):
-        self.host = settings['openwrt-snmp']['host']
-        self.community = settings['openwrt-snmp']['community']
-        self.port = settings['openwrt-snmp'].get('port', 161)
-        
-        self.device = OpenWRT(self.host, self.community, self.port)
-        
-    def test_os(self):
-        self.assertTrue(type(self.device.os) == tuple)
-
-    def test_name(self):
-        self.assertTrue(type(self.device.name) == str)
-    
-    def test_uptime(self):
-        self.assertTrue(type(self.device.uptime) == int)
-
-    def test_uptime_tuple(self):
-        self.assertTrue(type(self.device.uptime_tuple) == tuple)
-    
-    def test_get_interfaces(self):
-        self.assertTrue(type(self.device.get_interfaces) == list)
-    
-    def test_RAM_total(self):
-        self.assertTrue(type(self.device.RAM_total) == int)
-        
-    def test_to_dict(self):
-        self.assertTrue(isinstance(self.device.to_dict(), dict))
