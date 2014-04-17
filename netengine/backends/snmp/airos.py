@@ -148,6 +148,11 @@ class AirOS(SNMP):
         total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0')
         return int(total)
     
+    @property
+    def RAM_free(self):
+        free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0')
+        return int(free)
+    
     def to_dict(self):
         return self._dict({
             "name": self.name,
@@ -156,7 +161,7 @@ class AirOS(SNMP):
             "os_version": self.os[1],
             "manufacturer": self.manufacturer,
             "model": self.model,
-            "RAM_total": None,
+            "RAM_total": self.RAM_total,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "interfaces": self.get_interfaces,

@@ -110,6 +110,9 @@ class TestSNMPAirOS(unittest.TestCase):
     def test_get_signal_strength(self):
         self.assertTrue(type(self.device.get_signal_strength) in [int, type(None)])
     
+    def test_RAM_free(self):
+        self.assertTrue(type(self.device.RAM_free) == int)
+        
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
