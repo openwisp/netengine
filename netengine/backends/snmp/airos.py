@@ -67,7 +67,7 @@ class AirOS(SNMP):
                 i = 0
                 for piece in tmp:
                     if "v" in piece:
-                        return '.'.join(tmp[i:length])
+                        return 'AirOS ' + '.'.join(tmp[i:length])
                     i = i + 1
         
     @property
