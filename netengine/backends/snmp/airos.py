@@ -105,6 +105,13 @@ class AirOS(SNMP):
         return td.days, td.seconds//3600, (td.seconds//60)%60
     
     @property
+    def interfaces_number(self):
+        """
+        Returns the number of the network interfaces
+        """
+        return int(self.get_value('1.3.6.1.2.1.2.1.0'))  
+    
+    @property
     def get_interfaces(self):
         """
         returns the list of all the interfaces of the device
@@ -145,11 +152,17 @@ class AirOS(SNMP):
     
     @property
     def RAM_total(self):
+        """
+        Returns the total RAM of the device
+        """
         total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0')
         return int(total)
     
     @property
     def RAM_free(self):
+        """
+        Returns the free RAM of the device
+        """
         free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0')
         return int(free)
     
