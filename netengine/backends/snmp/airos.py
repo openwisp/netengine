@@ -162,6 +162,7 @@ class AirOS(SNMP):
             "manufacturer": self.manufacturer,
             "model": self.model,
             "RAM_total": self.RAM_total,
+            "RAM_free" : self.RAM_free,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "interfaces": self.get_interfaces,
