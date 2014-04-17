@@ -75,7 +75,7 @@ class AirOS(SNMP):
         """
         returns a string containing the device manufacturer
         """
-        oids = ['1.2.840.10036.3.1.2.1.2.5','1.2.840.10036.3.1.2.1.2.8']
+        oids = ['1.2.840.10036.3.1.2.1.2.5', '1.2.840.10036.3.1.2.1.2.8']
         for oid in oids:
             manufacturer = self.get_value(oid)
             if manufacturer != '':
@@ -86,7 +86,10 @@ class AirOS(SNMP):
         """
         returns a string containing the wireless ssid
         """
-        return self.get_value('1.2.840.10036.1.1.1.9.8')
+        oids = ['1.2.840.10036.1.1.1.9.5', '1.2.840.10036.1.1.1.9.8']
+        for oid in oids:
+            if self.get_value(oid) != '':
+                return self.get_value(oid)
     
     @property
     def uptime(self):

@@ -102,7 +102,7 @@ class TestSNMPAirOS(unittest.TestCase):
         self.assertTrue(type(self.device.os) == tuple)
         
     def test_get_interfaces(self):
-        self.assertTrue(type(self.device.get_interfaces) == list)
+        self.assertTrue(type(self.device.get_interfaces()) == list)
     
     def test_get_interfaces_mtu(self):
         self.assertTrue(type(self.device.interfaces_mtu) == list)
