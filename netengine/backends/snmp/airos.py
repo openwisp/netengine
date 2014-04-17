@@ -111,7 +111,6 @@ class AirOS(SNMP):
         """
         return int(self.get_value('1.3.6.1.2.1.2.1.0'))  
     
-    @property
     def get_interfaces(self):
         """
         returns the list of all the interfaces of the device
@@ -125,7 +124,7 @@ class AirOS(SNMP):
         return filter(None,interfaces)
     
     @property
-    def get_interfaces_mtu(self):
+    def interfaces_mtu(self):
         """
         Returns an ordereed dict with the interface and its MTU
         """
@@ -142,7 +141,7 @@ class AirOS(SNMP):
         return results
                 
     @property
-    def get_signal_strength(self):
+    def signal_strength(self):
         """
         returns the signal strength for the older tested version of AirOS
         """
