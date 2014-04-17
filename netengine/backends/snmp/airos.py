@@ -143,6 +143,11 @@ class AirOS(SNMP):
         if sign != '':
             return int(sign)
     
+    @property
+    def RAM_total(self):
+        total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0')
+        return int(total)
+    
     def to_dict(self):
         return self._dict({
             "name": self.name,
