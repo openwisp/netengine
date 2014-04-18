@@ -58,16 +58,37 @@ class TestSNMPAirOS(unittest.TestCase):
         
     def test_get_interfaces(self):
         self.assertTrue(type(self.device.get_interfaces()) == list)
-    
+
     def test_get_interfaces_mtu(self):
         self.assertTrue(type(self.device.interfaces_mtu) == list)
     
-    def test_get_signal_strength(self):
-        self.assertTrue(type(self.device.signal_strength) in [int, type(None)])
+    def test_interfaces_state(self):
+        self.assertTrue(type(self.device.interfaces_state) == list)
+    
+    def test_interfaces_speed(self):
+        self.assertTrue(type(self.device.interfaces_speed) == list)
+        
+    def test_interfaces_bytes(self):
+        self.assertTrue(type(self.device.interfaces_bytes) == list)
+    
+    def test_interfaces_MAC(self):
+        self.assertTrue(type(self.device.interfaces_MAC) == list)
+    
+    def test_interfaces_to_dict(self):
+        self.assertTrue(type(self.device.interfaces_to_dict) == list)
+        
+    def test_wireless_dbm(self):
+        self.assertTrue(type(self.device.wireless_dbm) == list)
     
     def test_interfaces_number(self):
         self.assertTrue(type(self.device.interfaces_number) == int)
     
+    def test_interfaces_number_crossed(self):
+        self.assertEqual(int(self.device.interfaces_number), len(self.device.get_interfaces()))
+    
+    def test_wireless_to_dict(self):
+        self.assertTrue(type(self.device.wireless_links) == list)
+
     def test_RAM_free(self):
         self.assertTrue(type(self.device.RAM_free) == int)
         
@@ -88,6 +109,6 @@ class TestSNMPAirOS(unittest.TestCase):
         
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
-        
+    
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
