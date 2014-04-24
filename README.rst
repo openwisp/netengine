@@ -2,12 +2,12 @@
 netengine
 =========
 
-.. image:: https://landscape.io/github/nemesisdesign/netengine/master/landscape.png
-   :target: https://landscape.io/github/nemesisdesign/netengine/master
+.. image:: https://landscape.io/github/ninuxorg/netengine/master/landscape.png
+   :target: https://landscape.io/github/ninuxorg/netengine/master
    :alt: Code Health
 
-.. image:: https://requires.io/github/nemesisdesign/netengine/requirements.png?branch=master
-   :target: https://requires.io/github/nemesisdesign/netengine/requirements/?branch=master
+.. image:: https://requires.io/github/ninuxorg/netengine/requirements.png?branch=master
+   :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
    :alt: Requirements Status
 
 Abstraction layer for extracting information from network devices.
@@ -17,7 +17,7 @@ Install
 
 Install via pip::
 
-    pip install -e git+git://github.com/nemesisdesign/netengine#egg=netengine
+    pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
 
 Usage
 =====
@@ -87,7 +87,7 @@ Install nose::
 
 Clone repo::
 
-    git clone git://github.com/nemesisdesign/netengine
+    git clone git://github.com/ninuxorg/netengine
     
     cd netengine/
 
