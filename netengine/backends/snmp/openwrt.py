@@ -5,6 +5,7 @@ NetEngine SNMP OpenWRT backend
 __all__ = ['OpenWRT']
 
 
+import binascii
 from datetime import timedelta
 
 from netengine.backends.snmp import SNMP
@@ -72,7 +73,28 @@ class OpenWRT(SNMP):
             if value_to_get1:
                 interfaces.append(self.get_value(value_to_get1))
         return filter(None,interfaces)
-    
+        
+    @property
+    def interfaces_MAC(self):
+        """
+        Returns an ordered dict with the hardware address of every interface
+        """
+        results = []
+        mac1 = []
+        mac = self.next('1.3.6.1.2.1.2.2.1.6.')[3]
+        for i in range(1, len(mac) + 1):
+            mac1.append(self.get_value('1.3.6.1.2.1.2.2.1.6.' + str(i)))
+        mac_trans = []
+        for i in mac1:
+            mac_trans.append(':'.join(binascii.b2a_hex(i)[a:a+2] for a in range(0, 12, 2) if i != ""))
+        for i in range(0, len(self.get_interfaces)):
+            result = self._dict({
+                "name" : self.get_interfaces[i],
+                "mac_address" : mac_trans[i]
+            })
+            results.append(result)
+        return results
+
     @property
     def RAM_total(self):
         """
