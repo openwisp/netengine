@@ -39,6 +39,9 @@ class TestSNMPOpenWRT(unittest.TestCase):
     
     def test_get_interfaces_mtu(self):
         self.assertTrue(type(self.device.interfaces_mtu) == list)
+
+    def test_interfaces_state(self):
+        self.assertTrue(type(self.device.interfaces_state) == list)
     
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)

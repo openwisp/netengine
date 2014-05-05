@@ -127,6 +127,38 @@ class OpenWRT(SNMP):
             })
             results.append(result)
         return results
+    
+    @property
+    def interfaces_state(self):
+        """
+        Returns an ordereed dict with the interfaces and their state (up, down)
+        """
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2."
+        operative = "1.3.6.1.2.1.2.2.1.8."  
+        tmp = list(starting)
+        tmp[18] = str(4)
+        for i in range(1, len(self.get_interfaces()) + 1):
+            if self.get_value(starting + str(i)) != "" :
+                if int(self.get_value(operative + str(i))) == 1:
+                    result = self._dict({
+                        "name" : self.get_value(starting + str(i)),
+                        "state" : "up"
+                    })
+                    results.append(result)
+                else:
+                    result = self._dict({
+                        "name" : self.get_value(starting + str(i)),
+                        "state" : "down"
+                    })
+                    results.append(result)
+            elif self.get_value(starting + str(i)) == "" :
+                result = self._dict({
+                        "name" : "",
+                        "state" : ""
+                    })
+                results.append(result)
+        return results
 
     @property
     def RAM_total(self):
