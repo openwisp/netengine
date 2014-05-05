@@ -226,6 +226,23 @@ class AirOS(SNMP):
         return results
     
     @property
+    def interfaces_type(self):
+        """
+        Returns an ordered dict with the interface type (e.g Ethernet, loopback)
+        """
+        types = {"6" : "ethernetCsmacd", "24" : "softwareLoopback"}
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2." 
+        types_oid = "1.3.6.1.2.1.2.2.1.3."
+        for i in range(1, len(self.get_interfaces()) + 1):
+            result = self._dict({
+                "name" : self.get_value(starting + str(i)),
+                "type" : types[self.get_value(types_oid + str(i))],
+            })
+            results.append(result)
+        return results
+    
+    @property
     def interfaces_to_dict(self):
         """
         Returns an ordered dict with all the information available about the interface
@@ -234,6 +251,7 @@ class AirOS(SNMP):
         for i in range(0, len(self.get_interfaces())):
             result = self._dict({
                 "name" : self.interfaces_MAC[i]['name'],
+                "type" : self.interfaces_type[i]['type'],
                 "mac_address" : self.interfaces_MAC[i]['mac_address'],
                 "rx_bytes" : int(self.interfaces_bytes[i]['rx']),
                 "tx_bytes" : int(self.interfaces_bytes[i]['tx']),
