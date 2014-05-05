@@ -61,7 +61,6 @@ class OpenWRT(SNMP):
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
     
-    @property
     def get_interfaces(self):
         """
         returns the list of all the interfaces of the device
@@ -87,10 +86,26 @@ class OpenWRT(SNMP):
         mac_trans = []
         for i in mac1:
             mac_trans.append(':'.join(binascii.b2a_hex(i)[a:a+2] for a in range(0, 12, 2) if i != ""))
-        for i in range(0, len(self.get_interfaces)):
+        for i in range(0, len(self.get_interfaces())):
             result = self._dict({
-                "name" : self.get_interfaces[i],
+                "name" : self.get_interfaces()[i],
                 "mac_address" : mac_trans[i]
+            })
+            results.append(result)
+        return results
+    
+    @property
+    def interfaces_speed(self):
+        """
+        Returns an ordered dict with the interface and ist speed in bps
+        """
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2."
+        starting_speed = "1.3.6.1.2.1.2.2.1.5."
+        for i in range(1, len(self.get_interfaces()) + 1):
+            result = self._dict({
+                "name" : self.get_value(starting + str(i)),
+                "speed" : int(self.get_value(starting_speed + str(i)))
             })
             results.append(result)
         return results
@@ -113,7 +128,7 @@ class OpenWRT(SNMP):
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
-            "interfaces": self.get_interfaces,
+            "interfaces": self.get_interfaces(),
             "antennas": [],
             "routing_protocols": None,
         })
