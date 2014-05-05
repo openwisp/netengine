@@ -177,6 +177,25 @@ class OpenWRT(SNMP):
             })
             results.append(result)
         return results
+    
+    @property
+    def interfaces_to_dict(self):
+        """
+        Returns an ordered dict with all the information available about the interface
+        """
+        results = []
+        for i in range(0, len(self.get_interfaces())):
+            result = self._dict({
+                "name" : self.interfaces_MAC[i]['name'],
+                "mac_address" : self.interfaces_MAC[i]['mac_address'],
+                "rx_bytes" : int(self.interfaces_bytes[i]['rx']),
+                "tx_bytes" : int(self.interfaces_bytes[i]['tx']),
+                "state" : self.interfaces_state[i]['state'],
+                "mtu" : int(self.interfaces_mtu[i]['mtu']),
+                "speed" : int(self.interfaces_speed[i]['speed'])
+            })
+            results.append(result)
+        return results
 
     @property
     def RAM_total(self):
