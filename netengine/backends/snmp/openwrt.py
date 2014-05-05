@@ -95,6 +95,24 @@ class OpenWRT(SNMP):
         return results
     
     @property
+    def interfaces_mtu(self):
+        """
+        Returns an ordereed dict with the interface and its MTU
+        """
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2."
+        tmp = list(starting)
+        tmp[18] = str(4)
+        to = ''.join(tmp)
+        for i in range(1, len(self.get_interfaces()) + 1):
+            result = self._dict({
+                "name" : self.get_value(starting + str(i)),
+                "mtu" : int(self.get_value(to + str(i)))
+            })
+            results.append(result)
+        return results
+    
+    @property
     def interfaces_speed(self):
         """
         Returns an ordered dict with the interface and ist speed in bps
