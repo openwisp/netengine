@@ -159,6 +159,24 @@ class OpenWRT(SNMP):
                     })
                 results.append(result)
         return results
+    
+    @property
+    def interfaces_bytes(self):
+        """
+        Returns an ordereed dict with the interface and its tx and rx octets (1 octet = 1 byte = 8 bits)
+        """
+        results = []
+        starting = "1.3.6.1.2.1.2.2.1.2."
+        starting_rx = "1.3.6.1.2.1.2.2.1.10."
+        starting_tx = "1.3.6.1.2.1.2.2.1.16."
+        for i in range(1, len(self.get_interfaces()) + 1):
+            result = self._dict({
+                "name" : self.get_value(starting + str(i)),
+                "tx" : int(self.get_value(starting_tx + str(i))),
+                "rx" : int(self.get_value(starting_rx + str(i))),
+            })
+            results.append(result)
+        return results
 
     @property
     def RAM_total(self):
