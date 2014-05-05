@@ -140,7 +140,7 @@ class AirOS(SNMP):
         for i in range(1, len(self.get_interfaces()) + 1):
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
-                "mtu" : self.get_value(to + str(i))
+                "mtu" : int(self.get_value(to + str(i)))
             })
             results.append(result)
         return results
@@ -188,7 +188,7 @@ class AirOS(SNMP):
         for i in range(1, len(self.get_interfaces()) + 1):
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
-                "speed" : self.get_value(starting_speed + str(i))
+                "speed" : int(self.get_value(starting_speed + str(i)))
             })
             results.append(result)
         return results
@@ -205,8 +205,8 @@ class AirOS(SNMP):
         for i in range(1, len(self.get_interfaces()) + 1):
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
-                "tx" : self.get_value(starting_tx + str(i)),
-                "rx" : self.get_value(starting_rx + str(i)),
+                "tx" : int(self.get_value(starting_tx + str(i))),
+                "rx" : int(self.get_value(starting_rx + str(i))),
             })
             results.append(result)
         return results
