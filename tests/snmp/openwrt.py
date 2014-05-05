@@ -39,6 +39,9 @@ class TestSNMPOpenWRT(unittest.TestCase):
     
     def test_interfaces_MAC(self):
         self.assertTrue(type(self.device.interfaces_MAC) == list)
+        
+    def test_interfaces_type(self):
+        self.assertTrue(type(self.device.interfaces_type) == list)
     
     def test_interfaces_mtu(self):
         self.assertTrue(type(self.device.interfaces_mtu) == list)
