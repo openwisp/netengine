@@ -61,6 +61,13 @@ class OpenWRT(SNMP):
         
         return td.days, td.seconds//3600, (td.seconds//60)%60
     
+    def _value_to_retrieve(self):
+        value_to_retr = []
+        tmp = self.next('1.3.6.1.2.1.2.2.1.1')[3]
+        for i in range(len(tmp)):
+            value_to_retr.append(int(tmp[i][0][1]))
+        return value_to_retr
+    
     def get_interfaces(self):
         """
         returns the list of all the interfaces of the device
@@ -104,7 +111,7 @@ class OpenWRT(SNMP):
         tmp = list(starting)
         tmp[18] = str(4)
         to = ''.join(tmp)
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "mtu" : int(self.get_value(to + str(i)))
@@ -138,7 +145,7 @@ class OpenWRT(SNMP):
         operative = "1.3.6.1.2.1.2.2.1.8."  
         tmp = list(starting)
         tmp[18] = str(4)
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             if self.get_value(starting + str(i)) != "" :
                 if int(self.get_value(operative + str(i))) == 1:
                     result = self._dict({
@@ -169,7 +176,7 @@ class OpenWRT(SNMP):
         starting = "1.3.6.1.2.1.2.2.1.2."
         starting_rx = "1.3.6.1.2.1.2.2.1.10."
         starting_tx = "1.3.6.1.2.1.2.2.1.16."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "tx" : int(self.get_value(starting_tx + str(i))),
@@ -183,11 +190,11 @@ class OpenWRT(SNMP):
         """
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
-        types = {"6" : "ethernetCsmacd", "24" : "softwareLoopback"}
+        types = {"6" : "ethernetCsmacd", "24" : "softwareLoopback", "131" : "tunnel"}
         results = []
         starting = "1.3.6.1.2.1.2.2.1.2."
         types_oid = "1.3.6.1.2.1.2.2.1.3."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "type" : types[self.get_value(types_oid + str(i))],
