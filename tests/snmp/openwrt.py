@@ -18,6 +18,9 @@ class TestSNMPOpenWRT(unittest.TestCase):
         
     def test_os(self):
         self.assertTrue(type(self.device.os) == tuple)
+    
+    def test_manufacturer(self):
+        self.assertIsNotNone(self.device.manufactuer)
 
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
@@ -57,3 +60,6 @@ class TestSNMPOpenWRT(unittest.TestCase):
         
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
+    
+    def test_manufacturer_to_dict(self):
+        self.assertIsNotNone(self.device.to_dict()['manufacturer'])

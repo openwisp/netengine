@@ -98,8 +98,11 @@ class TestSNMPAirOS(unittest.TestCase):
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
     
+    def test_manufacturer_to_dict(self):
+        self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+    
     def test_manufacturer(self):
-        self.assertTrue(type(self.device.name) == str)
+        self.assertIsNotNone(self.device.manufacturer)
     
     def test_model(self):
         self.assertTrue(type(self.device.model) == str)

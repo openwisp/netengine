@@ -37,6 +37,10 @@ class OpenWRT(SNMP):
         os_name = 'OpenWRT'
         os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
+    
+    @property
+    def manufacturer(self):
+        return self.get_manufacturer(self.interfaces_MAC[1]['mac_address'])
 
     @property
     def name(self):
@@ -235,7 +239,7 @@ class OpenWRT(SNMP):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": None,
+            "manufacturer": self.manufacturer,
             "model": None,
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
