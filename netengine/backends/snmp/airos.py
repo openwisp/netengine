@@ -37,6 +37,13 @@ class AirOS(SNMP):
         os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
     
+    def _value_to_retrieve(self):
+        value_to_retr = []
+        tmp = self.next('1.3.6.1.2.1.1.9.1.1')[3]
+        for i in range(len(tmp)):
+            value_to_retr.append(int(tmp[i][0][1]))
+        return value_to_retr
+    
     @property
     def name(self):
         """
@@ -121,7 +128,7 @@ class AirOS(SNMP):
         """
         interfaces = []
         value_to_get = '1.3.6.1.2.1.2.2.1.2.'
-        for i in range (1, 15):
+        for i in self._value_to_retrieve():
             value_to_get1 = value_to_get+str(i)
             if value_to_get1:
                 interfaces.append(self.get_value(value_to_get1))
@@ -137,7 +144,7 @@ class AirOS(SNMP):
         tmp = list(starting)
         tmp[18] = str(4)
         to = ''.join(tmp)
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "mtu" : int(self.get_value(to + str(i)))
@@ -155,7 +162,7 @@ class AirOS(SNMP):
         operative = "1.3.6.1.2.1.2.2.1.8."  
         tmp = list(starting)
         tmp[18] = str(4)
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             if self.get_value(starting + str(i)) != "" :
                 if int(self.get_value(operative + str(i))) == 1:
                     result = self._dict({
@@ -185,7 +192,7 @@ class AirOS(SNMP):
         results = []
         starting = "1.3.6.1.2.1.2.2.1.2."
         starting_speed = "1.3.6.1.2.1.2.2.1.5."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "speed" : int(self.get_value(starting_speed + str(i)))
@@ -202,7 +209,7 @@ class AirOS(SNMP):
         starting = "1.3.6.1.2.1.2.2.1.2."
         starting_rx = "1.3.6.1.2.1.2.2.1.10."
         starting_tx = "1.3.6.1.2.1.2.2.1.16."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "tx" : int(self.get_value(starting_tx + str(i))),
@@ -219,7 +226,7 @@ class AirOS(SNMP):
         results = []
         starting = "1.3.6.1.2.1.2.2.1.2."
         starting_mac = "1.3.6.1.2.1.2.2.1.6."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             mac = binascii.b2a_hex(self.get_value(starting_mac + str(i)))
             # now we are going to format mac as the canonical way as a MAC
             # address is intended by inserting ':' every two chars of mac
@@ -241,7 +248,7 @@ class AirOS(SNMP):
         results = []
         starting = "1.3.6.1.2.1.2.2.1.2." 
         types_oid = "1.3.6.1.2.1.2.2.1.3."
-        for i in range(1, len(self.get_interfaces()) + 1):
+        for i in self._value_to_retrieve():
             result = self._dict({
                 "name" : self.get_value(starting + str(i)),
                 "type" : types[self.get_value(types_oid + str(i))],
