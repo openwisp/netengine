@@ -78,7 +78,7 @@ class OpenWRT(SNMP):
         """
         interfaces = []
         value_to_get = '1.3.6.1.2.1.2.2.1.2.'
-        for i in range (1,8):
+        for i in self._value_to_retrieve():
             value_to_get1 = value_to_get+str(i)
             if value_to_get1:
                 interfaces.append(self.get_value(value_to_get1))
