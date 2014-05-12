@@ -15,6 +15,8 @@ class OpenWRT(SNMP):
     """
     OpenWRT SNMP backend
     """
+    
+    _interface_dict = {}
 
     def __str__(self):
         """ print a human readable object description """
@@ -222,6 +224,28 @@ class OpenWRT(SNMP):
                 "state" : self.interfaces_state[i]['state'],
                 "mtu" : int(self.interfaces_mtu[i]['mtu']),
                 "speed" : int(self.interfaces_speed[i]['speed'])
+            })
+            results.append(result)
+        return results
+    
+    @property 
+    def interface_addr_and_mask(self):
+        interface_name = self.get_interfaces()
+        for i in range(0, len(interface_name)):
+            self._interface_dict[self._value_to_retrieve()[i]] = interface_name[i]
+        interface_ip_address = self.next("1.3.6.1.2.1.4.20.1.1")[3]
+        interface_index = self.next("1.3.6.1.2.1.4.20.1.2")[3]
+        interface_netmask = self.next("1.3.6.1.2.1.4.20.1.3")[3]
+        results = []
+        for i in range(0, len(interface_ip_address)):
+            a = interface_ip_address[i][0][1].asNumbers()
+            ip_address = '.'.join(str(a[i]) for i in range(0, len(a)))
+            b = interface_netmask[i][0][1].asNumbers()
+            netmask = '.'.join(str(b[i]) for i in range(0, len(b)))
+            result = self._dict({
+                "name" : self._interface_dict[int(interface_index[i][0][1])],
+                "address" : ip_address,
+                "netmask" : netmask
             })
             results.append(result)
         return results
