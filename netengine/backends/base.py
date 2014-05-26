@@ -136,16 +136,14 @@ class BaseBackend(object):
     def get_interfaces(self):
         raise NotImplementedError('Not implemented')
 
-    def get_manufacturer(self):
+    def get_manufacturer(self, mac_address):
         """ returns the manufacturer of the network interface """
         base = netengine.__file__
         file_path = os.path.dirname(os.path.dirname(base))
         manufacturer_file = open(os.path.join(file_path,"netengine/resources/manufacturer.txt"))
         res = ""
-        mac_addr = self.get_interfaces()[1]['hardware_address']
-        mac_address1 = mac_addr[0:8].replace(":","")
-
+        mac_address1 = mac_address[0:8].replace(":","").upper()
         for line in manufacturer_file.readlines():
-            if mac_address1.encode() in line:
+            if mac_address1 in line:
                 res = line.split(mac_address1)[1].replace("(base 16)","").split()
                 return ",".join(res).replace(","," ")
