@@ -246,20 +246,51 @@ class OpenWRT(SNMP):
         """
         results = []
         for i in range(0, len(self.get_interfaces())):
+
+            print '====== %d ======' % i
+
+            print '... name ...'
+            name = self.interfaces_MAC[i]['name']
+            print '... if_type ...'
+            if_type = self.interfaces_type[i]['type']
+            print '... mac_address ...'
+            mac_address = self.interfaces_MAC[i]['mac_address']
+            print '... rx_bytes ...'
+            rx_bytes = int(self.interfaces_bytes[i]['rx'])
+            print '... tx_bytes ...'
+            tx_bytes = int(self.interfaces_bytes[i]['tx'])
+            print '... state ...'
+            state = self.interfaces_state[i]['state']
+            print '... mtu ...'
+            mtu = int(self.interfaces_mtu[i]['mtu'])
+            print '... speed ...'
+            speed = int(self.interfaces_speed[i]['speed'])
+
             result = self._dict({
-                "name" : self.interfaces_MAC[i]['name'],
-                "type" : self.interfaces_type[i]['type'],
-                "mac_address" : self.interfaces_MAC[i]['mac_address'],
-                "rx_bytes" : int(self.interfaces_bytes[i]['rx']),
-                "tx_bytes" : int(self.interfaces_bytes[i]['tx']),
-                "state" : self.interfaces_state[i]['state'],
-                "mtu" : int(self.interfaces_mtu[i]['mtu']),
-                "speed" : int(self.interfaces_speed[i]['speed'])
+                "name" : name,
+                "type" : if_type,
+                "mac_address" : mac_address,
+                "rx_bytes" : rx_bytes,
+                "tx_bytes" : tx_bytes,
+                "state" : state,
+                "mtu" : mtu,
+                "speed" : speed
             })
+
+            # result = self._dict({
+            #     "name" : self.interfaces_MAC[i]['name'],
+            #     "type" : self.interfaces_type[i]['type'],
+            #     "mac_address" : self.interfaces_MAC[i]['mac_address'],
+            #     "rx_bytes" : int(self.interfaces_bytes[i]['rx']),
+            #     "tx_bytes" : int(self.interfaces_bytes[i]['tx']),
+            #     "state" : self.interfaces_state[i]['state'],
+            #     "mtu" : int(self.interfaces_mtu[i]['mtu']),
+            #     "speed" : int(self.interfaces_speed[i]['speed'])
+            # })
             results.append(result)
         return results
-    
-    @property 
+
+    @property
     def interface_addr_and_mask(self):
         interface_name = self.get_interfaces()
         for i in range(0, len(interface_name)):
