@@ -20,7 +20,7 @@ class TestSNMPOpenWRT(unittest.TestCase):
         self.assertTrue(type(self.device.os) == tuple)
 
     def test_manufacturer(self):
-        self.assertIsNotNone(self.device.manufactuer)
+        self.assertIsNotNone(self.device.manufacturer)
 
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
@@ -56,13 +56,16 @@ class TestSNMPOpenWRT(unittest.TestCase):
         self.assertTrue(type(self.device.interfaces_to_dict) == list)
 
     def test_interface_addr_and_mask(self):
-        self.assertTrue(type(self.interface_addr_and_mask) == dict)
+        self.assertTrue(type(self.device.interface_addr_and_mask) == dict)
 
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
     def test_to_dict(self):
-        self.assertTrue(isinstance(self.device.to_dict(), dict))
+        device_dict = self.device.to_dict()
+
+        self.assertTrue(isinstance(device_dict, dict))
+        self.assertEqual(len(device_dict['interfaces']), len(self.device.get_interfaces()))
 
     def test_manufacturer_to_dict(self):
         self.assertIsNotNone(self.device.to_dict()['manufacturer'])
