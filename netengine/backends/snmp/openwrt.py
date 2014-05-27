@@ -125,52 +125,57 @@ class OpenWRT(SNMP):
             results.append(result)
         return results
 
+    _interfaces_speed = None
+
     @property
     def interfaces_speed(self):
         """
         Returns an ordered dict with the interface and ist speed in bps
         """
-        results = []
-        starting = "1.3.6.1.2.1.2.2.1.2."
-        starting_speed = "1.3.6.1.2.1.2.2.1.5."
+        if self._interfaces_speed is None:
+            results = []
+            starting = "1.3.6.1.2.1.2.2.1.2."
+            starting_speed = "1.3.6.1.2.1.2.2.1.5."
 
-        STOP_AFTER_FAILS = 3
+            STOP_AFTER_FAILS = 3
 
-        i = 1
-        consecutive_fails = 0  # counter that indicates how many consecutive attempts failed
-        while True:
-            # break cycles if STOP_AFTER_FAILS reached
-            if consecutive_fails == STOP_AFTER_FAILS:
-                break
+            i = 1
+            consecutive_fails = 0  # counter that indicates how many consecutive attempts failed
+            while True:
+                # break cycles if STOP_AFTER_FAILS reached
+                if consecutive_fails == STOP_AFTER_FAILS:
+                    break
 
-            # get name
-            name = self.get_value(starting + str(i))
+                # get name
+                name = self.get_value(starting + str(i))
 
-            # if nothing found
-            if name == '':
-                # increment fail counter
-                consecutive_fails += 1
+                # if nothing found
+                if name == '':
+                    # increment fail counter
+                    consecutive_fails += 1
+                    # increment i
+                    i += 1
+                    # skip to next iteration
+                    continue
+                else:
+                    # reset fail counter
+                    consecutive_fails = 0
+
+                # get speed and convert to int
+                speed = int(self.get_value(starting_speed + str(i)))
+
+                result = self._dict({
+                    "name" : name,
+                    "speed" : speed
+                })
+
+                results.append(result)
                 # increment i
                 i += 1
-                # skip to next iteration
-                continue
-            else:
-                # reset fail counter
-                consecutive_fails = 0
 
-            # get speed and convert to int
-            speed = int(self.get_value(starting_speed + str(i)))
+            self._interfaces_speed = results
 
-            result = self._dict({
-                "name" : name,
-                "speed" : speed
-            })
-
-            results.append(result)
-            # increment i
-            i += 1
-
-        return results
+        return self._interfaces_speed
 
     @property
     def interfaces_state(self):
@@ -265,11 +270,22 @@ class OpenWRT(SNMP):
             mtu = int(self.interfaces_mtu[i]['mtu'])
             print '... speed ...'
             speed = int(self.interfaces_speed[i]['speed'])
+            print '... ip address & subnet ...'
+            ip_and_netmask = self.interface_addr_and_mask
+
+            if name in ip_and_netmask.keys():
+                ip_address = ip_and_netmask[name]['address']
+                netmask = ip_and_netmask[name]['netmask']
+            else:
+                ip_address = None
+                netmask = None
 
             result = self._dict({
                 "name" : name,
                 "type" : if_type,
                 "mac_address" : mac_address,
+                "ip_address": ip_address,
+                "netmask": netmask,
                 "rx_bytes" : rx_bytes,
                 "tx_bytes" : tx_bytes,
                 "state" : state,
@@ -290,27 +306,41 @@ class OpenWRT(SNMP):
             results.append(result)
         return results
 
+    _interface_addr_and_mask = None
+
     @property
     def interface_addr_and_mask(self):
-        interface_name = self.get_interfaces()
-        for i in range(0, len(interface_name)):
-            self._interface_dict[self._value_to_retrieve()[i]] = interface_name[i]
-        interface_ip_address = self.next("1.3.6.1.2.1.4.20.1.1")[3]
-        interface_index = self.next("1.3.6.1.2.1.4.20.1.2")[3]
-        interface_netmask = self.next("1.3.6.1.2.1.4.20.1.3")[3]
-        results = []
-        for i in range(0, len(interface_ip_address)):
-            a = interface_ip_address[i][0][1].asNumbers()
-            ip_address = '.'.join(str(a[i]) for i in range(0, len(a)))
-            b = interface_netmask[i][0][1].asNumbers()
-            netmask = '.'.join(str(b[i]) for i in range(0, len(b)))
-            result = self._dict({
-                "name" : self._interface_dict[int(interface_index[i][0][1])],
-                "address" : ip_address,
-                "netmask" : netmask
-            })
-            results.append(result)
-        return results
+        """
+        TODO: this method needs to be simplified and explained
+        """
+        if self._interface_addr_and_mask is None:
+            interface_name = self.get_interfaces()
+
+            for i in range(0, len(interface_name)):
+                self._interface_dict[self._value_to_retrieve()[i]] = interface_name[i]
+
+            interface_ip_address = self.next("1.3.6.1.2.1.4.20.1.1")[3]
+            interface_index = self.next("1.3.6.1.2.1.4.20.1.2")[3]
+            interface_netmask = self.next("1.3.6.1.2.1.4.20.1.3")[3]
+
+            results = {}
+
+            for i in range(0, len(interface_ip_address)):
+                a = interface_ip_address[i][0][1].asNumbers()
+                ip_address = '.'.join(str(a[i]) for i in range(0, len(a)))
+                b = interface_netmask[i][0][1].asNumbers()
+                netmask = '.'.join(str(b[i]) for i in range(0, len(b)))
+
+                name = self._interface_dict[int(interface_index[i][0][1])]
+
+                results[name] = {
+                    "address" : ip_address,
+                    "netmask" : netmask
+                }
+
+            self._interface_addr_and_mask = results
+
+        return self._interface_addr_and_mask
 
     @property
     def RAM_total(self):
