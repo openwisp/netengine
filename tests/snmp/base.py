@@ -47,3 +47,9 @@ class TestSNMP(unittest.TestCase):
             device.wireless_dbm
         with self.assertRaises(NotImplementedError):
             device.wireless_noise
+    
+    def test_raised_exception(self):
+        device = SNMP(self.host, self.community)
+        
+        with self.assertRaises(RuntimeError):
+            device._value_to_retrieve()

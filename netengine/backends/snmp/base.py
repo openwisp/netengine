@@ -10,7 +10,8 @@ class SNMP(BaseBackend):
     """
     SNMP base backend
     """
-
+    
+    _oid_to_retrieve = None
 
     def __init__(self, host, community='public', agent='my-agent', port=161):
         """
@@ -102,3 +103,15 @@ class SNMP(BaseBackend):
             return str(result[3][0][1])  # snmp stores results in several arrays
         except IndexError:
             raise NetEngineError(str(result[0]))
+    
+    def _value_to_retrieve(self):
+        """
+        return the final SNMP indexes for the interfaces to be used in the other methods and properties
+        """
+        value_to_retr = []
+        if (self._oid_to_retrieve is None):
+            raise NetEngineError('Please fix properly the _oid_to_retrieve string in OpenWRT or AirOS SNMP backend')
+        indexes = self.next(self._oid_to_retrieve)[3]
+        for i in range(len(indexes)):
+            value_to_retr.append(int(indexes[i][0][1]))
+        return value_to_retr

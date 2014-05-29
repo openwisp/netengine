@@ -15,6 +15,8 @@ class AirOS(SNMP):
     Ubiquiti AirOS SNMP backend
     """
     
+    _oid_to_retrieve = '1.3.6.1.2.1.1.9.1.1'
+    
     def __str__(self):
         """ print a human readable object description """
         return u"<SNMP (Ubiquity AirOS): %s>" % self.host
@@ -39,7 +41,7 @@ class AirOS(SNMP):
     
     def _value_to_retrieve(self):
         value_to_retr = []
-        tmp = self.next('1.3.6.1.2.1.1.9.1.1')[3]
+        tmp = self.next(_oid_to_retrieve)[3]
         for i in range(len(tmp)):
             value_to_retr.append(int(tmp[i][0][1]))
         return value_to_retr
