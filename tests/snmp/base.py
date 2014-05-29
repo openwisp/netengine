@@ -1,6 +1,7 @@
 import unittest
 
 from netengine.backends.snmp import SNMP
+from netengine.exceptions import NetEngineError
 
 from ..settings import settings
 
@@ -49,7 +50,20 @@ class TestSNMP(unittest.TestCase):
             device.wireless_noise
     
     def test_raised_exception(self):
-        device = SNMP(self.host, self.community)
+        class WrongSNMPBackend(SNMP):
+            pass
         
-        with self.assertRaises(RuntimeError):
+        device = WrongSNMPBackend(self.host, self.community)
+        
+        with self.assertRaises(NetEngineError):
+            device._value_to_retrieve()
+        
+        # this time define the _oid_to_retrieve attribute
+        class RightSNMPBackend(SNMP):
+            _oid_to_retrieve = ''
+        
+        device = RightSNMPBackend(self.host, self.community)
+        
+        # now we expect a different kind of error
+        with self.assertRaises(IndexError):
             device._value_to_retrieve()
