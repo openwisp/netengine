@@ -109,9 +109,13 @@ class SNMP(BaseBackend):
         return the final SNMP indexes for the interfaces to be used in the other methods and properties
         """
         value_to_retr = []
+        
         if (self._oid_to_retrieve is None):
             raise NetEngineError('Please fix properly the _oid_to_retrieve string in OpenWRT or AirOS SNMP backend')
+        
         indexes = self.next(self._oid_to_retrieve)[3]
+        
         for i in range(len(indexes)):
             value_to_retr.append(int(indexes[i][0][1]))
+        
         return value_to_retr

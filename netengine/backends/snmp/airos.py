@@ -39,13 +39,6 @@ class AirOS(SNMP):
         os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
     
-    def _value_to_retrieve(self):
-        value_to_retr = []
-        tmp = self.next(_oid_to_retrieve)[3]
-        for i in range(len(tmp)):
-            value_to_retr.append(int(tmp[i][0][1]))
-        return value_to_retr
-    
     @property
     def name(self):
         """

@@ -68,17 +68,6 @@ class OpenWRT(SNMP):
         td = timedelta(seconds=self.uptime)
 
         return td.days, td.seconds//3600, (td.seconds//60)%60
-    
-    
-    
-    """
-    def _value_to_retrieve(self):
-        value_to_retr = []
-        tmp = self.next(_oid_to_retrieve)[3]
-        for i in range(len(tmp)):
-            value_to_retr.append(int(tmp[i][0][1]))
-        return value_to_retr
-    """
 
     _interfaces = None
 
