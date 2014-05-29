@@ -86,9 +86,6 @@ class TestSNMPAirOS(unittest.TestCase):
     def test_interfaces_number(self):
         self.assertTrue(type(self.device.interfaces_number) == int)
     
-    def test_interfaces_number_crossed(self):
-        self.assertEqual(int(self.device.interfaces_number), len(self.device.get_interfaces()))
-    
     def test_wireless_to_dict(self):
         self.assertTrue(type(self.device.wireless_links) == list)
 
