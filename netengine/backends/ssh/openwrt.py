@@ -56,7 +56,11 @@ class OpenWRT(SSH):
             version = "%s (%s)" % (version, additional_info)
 
         return (os, version)
-
+    
+    @property
+    def _ubus_list(self):
+        return self.run('ubus list').split()
+    
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """

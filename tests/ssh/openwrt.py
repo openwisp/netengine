@@ -29,6 +29,9 @@ class TestSSHOpenWRT(unittest.TestCase):
     
     def test_wireless_mode(self):
         self.assertTrue(self.device.wireless_mode in ['ap', 'sta'])
+        
+    def test_ubus_list(self):
+        self.assertTrue(type(self.device._ubus_list) == tuple)
 
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
