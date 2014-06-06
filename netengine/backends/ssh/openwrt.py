@@ -6,11 +6,13 @@ __all__ = ['OpenWRT']
 
 
 from netengine.backends.ssh import SSH
+import json
 
 class OpenWRT(SSH):
     """
     OpenWRT SSH backend
     """
+    
 
     def __str__(self):
         """ print a human readable object description """
@@ -60,6 +62,13 @@ class OpenWRT(SSH):
     @property
     def _ubus_list(self):
         return self.run('ubus list').split()
+    
+    @property
+    def _retrieve_status(self):
+        status = []
+        for i in self._ubus_list[1:]:
+            status.append(self.run('ubus call ' + i +' status'))
+        return status
     
     @property
     def model(self):

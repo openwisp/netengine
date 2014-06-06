@@ -38,6 +38,9 @@ class TestSSHOpenWRT(unittest.TestCase):
 
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
+    
+    def test_retrieve_status(self):
+        self.assertTrue(type(self.device._retrieve_status) == list)
 
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
