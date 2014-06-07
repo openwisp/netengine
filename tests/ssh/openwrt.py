@@ -30,24 +30,24 @@ class TestSSHOpenWRT(unittest.TestCase):
     def test_wireless_mode(self):
         self.assertTrue(self.device.wireless_mode in ['ap', 'sta'])
         
-    def test_ubus_list(self):
-        self.assertTrue(type(self.device._ubus_list) == tuple)
-
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
     def test_uptime(self):
         self.assertTrue(type(self.device.uptime) == int)
     
-    def test_retrieve_status(self):
-        self.assertTrue(type(self.device._retrieve_status) == list)
+    def test_interfaces_to_dict(self):
+        self.assertTrue(type(self.device.interfaces_to_dict) == dict)
 
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
-
+    
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
-
+    
+    def test_get_manufacturer_of_interfaces(self):
+        self.assertTrue(type(self.device.get_manufacturer_of_interfaces()) == list)
+    
     def test_filter_interfaces(self):
         self.assertTrue(isinstance(self.device._filter_interfaces(), list))
 

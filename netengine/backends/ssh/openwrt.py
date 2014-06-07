@@ -13,6 +13,7 @@ class OpenWRT(SSH):
     OpenWRT SSH backend
     """
     
+    _dict = {}
 
     def __str__(self):
         """ print a human readable object description """
@@ -60,15 +61,28 @@ class OpenWRT(SSH):
         return (os, version)
     
     @property
-    def _ubus_list(self):
-        return self.run('ubus list').split()
+    def _ubus_call(self):
+        self._dict = json.loads(self.run('ubus call network.device status'))
     
     @property
-    def _retrieve_status(self):
-        status = []
-        for i in self._ubus_list[1:]:
-            status.append(self.run('ubus call ' + i +' status'))
-        return status
+    def _ubus_interface_infos(self):
+        """
+        returns a list of dict with infos about the interfaces
+        """
+        list = []
+        for interface in self.run('ubus list').split():
+            if "network.interface." in interface:
+                list.append(json.loads(self.run('ubus call '+ interface + ' status')))
+        return list
+    
+    @property
+    def interfaces_to_dict(self):
+        if not self._dict:
+            self._ubus_call
+        for interface in self._ubus_interface_infos:
+            for key, values in interface.iteritems():
+                self._dict[interface["l3_device"]][str(key)] = values
+        return self._dict
     
     @property
     def model(self):
@@ -107,7 +121,18 @@ class OpenWRT(SSH):
         output = self.run('cat /proc/uptime')
         seconds = float(output.split()[0])
         return int(seconds)
-
+    
+    def get_manufacturer_of_interfaces(self):
+        """
+        returns a list containing the manufacturer of the device interfaces
+        """
+        interfaces_mac = []
+        if not self._dict:
+            self._ubus_call
+        for interface in self._dict.keys():
+            interfaces_mac.append(self.get_manufacturer(str(interface)))
+        return interfaces_mac[::-1]
+        
     @property
     def uptime_tuple(self):
         """
@@ -122,35 +147,13 @@ class OpenWRT(SSH):
         return output
 
     def _filter_interfaces(self):
-        interfaces = self.get_interfaces()
-        results = []
-
-        for interface in interfaces:
-            if interface.get('interface', False) is False:
-                continue
-
-            elif 'eth' in interface['interface']:
-                result = self._dict({
-                    "type" : "ethernet",
-                    "name" : interface['interface'],
-                    "mac_address" : interface['hardware_address'],
-                    "mtu" : 1500,
-                    "standard" : None,
-                    "duplex" : None,
-                    "tx_rate" : None,
-                    "ip" :[
-                        self._dict({
-                            "version" : 4,
-                            "address" : interface['ip_address']
-                        })
-                    ]
-                })
-
-            if result:
-                results.append(result)
-
-        return results
-
+        """
+        returns a list containing the device interfaces
+        """
+        if not self._dict:
+            self._ubus_call
+        return self._dict.keys()
+        
     def _filter_routing_protocols(self):
         results = []
         olsr = self.olsr
@@ -167,12 +170,12 @@ class OpenWRT(SSH):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": self.get_manufacturer(),
+            "manufacturer": self.get_manufacturer_of_interfaces(),
             "model": self.model,
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "interfaces": self._filter_interfaces(),
             "antennas": [],
-            "routing_protocols": self._filter_routing_protocols(),
+            "routing_protocols": self._filter_routing_protocols()
         })
