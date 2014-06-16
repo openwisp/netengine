@@ -91,12 +91,14 @@ class OpenWRT(SSH):
 
         if "not found" in output:
             return None
-
+        elif "Usage" in output:
+            return None
         # will return something like
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
-        return output.split('[')[1].replace(']','')
-
+        else:
+            return output.split('[')[1].replace(']','')
+        
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
