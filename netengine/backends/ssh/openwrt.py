@@ -178,6 +178,9 @@ class OpenWRT(SSH):
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "interfaces": self._filter_interfaces(),
+            "interfaces_info": self.interfaces_to_dict,
             "antennas": [],
             "routing_protocols": self._filter_routing_protocols()
         })
+
+
