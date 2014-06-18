@@ -13,7 +13,7 @@ class OpenWRT(SSH):
     OpenWRT SSH backend
     """
     
-    _dict = {}
+    _ubus_dict = {}
 
     def __str__(self):
         """ print a human readable object description """
@@ -62,7 +62,7 @@ class OpenWRT(SSH):
     
     @property
     def _ubus_call(self):
-        self._dict = json.loads(self.run('ubus call network.device status'))
+        self._ubus_dict = json.loads(self.run('ubus call network.device status'))
     
     @property
     def _ubus_interface_infos(self):
@@ -77,27 +77,24 @@ class OpenWRT(SSH):
     
     @property
     def interfaces_to_dict(self):
-        if not self._dict:
+        if not self._ubus_dict:
             self._ubus_call
         for interface in self._ubus_interface_infos:
             for key, values in interface.iteritems():
-                self._dict[interface["l3_device"]][str(key)] = values
-        return self._dict
+                self._ubus_dict[interface["l3_device"]][str(key)] = values
+        return self._ubus_dict
     
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
         output = self.run('iwinfo | grep -i hardware')
-
-        if "not found" in output:
-            return None
-        elif "Usage" in output:
-            return None
         # will return something like
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
-        else:
+        try:
             return output.split('[')[1].replace(']','')
+        except IndexError:
+            return None
         
     @property
     def wireless_mode(self):
@@ -129,9 +126,9 @@ class OpenWRT(SSH):
         returns a list containing the manufacturer of the device interfaces
         """
         interfaces_mac = []
-        if not self._dict:
+        if not self._ubus_dict:
             self._ubus_call
-        for interface in self._dict.keys():
+        for interface in self._ubus_dict.keys():
             interfaces_mac.append(self.get_manufacturer(str(interface)))
         return interfaces_mac[::-1]
         
@@ -152,17 +149,17 @@ class OpenWRT(SSH):
         """
         returns a list containing the device interfaces
         """
-        if not self._dict:
+        if not self._ubus_dict:
             self._ubus_call
-        return self._dict.keys()
+        return self._ubus_dict.keys()
         
     def _filter_routing_protocols(self):
         results = []
         olsr = self.olsr
         if olsr:
             results.append(self._dict({
-            "name" : "olsr",
-            "version" : olsr[0]
+                "name" : "olsr",
+                "version" : olsr[0]
             }))
         return results
 
