@@ -14,6 +14,7 @@ class OpenWRT(SSH):
     """
     
     _ubus_dict = {}
+    _iwinfo_dict = {}
 
     def __str__(self):
         """ print a human readable object description """
@@ -152,6 +153,20 @@ class OpenWRT(SSH):
         if not self._ubus_dict:
             self._ubus_call
         return self._ubus_dict.keys()
+    
+    def _filter_radio_interfaces(self):
+        """
+        returns informations about wireless interfaces as per iw station wlanX dump
+        """
+        iwinfo_result = self.run('iw wlan0 station dump')
+        dictionary = {}
+        result = iwinfo_result.split("\t")
+        dictionary["Station"] = result[0].strip()
+        key  = result[1::2]
+        value  = result[2::2]
+        for i in range (0, len(value)):
+            dictionary[key[i].strip()] = str(value[i].strip())
+        return dictionary
         
     def _filter_routing_protocols(self):
         results = []
