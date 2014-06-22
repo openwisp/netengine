@@ -86,3 +86,7 @@ class TestBaseBackend(unittest.TestCase):
         
         with self.assertRaises(NotImplementedError):
             device.olsr
+        
+    def test_get_manufacturer_unicode(self):
+        device = BaseBackend()
+        self.assertIsNone(device.get_manufacturer(u"wrong MAC"))
