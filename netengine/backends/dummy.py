@@ -65,7 +65,7 @@ class Dummy(BaseBackend):
     def to_dict(self):
         return self._dict({
             "name": "dummy",
-            "type": "radio",
+            "type": "radio",  #maybe remove
             "os": "dummyOS",
             "os_version": "0.1",
             "manufacturer": "dummy inc.",
