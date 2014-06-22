@@ -174,6 +174,10 @@ class OpenWRT(SSH):
         returns a dictionary containing the information extracted from iwinfo <device> info
         """
         dictionary = {}
+        # in case there is no wireless interface 
+        if not "wlan0" in self._ubus_dict:
+            return dictionary
+
         iwinfo_result = self.run('iwinfo wlan0 info')
         lines = iwinfo_result.split("\n")
         char_occurrence = lines[0].find("ESSID")
