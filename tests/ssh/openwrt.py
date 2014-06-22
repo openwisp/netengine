@@ -53,9 +53,6 @@ class TestSSHOpenWRT(unittest.TestCase):
     
     def test_get_manufacturer_of_interfaces(self):
         self.assertTrue(type(self.device.get_manufacturer_of_interfaces()) == list)
-    
-    def test_filter_interfaces(self):
-        self.assertTrue(isinstance(self.device._filter_interfaces(), list))
 
     def test_filter_routing_protocols(self):
         self.assertTrue(isinstance(self.device._filter_routing_protocols(), list))

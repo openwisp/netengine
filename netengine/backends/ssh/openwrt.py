@@ -145,14 +145,6 @@ class OpenWRT(SSH):
         days = int(hours // 24)
         output = days, hours, minutes
         return output
-
-    def _filter_interfaces(self):
-        """
-        returns a list containing the device interfaces
-        """
-        if not self._ubus_dict:
-            self._ubus_call
-        return self._ubus_dict.keys()
     
     def _filter_radio_interfaces(self):
         """
@@ -226,8 +218,7 @@ class OpenWRT(SSH):
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
-            "interfaces": self._filter_interfaces(),
-            "interfaces_info": self.interfaces_to_dict,
+            "interfaces": self.interfaces_to_dict,
             "antennas": [],
             "routing_protocols": self._filter_routing_protocols()
         })
