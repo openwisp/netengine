@@ -164,10 +164,47 @@ class OpenWRT(SSH):
         dictionary["Station"] = result[0].strip()
         key  = result[1::2]
         value  = result[2::2]
-        for i in range (0, len(value)):
-            dictionary[key[i].strip()] = str(value[i].strip())
+        try:
+            for i in range (0, len(key)):
+                dictionary[key[i].strip()] = str(value[i].strip())
+        except Exception:
+            pass
         return dictionary
-        
+    
+    def _filter_radio(self):
+        """
+        returns a dictionary containing the information extracted from iwinfo <device> info
+        """
+        dictionary = {}
+        iwinfo_result = self.run('iwinfo wlan0 info')
+        lines = iwinfo_result.split("\n")
+        char_occurrence = lines[0].find("ESSID")
+        first_line = lines[0][char_occurrence:]
+        key = first_line.split(":")[0].lower()
+        value = first_line.split(":")[1].strip().replace(" ", "-")
+        value = value.replace('"', "")
+        dictionary[key] = value
+        for line in lines[1:]:
+            if line.count(": ") == 2:
+                partial =  line.strip().split("  ")
+                for element in partial:
+                    key = element.split(":")[0].lower().replace(" ", "-")
+                    value = element.split(":")[1].strip()
+                    if "(" and ")" in key:
+                        key = key.replace("(", "")
+                        key = key.replace(")", "")
+                        dictionary[key] = value
+                    dictionary[key] = value
+            else:
+                key = line.split(":")[0].strip().lower().replace(" ", "-")
+                value = line.split(":")[1].strip()
+                if "(" and ")" in key:
+                    key = key.replace("(", "")
+                    key = key.replace(")", "")
+                    dictionary[key] = value
+                dictionary[key] = value
+        return dictionary
+
     def _filter_routing_protocols(self):
         results = []
         olsr = self.olsr
