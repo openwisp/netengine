@@ -62,8 +62,10 @@ class OpenWRT(SSH):
         return (os, version)
     
     @property
-    def _ubus_call(self):
-        self._ubus_dict = json.loads(self.run('ubus call network.device status'))
+    def ubus_dict(self):
+        if not self._ubus_dict:
+            self._ubus_dict = json.loads(self.run('ubus call network.device status'))
+        return self._ubus_dict
     
     @property
     def _ubus_interface_infos(self):
@@ -78,12 +80,10 @@ class OpenWRT(SSH):
     
     @property
     def interfaces_to_dict(self):
-        if not self._ubus_dict:
-            self._ubus_call
         for interface in self._ubus_interface_infos:
             for key, values in interface.iteritems():
-                self._ubus_dict[interface["l3_device"]][str(key)] = values
-        return self._ubus_dict
+                self.ubus_dict[interface["l3_device"]][str(key)] = values
+        return self.ubus_dict
     
     @property
     def model(self):
@@ -127,14 +127,11 @@ class OpenWRT(SSH):
         """
         returns a string representing the manufacturer of the device
         """
-        if not self._ubus_dict:
-            self._ubus_call
-        
         # returns first not None value
-        for interface in self._ubus_dict.keys():
+        for interface in self.ubus_dict.keys():
             # ignore loopback interface
             if interface != "lo":
-                mac_address = self._ubus_dict[interface]['macaddr']
+                mac_address = self.ubus_dict[interface]['macaddr']
                 manufacturer = self.get_manufacturer(mac_address)
                 if manufacturer:
                     return manufacturer
@@ -175,7 +172,7 @@ class OpenWRT(SSH):
         """
         dictionary = {}
         # in case there is no wireless interface 
-        if not "wlan0" in self._ubus_dict:
+        if not "wlan0" in self.ubus_dict:
             return dictionary
 
         iwinfo_result = self.run('iwinfo wlan0 info')
