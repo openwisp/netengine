@@ -122,17 +122,23 @@ class OpenWRT(SSH):
         seconds = float(output.split()[0])
         return int(seconds)
     
-    def get_manufacturer_of_interfaces(self):
+    @property
+    def manufacturer(self):
         """
-        returns a list containing the manufacturer of the device interfaces
+        returns a string representing the manufacturer of the device
         """
-        interfaces_mac = []
         if not self._ubus_dict:
             self._ubus_call
-        for interface in self._ubus_dict.keys():
-            interfaces_mac.append(self.get_manufacturer(str(interface)))
-        return interfaces_mac[::-1]
         
+        # returns first not None value
+        for interface in self._ubus_dict.keys():
+            # ignore loopback interface
+            if interface != "lo":
+                mac_address = self._ubus_dict[interface]['macaddr']
+                manufacturer = self.get_manufacturer(mac_address)
+                if manufacturer:
+                    return manufacturer
+    
     @property
     def uptime_tuple(self):
         """
@@ -213,7 +219,7 @@ class OpenWRT(SSH):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": self.get_manufacturer_of_interfaces(),
+            "manufacturer": self.manufacturer,
             "model": self.model,
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,

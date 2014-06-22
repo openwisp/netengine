@@ -51,8 +51,8 @@ class TestSSHOpenWRT(unittest.TestCase):
     def test_filter_radio(self):
         self.assertTrue(isinstance(self.device._filter_radio(), dict))
     
-    def test_get_manufacturer_of_interfaces(self):
-        self.assertTrue(type(self.device.get_manufacturer_of_interfaces()) == list)
+    def test_manufacturer(self):
+        self.assertTrue(type(self.device.manufacturer) == str)
 
     def test_filter_routing_protocols(self):
         self.assertTrue(isinstance(self.device._filter_routing_protocols(), list))
