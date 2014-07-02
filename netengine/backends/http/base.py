@@ -37,10 +37,12 @@ class HTTP(BaseBackend):
     
     @property
     def cookie(self):
+        cookies = {}
         authentication = {"Username" : str(self.username) , "Password" : str(self.password)}
-        cookie = requests.post("http://" + self.host + "/login.cgi?uri=/", data = authentication, verify = False).headers['set-cookie']
-        self._cookie = cookie
-    
+        cookies['AIROS_SESSIONID'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = authentication, verify = False).cookies.get('AIROS_SESSIONID')
+        cookies['ui_language'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = authentication, verify = False).cookies.get('ui_language')
+        self._cookie = cookies
+        
     def get_json(self):
         json = requests.get("http://" + self.host + "/status.cgi", cookies = self._cookie, verify = False)
         return json
