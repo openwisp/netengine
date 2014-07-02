@@ -1,10 +1,20 @@
-import requests
+"""
+NetEngine SNMP Ubiquiti Air OS backend
+"""
+
+__all__ = ['AirOS']
 
 
-class AirOS(SNMP):
+
+from netengine.backends.http import HTTP
+
+
+
+class AirOS(HTTP):
     """
     Ubiquiti AirOS HTTP backend
     """
+    
     
     
     
