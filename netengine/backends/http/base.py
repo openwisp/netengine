@@ -2,6 +2,7 @@ from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 
 import requests
+import json
 
 __all__ = ['HTTP']
 
@@ -12,6 +13,7 @@ class HTTP(BaseBackend):
     """
     
     _cookie = None
+    _authentication = None
     
     def __init__(self, host, username, password):
         """
@@ -22,6 +24,7 @@ class HTTP(BaseBackend):
         self.host = host
         self.username = username
         self.password = password
+        self._authentication = {"Username" : str(self.username) , "Password" : str(self.password)}
         
     def __str__(self):
         """ prints a human readable object description """
@@ -38,14 +41,23 @@ class HTTP(BaseBackend):
     @property
     def cookie(self):
         cookies = {}
-        authentication = {"Username" : str(self.username) , "Password" : str(self.password)}
-        cookies['AIROS_SESSIONID'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = authentication, verify = False).cookies.get('AIROS_SESSIONID')
-        cookies['ui_language'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = authentication, verify = False).cookies.get('ui_language')
+        cookies['AIROS_SESSIONID'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = self._authentication, verify = False).cookies.get('AIROS_SESSIONID')
+        cookies['ui_language'] = requests.post("http://" + self.host + "/login.cgi?uri=/", data = self._authentication, verify = False).cookies.get('ui_language')
         self._cookie = cookies
         
     def get_json(self):
-        json = requests.get("http://" + self.host + "/status.cgi", cookies = self._cookie, verify = False)
-        return json
+        header = {"content-type" : "text/html"}
+        session = requests.Session()
+        session.post('https://" + self.host + "/login.cgi?uri=/status.cgi', headers = header)
+        """
+        header = {"content-type" : "text/html"}
+        json1 = requests.post("https://" + self.host + "/login.cgi?uri=/status.cgi", headers = header, cookies = self._cookie, verify = False)
+        if json1.history:
+            for hist in json1.history:
+                print hist.headers
+            print json1.history
+        return json1.text
+        """
     
     
     
