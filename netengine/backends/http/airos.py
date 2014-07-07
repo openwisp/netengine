@@ -56,6 +56,54 @@ class AirOS(HTTP):
             interfaces_dict[str(interfaces[i]['ifname'])].pop('ifname', None)
         return interfaces_dict
     
+    @property
+    def wireless(self):
+        """ returns all wireless info """
+        return self.info['wireless']
+    
+    @property
+    def wireless_stats(self):
+        """ returns wireless stats """
+        return self.info['wireless']['stats']
+    
+    @property
+    def wireless_polling(self):
+        """ returns wireless polling info """
+        return self.info['wireless']['polling']
+    
+    @property
+    def essid(self):
+        """ returns device's essid """
+        return str(self.info['wireless']['essid'])
+    
+    @property
+    def frequency(self):
+        """ returns device operating freq """
+        return str(self.info['wireless']['frequency'])
+    
+    @property
+    def rates(self):
+        """ returns antenna tx and rx rates as list """
+        rate = []
+        rate.append(int(self.info['wireless']['txrate']))
+        rate.append(int(self.info['wireless']['rxrate']))
+        return rate
+    
+    @property
+    def ap_addr(self):
+        """ returns tha AP MAC address """
+        return str(self.info['wireless']['apmac'])
+    
+    @property
+    def noisefloor(self):
+        """ returns the noisefloor (dB)"""
+        return int(self.info['wireless']['noisef'])
+    
+    @property
+    def mode(self):
+        """ returns the mode the device is working """
+        return str(self.info['wireless']['mode'])
+    
 
     
     
