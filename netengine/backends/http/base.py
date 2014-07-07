@@ -17,7 +17,7 @@ class HTTP(BaseBackend):
     """
     
     _authentication = None
-    _host_json = None
+    _host_info = None
     
     def __init__(self, host, username, password):
         """
@@ -38,8 +38,10 @@ class HTTP(BaseBackend):
         """ returns unicode string represantation """
         return self.__str__()
 
-    def get_json(self):
-        if not self._host_json:
+    @property
+    def info(self):
+    
+        if not self._host_info:
             browser = mechanize.Browser()
             browser.set_handle_robots(False)   # ignore robots
             browser.addheaders = [('User-agent', 'Firefox')]
@@ -50,8 +52,11 @@ class HTTP(BaseBackend):
             browser.form['password'] = str(self._authentication['password'])
             request = browser.submit()
             result = json.loads(request.read())
-            self._host_json = result
-        return result
+    
+            self._host_info = result
+    
+        return self._host_info
+    
        
         
         
