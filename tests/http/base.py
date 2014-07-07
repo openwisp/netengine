@@ -19,5 +19,5 @@ class TestHTTP(unittest.TestCase):
         self.assertTrue(self.device.__netengine__)
     
     def test_get_json(self):
-        self.assertTrue(type(self.device.get_json()['firewall']['iptables']) == int)
+        self.assertTrue(type(self.device.get_json()) == dict)
     
