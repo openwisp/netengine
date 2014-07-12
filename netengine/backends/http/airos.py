@@ -7,6 +7,12 @@ __all__ = ['AirOS']
 
 
 from netengine.backends.http import HTTP
+import json
+
+try:
+    import mechanize
+except ImportError:
+    "No mechanize installed on this host"
 
 
 
@@ -14,6 +20,25 @@ class AirOS(HTTP):
     """
     Ubiquiti AirOS HTTP backend
     """
+    
+    @property
+    def info(self):
+    
+        if not self._host_info:
+            browser = mechanize.Browser()
+            browser.set_handle_robots(False)   # ignore robots
+            browser.addheaders = [('User-agent', 'Firefox')]
+            response = browser.open("https://10.40.0.130/login.cgi?uri=/status.cgi")
+            browser.form = list(browser.forms())[0] 
+            browser.select_form(nr = 0)
+            browser.form['username'] = str(self._authentication['username'])
+            browser.form['password'] = str(self._authentication['password'])
+            request = browser.submit()
+            result = json.loads(request.read())
+    
+            self._host_info = result
+    
+        return self._host_info
     
     @property
     def firewall(self):
