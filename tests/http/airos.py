@@ -44,7 +44,7 @@ class TestHTTP(unittest.TestCase):
     def test_wireless_polling(self):
         self.assertTrue(type(self.device.polling) == dict)
     
-    def test_essid(self):
+    def test_ssid(self):
         self.assertTrue(type(self.device.essid) == str)
     
     def test_frequency(self):

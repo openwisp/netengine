@@ -72,7 +72,7 @@ class AirOS(HTTP):
         return self.info['wireless']['polling']
     
     @property
-    def essid(self):
+    def ssid(self):
         """ returns device's essid """
         return str(self.info['wireless']['essid'])
     
