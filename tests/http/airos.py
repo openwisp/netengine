@@ -11,9 +11,8 @@ class TestHTTP(unittest.TestCase):
 
     def setUp(self):
         self.host = settings['base-http']['host']
-        self.username = settings['base-http']['username']
-        self.password = settings['base-http']['password']
-        
+        self.username = "root"
+        self.password = "mind6222"
         self.device = AirOS(self.host, self.username, self.password)
         self.assertTrue(self.device.__netengine__)
     
@@ -42,10 +41,10 @@ class TestHTTP(unittest.TestCase):
         self.assertTrue(type(self.device.services) == dict)
     
     def test_wireless_polling(self):
-        self.assertTrue(type(self.device.polling) == dict)
+        self.assertTrue(type(self.device.wireless_polling) == dict)
     
     def test_ssid(self):
-        self.assertTrue(type(self.device.essid) == str)
+        self.assertTrue(type(self.device.ssid) == str)
     
     def test_frequency(self):
         self.assertTrue(type(self.device.frequency) == str)
@@ -61,3 +60,6 @@ class TestHTTP(unittest.TestCase):
     
     def test_mode(self):
         self.assertTrue(type(self.device.mode) == str)
+    
+    def test_to_dict(self):
+        self.assertTrue(isinstance(self.device.to_dict(), dict))

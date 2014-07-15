@@ -129,6 +129,17 @@ class AirOS(HTTP):
         """ returns the mode the device is working """
         return str(self.info['wireless']['mode'])
     
+    def to_dict(self):
+        return self._dict({
+            "name": str(self.host_info["hostname"]),
+            "ssid": str(self.ssid),
+            "type": "radio",
+            "uptime": self.host_info["uptime"],
+            "antennas": [],
+            "frequency": str(self.frequency), 
+            "wireless_dbm": str(self.noisefloor),
+        })
+    
 
     
     
