@@ -11,8 +11,8 @@ class TestHTTP(unittest.TestCase):
 
     def setUp(self):
         self.host = settings['base-http']['host']
-        self.username = "root"
-        self.password = "mind6222"
+        self.username = '' 
+        self.password = '' 
         self.device = AirOS(self.host, self.username, self.password)
         self.assertTrue(self.device.__netengine__)
     
