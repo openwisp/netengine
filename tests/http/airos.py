@@ -25,6 +25,9 @@ class TestHTTP(unittest.TestCase):
     def test_host_info(self):
         self.assertTrue(type(self.device.host_info) == dict)
 
+    def test_uptime(self):
+        self.assertTrue(type(self.device.uptime) == str)
+
     def test_airview(self):
         self.assertTrue(type(self.device.airview) == dict)
 

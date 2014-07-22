@@ -39,8 +39,8 @@ class AirOS(HTTP):
 
     @property
     def name(self):
-      """ returns the device name """
-      return str(self.info['host']['hostname'])
+        """ returns the device name """
+        return str(self.info['host']['hostname'])
 
     @property
     def firewall(self):
@@ -51,6 +51,11 @@ class AirOS(HTTP):
     def host_info(self):
         """ return host info (uptime, hostname) """
         return self.info['host']
+
+    @property
+    def uptime(self):
+        """ returns the device uptime time """
+        return str(self.info['host']['uptime'])
 
     @property
     def airview(self):
@@ -136,7 +141,7 @@ class AirOS(HTTP):
             "name": str(self.name),
             "ssid": str(self.ssid),
             "type": "radio",
-            "uptime": self.host_info["uptime"],
+            "uptime": self.uptime,
             "antennas": [],
             "frequency": str(self.frequency),
             "wireless_dbm": str(self.noisefloor),
