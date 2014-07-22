@@ -21,7 +21,7 @@ class TestDummyBackend(unittest.TestCase):
         self.assertTrue(isinstance(self.dummy.to_dict(), dict))
     
     def test_get_manufacturer(self):
-	self.assertIn("Xensource  Inc.", str(self.dummy.get_manufacturer()))    
+        self.assertIn("Xensource  Inc.", str(self.dummy.get_manufacturer()))    
     
     def test_to_json(self):
         json_string = self.dummy.to_json()
