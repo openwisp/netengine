@@ -19,6 +19,9 @@ class AirOS(HTTP):
     """
     Ubiquiti AirOS HTTP backend
     """
+    
+    _status_cgi = None
+    
     @property
     def info(self):
         if not self._status_cgi:
@@ -28,8 +31,8 @@ class AirOS(HTTP):
             response = browser.open("https://{host}/login.cgi?uri=/status.cgi".format(host=self.host))
             browser.form = list(browser.forms())[0]
             browser.select_form(nr = 0)
-            browser.form['username'] = str(self._authentication['username'])
-            browser.form['password'] = str(self._authentication['password'])
+            browser.form['username'] = self.username
+            browser.form['password'] = self.password
             request = browser.submit()
             result = json.loads(request.read())
 

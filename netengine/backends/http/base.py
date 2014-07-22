@@ -9,10 +9,6 @@ class HTTP(BaseBackend):
     """
     HTTP base backend
     """
-
-    _authentication = None
-    _status_cgi = None
-
     def __init__(self, host, username, password):
         """
         :host string: required
@@ -22,7 +18,6 @@ class HTTP(BaseBackend):
         self.host = host
         self.username = username
         self.password = password
-        self._authentication = {"username" : str(self.username) , "password" : str(self.password)}
 
     def __str__(self):
         """ prints a human readable object description """
