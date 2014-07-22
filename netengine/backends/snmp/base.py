@@ -1,4 +1,8 @@
-from pysnmp.entity.rfc3413.oneliner import cmdgen
+try:
+    from pysnmp.entity.rfc3413.oneliner import cmdgen
+except ImportError:
+    raise ImportError('pysnmp library is not installed, install it with "pip install pysnmp"')
+
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 
