@@ -117,8 +117,8 @@ class AirOS(HTTP):
     def rates(self):
         """ returns antenna tx and rx rates as list """
         rate = []
-        rate.append(int(self.info['wireless']['txrate']))
-        rate.append(int(self.info['wireless']['rxrate']))
+        rate.append(float(self.info['wireless']['txrate']))
+        rate.append(float(self.info['wireless']['rxrate']))
         return rate
 
     @property
