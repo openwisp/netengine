@@ -19,9 +19,10 @@ class AirOS(HTTP):
     """
     Ubiquiti AirOS HTTP backend
     """
-    
+
     _status_cgi = None
-    
+    _iflist_cgi = None
+
     @property
     def info(self):
         if not self._status_cgi:
@@ -39,6 +40,24 @@ class AirOS(HTTP):
             self._status_cgi = result
 
         return self._status_cgi
+
+    @property
+    def iflist(self):
+        if not self._iflist_cgi:
+            browser = mechanize.Browser()
+            browser.set_handle_robots(False)   # ignore robots
+            browser.addheaders = [('User-agent', 'Firefox')]
+            response = browser.open("https://{host}/login.cgi?uri=/iflist.cgi".format(host=self.host))
+            browser.form = list(browser.forms())[0]
+            browser.select_form(nr = 0)
+            browser.form['username'] = self.username
+            browser.form['password'] = self.password
+            request = browser.submit()
+            result = json.loads(request.read())
+
+            self._iflist_cgi = result
+
+        return self._iflist_cgi
 
     @property
     def name(self):
@@ -138,6 +157,17 @@ class AirOS(HTTP):
     def mode(self):
         """ returns the mode the device is working """
         return str(self.info['wireless']['mode'])
+
+    @property
+    def interface_ip(self):
+        key = []
+        allinfo = self.iflist
+        dict_interface = {}
+        for interface in allinfo["interfaces"]:
+            if "ipv4" in interface.keys():
+                for key, values in interface.iteritems():
+                    dict_interface[key]=values
+        return dict_interface
 
     def to_dict(self):
         return self._dict({
