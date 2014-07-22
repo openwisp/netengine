@@ -25,7 +25,7 @@ class AirOS(HTTP):
             browser = mechanize.Browser()
             browser.set_handle_robots(False)   # ignore robots
             browser.addheaders = [('User-agent', 'Firefox')]
-            response = browser.open("https://10.40.0.130/login.cgi?uri=/status.cgi")
+            response = browser.open("https://{host}/login.cgi?uri=/status.cgi".format(host=self.host))
             browser.form = list(browser.forms())[0]
             browser.select_form(nr = 0)
             browser.form['username'] = str(self._authentication['username'])
