@@ -16,6 +16,9 @@ class TestHTTP(unittest.TestCase):
         self.device = AirOS(self.host, self.username, self.password)
         self.assertTrue(self.device.__netengine__)
 
+    def test_name(self):
+        self.assertTrue(type(self.device.name) == str)
+
     def test_firewall(self):
         self.assertTrue(type(self.device.firewall) == dict)
 

@@ -38,6 +38,11 @@ class AirOS(HTTP):
         return self._host_info
 
     @property
+    def name(self):
+      """ returns the device name """
+      return str(self.info['host']['hostname'])
+
+    @property
     def firewall(self):
         """ returns firewall info about the device """
         return self.info['firewall']
@@ -128,7 +133,7 @@ class AirOS(HTTP):
 
     def to_dict(self):
         return self._dict({
-            "name": str(self.host_info["hostname"]),
+            "name": str(self.name),
             "ssid": str(self.ssid),
             "type": "radio",
             "uptime": self.host_info["uptime"],
