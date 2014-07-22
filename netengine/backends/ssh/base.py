@@ -1,4 +1,8 @@
-import paramiko
+try:
+    import paramiko
+except ImportError:
+    raise ImportError('paramiko library is not installed, install it with "pip install paramiko"')
+
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 from netengine.utils import ifconfig_to_python
