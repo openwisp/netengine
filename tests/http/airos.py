@@ -16,6 +16,12 @@ class TestHTTP(unittest.TestCase):
         self.device = AirOS(self.host, self.username, self.password)
         self.assertTrue(self.device.__netengine__)
 
+    def test_info(self):
+        self.assertTrue(type(self.device.info) == dict)
+
+    def test_iflist(self):
+        self.assertTrue(type(self.device.iflist) == dict)
+
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
 
