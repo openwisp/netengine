@@ -21,7 +21,7 @@ class AirOS(HTTP):
     """
     @property
     def info(self):
-        if not self._host_info:
+        if not self._status_cgi:
             browser = mechanize.Browser()
             browser.set_handle_robots(False)   # ignore robots
             browser.addheaders = [('User-agent', 'Firefox')]
@@ -33,9 +33,9 @@ class AirOS(HTTP):
             request = browser.submit()
             result = json.loads(request.read())
 
-            self._host_info = result
+            self._status_cgi = result
 
-        return self._host_info
+        return self._status_cgi
 
     @property
     def name(self):
