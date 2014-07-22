@@ -17,7 +17,3 @@ class TestHTTP(unittest.TestCase):
         self.password = settings['base-http']['password']
         self.device = HTTP(self.host, self.username, self.password)
         self.assertTrue(self.device.__netengine__)
-    
-    def test_get_json(self):
-        self.assertTrue(type(self.device.get_json()) == dict)
-    
