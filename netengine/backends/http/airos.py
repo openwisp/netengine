@@ -159,6 +159,17 @@ class AirOS(HTTP):
         return str(self.info['wireless']['mode'])
 
     @property
+    def uptime_tuple(self):
+        """ returns a tuple (days, hours, minutes) """
+        uptime = self.uptime
+        seconds = int(uptime)
+        minutes = int(seconds // 60)
+        hours = int(minutes // 60)
+        days = int(hours // 24)
+        output = days, hours, minutes
+        return output
+
+    @property
     def interface_ip(self):
         key = []
         allinfo = self.iflist
@@ -175,6 +186,7 @@ class AirOS(HTTP):
             "ssid": str(self.ssid),
             "type": "radio",
             "uptime": self.uptime,
+            "uptime_tuple": self.uptime_tuple,
             "antennas": [],
             "frequency": str(self.frequency),
             "wireless_dbm": str(self.noisefloor),
