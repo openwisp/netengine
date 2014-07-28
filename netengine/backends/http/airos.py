@@ -22,6 +22,7 @@ class AirOS(HTTP):
 
     _status_cgi = None
     _iflist_cgi = None
+    _sta_cgi = None
 
     @property
     def info(self):
@@ -58,6 +59,24 @@ class AirOS(HTTP):
             self._iflist_cgi = result
 
         return self._iflist_cgi
+
+    @property
+    def sta(self):
+        if not self._sta_cgi:
+            browser = mechanize.Browser()
+            browser.set_handle_robots(False)   # ignore robots
+            browser.addheaders = [('User-agent', 'Firefox')]
+            response = browser.open("https://{host}/login.cgi?uri=/sta.cgi".format(host=self.host))
+            browser.form = list(browser.forms())[0]
+            browser.select_form(nr = 0)
+            browser.form['username'] = self.username
+            browser.form['password'] = self.password
+            request = browser.submit()
+            result = json.loads(request.read())
+
+            self._sta_cgi = result
+
+        return self._sta_cgi
 
     @property
     def name(self):
@@ -180,6 +199,15 @@ class AirOS(HTTP):
                     dict_interface[key]=values
         return dict_interface
 
+    @property
+    def connected_stations(self):
+        results = []
+        for stations in self.sta:
+            results.append(self._dict({
+                "station" : stations
+            }))
+        return results
+
     def to_dict(self):
         return self._dict({
             "name": str(self.name),
@@ -188,6 +216,7 @@ class AirOS(HTTP):
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "antennas": [],
+            "connected_stations": self.connected_stations,
             "frequency": str(self.frequency),
             "wireless_dbm": str(self.noisefloor),
         })
