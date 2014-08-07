@@ -126,7 +126,7 @@ class AirOS(HTTP):
 
         for i in range(0, len(interfaces)):
             interfaces_dict[str(interfaces[i]['ifname'])] = interfaces[i]
-            interfaces_dict[str(interfaces[i]['ifname'])].pop('ifname', None)
+            # interfaces_dict[str(interfaces[i]['ifname'])].pop('ifname', None)
         return interfaces_dict
 
     @property
@@ -201,6 +201,7 @@ class AirOS(HTTP):
 
     @property
     def connected_stations(self):
+        """ return a list of connected stations """
         results = []
         for stations in self.sta:
             results.append(self._dict({
