@@ -51,16 +51,16 @@ Now you con crete your own virtualenv by typing::
 
   virtualenv <foo>
 
-Inside this folder you will find two subdirectories:
+Inside the folder foo you will find several subdirectories, the ones we are interested in are:
  * /bin
  * /src
 
  Before installing anything in you virtualenv named <foo>, please enter in /bin and type::
  source activate
 
-From now on all you are going to install will be visible only inside the scope of virtualev <foo>
+From now on, all you are going to install will be visible only inside the scope of virtualenv <foo>
 Now you can enter the directory /src and type::
- pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
+pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
 
 
 
@@ -72,6 +72,10 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
+
+   /topics/http
+   /topics/snmp
+   /topics/ssh
 
 
 
