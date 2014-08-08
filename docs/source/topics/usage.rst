@@ -5,7 +5,7 @@ Usage
 ******
 
 
-The usage of Netengine module requires it to be installed properly as explained in Install.
+The usage of Netengine module requires it to be installed properly as explained in :ref:`index_reference`.
 If you have an installation under a virtualenv, enter the folder /bin and type::
 source activate
 otherwise (if you have installed globally) just open an editor as bpython and you we are ready to go.
