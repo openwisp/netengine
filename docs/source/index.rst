@@ -21,9 +21,9 @@ Status of this project
 
 The project aims to be completed by the end of August 2013 which is the end of GSOC2014 program.
 As it is, it is composed by 3 backends:
- * HTTP
- * SSH
- * SNMP
+* HTTP
+* SSH
+* SNMP
 
 
 
@@ -67,8 +67,10 @@ pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
 
 
 
-
+==========
 Contents:
+==========
+
 
 .. toctree::
    :maxdepth: 2
@@ -76,6 +78,7 @@ Contents:
    /topics/http
    /topics/snmp
    /topics/ssh
+   /topics/usage
 
 
 
