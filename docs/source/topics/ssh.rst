@@ -3,6 +3,15 @@
 SSH backend
 **************
 
+
+
+SSH
+====
+
+SSH (Secure SHell) is a network protocol which can be used to remotely log in a user into a device, it provides cryptographic communication between two networked hosts.
+
+
+
 This backend provides access to remote device through SSH (Secure SHell).
 Moreover SSH backend supports two main firmwares:
 
