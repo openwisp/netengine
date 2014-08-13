@@ -30,9 +30,9 @@ Status of this project
 
 The project aims to be completed by the end of August 2013 which is the end of GSOC2014 program.
 As it is, it is composed by 3 backends:
-* HTTP
-* SSH
-* SNMP
+ * HTTP
+ * SSH
+ * SNMP
 
 =============
 Install
@@ -61,7 +61,8 @@ Inside the folder foo you will find several subdirectories, the ones we are inte
  * /bin
  * /src
 
- Before installing anything in you virtualenv named <foo>, please enter in /bin and type::
+Before installing anything in you virtualenv named <foo>, please enter in /bin and type::
+
  source activate
 
 From now on, all you are going to install will be visible only inside the scope of virtualenv <foo>
@@ -69,7 +70,10 @@ Now you can enter the directory /src and type::
 
  pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
 
-Now under /src you should have the directory ** netengine **
+Now under /src you should have the directory **netengine**
+
+
+
 
 
 ==========

@@ -33,7 +33,7 @@ AirOS example
  device.uptime_tuple
  (121, 0, 5)  # a tuple containing device uptime hours, mins and seconds
 
-We have just called two simple properties on **device**, but we can ask ** device ** for more specific values or portions of the SNMP tree not included in the API, just type::
+We have just called two simple properties on **device**, but we can ask **device** for more specific values or portions of the SNMP tree not included in the API, just type::
  device.next("1.3.6")
 
 Otherwise, if you want simply a value of the tree just type::
