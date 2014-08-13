@@ -214,6 +214,7 @@ class AirOS(HTTP):
             "name": str(self.name),
             "ssid": str(self.ssid),
             "type": "radio",
+            "mode": self.mode,
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "antennas": [],
