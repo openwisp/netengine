@@ -218,6 +218,8 @@ class AirOS(HTTP):
             "uptime": self.uptime,
             "uptime_tuple": self.uptime_tuple,
             "antennas": [],
+            "tx_rate": self.rates[0],
+            "rx_rate": self.rates[1], 
             "connected_stations": self.connected_stations,
             "frequency": str(self.frequency),
             "wireless_dbm": str(self.noisefloor),
