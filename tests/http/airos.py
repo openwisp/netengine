@@ -79,5 +79,8 @@ class TestHTTP(unittest.TestCase):
     def test_connected_stations(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
 
+    def test_format_interfaces(self):
+        self.assertTrue(type(self.device.format_interfaces()) == tuple)
+
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))

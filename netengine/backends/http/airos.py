@@ -209,6 +209,16 @@ class AirOS(HTTP):
             }))
         return results
 
+    def format_interfaces(self):
+        list_of_dictionaries = []
+        interface_list = self.iflist["interfaces"];
+        for i in range(0, len(interface_list)):
+            dictionary = {}
+            if interface_list[i]["ifname"] in self.interface_ip.values():
+                dictionary[interface_list[i]["ifname"]] = interface_list[i]
+                list_of_dictionaries.append(dictionary)
+        return list_of_dictionaries
+
     def to_dict(self):
         return self._dict({
             "name": str(self.name),
@@ -219,7 +229,8 @@ class AirOS(HTTP):
             "uptime_tuple": self.uptime_tuple,
             "antennas": [],
             "tx_rate": self.rates[0],
-            "rx_rate": self.rates[1], 
+            "rx_rate": self.rates[1],
+            "interfaces": self.format_interfaces(),
             "connected_stations": self.connected_stations,
             "frequency": str(self.frequency),
             "wireless_dbm": str(self.noisefloor),
