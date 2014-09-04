@@ -2,122 +2,23 @@
 netengine
 =========
 
+.. image:: https://readthedocs.org/projects/netengine/badge/?version=latest
+    :target: https://readthedocs.org/projects/netengine/?badge=latest
+    :alt: Documentation Status
+
 .. image:: https://landscape.io/github/ninuxorg/netengine/master/landscape.png
-   :target: https://landscape.io/github/ninuxorg/netengine/master
-   :alt: Code Health
+    :target: https://landscape.io/github/ninuxorg/netengine/master
+    :alt: Code Health
 
 .. image:: https://requires.io/github/ninuxorg/netengine/requirements.png?branch=master
-   :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
-   :alt: Requirements Status
+    :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
+    :alt: Requirements Status
 
 Abstraction layer for extracting information from network devices.
 
-Install
-=======
+------------------------------
 
-Install via pip::
-
-    pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
-
-Usage
-=====
-
-SSH example::
-
-    from netengine.backends.ssh import AirOS
-    
-    device = AirOS('10.40.0.1', 'root', 'password')
-    
-    device.name
-    'RM5PomeziaSNode'
-    device.model
-    'Rocket M5'
-    device.os
-    ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
-
-    device.to_json()
-    
-Specific backend (protocol) commands, SSH example::
-
-    print device.run('ls -l')
-    -rw-------    1 root     admin         459 Jan 26  2011 dropbear_dss_host_key
-    -rw-------    1 root     admin         427 Jan 26  2011 dropbear_rsa_host_key
-    drwxr-xr-x    3 root     admin           0 Oct 21  2011 mcuser
-    -rwxr-xr-x    1 root     admin         662 Nov 11 18:12 ninux
-    -rw-------    1 root     admin        1133 Nov 12 00:27 olsrd.conf
-    -rw-r--r--    1 root     admin         786 Dec 21  2011 olsrd6.conf
-    -rw-r--r--    1 root     admin         234 Jan  4  2012 radvd.conf
-
-SNMP example::
-
-    from netengine.backends.snmp import AirOS
-    
-    device = AirOS('10.40.0.1', community='public')
-    
-    device.name
-    'RM5PomeziaSNode'
-    device.model
-    'Rocket M5'
-    device.os
-    ('AirOS', 'XMar7240.v5.3.3.sdk.9634.1111221.2238')
-
-Specific SNMP command example::
-
-    from netengine.backends.snmp import OpenWRT
-    
-    device = OpenWRT('10.40.0.1', community='public')
-    # get a certain OID
-    device.get('1.2.840.10036.3.1.2.1.4.8')
-    
-
-HTTP example::
-
-    # TODO
-
-MUNIN example::
-
-    # TODO
-
-Running tests
-=============
-
-Install nose::
-
-    pip install nose
-
-Clone repo::
-
-    git clone git://github.com/ninuxorg/netengine
-    
-    cd netengine/
-
-Edit settings json file according to your network::
-
-    cp test-settings.example.json test-settings.json
-    vim test-settings.json
-
-Run tests with::
-
-    nosetests
-
-See test coverage with::
-
-    nosetests --with-coverage --cover-package=netengine
-
-Run specific tests by specifying the relative path::
-
-    # base tests
-    nosetests tests.base
-
-    # snmp tests
-    nosetests tests.snmp
-    # snmp openwrt specific tests
-    nosetests tests.snmp.openwrt
-    
-    # ssh tests
-    nosetests tests.ssh
-    # ssh airos specific tests
-    nosetests tests.ssh.airos
+Documentation: http://netengine.rtfd.org
 
 Contribute
 ==========
