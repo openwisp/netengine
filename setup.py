@@ -9,6 +9,7 @@ setup(
     description="Abstraction layer for extracting information from network devices.",
     long_description=open('README.rst').read(),
     author='Federico Capoano (nemesisdesign)',
+    author_email='ninux-dev@ml.ninux.org',
     license='MIT',
     url='https://github.com/nemesisdesign/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
