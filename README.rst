@@ -14,6 +14,9 @@ netengine
     :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
     :alt: Requirements Status
 
+.. image:: https://badge.fury.io/py/netengine.png
+    :target: http://badge.fury.io/py/netengine
+
 .. image:: https://pypip.in/d/netengine/badge.png
     :target: https://pypi.python.org/pypi/netengine
 
