@@ -8,11 +8,12 @@ __all__ = ['OpenWRT']
 from netengine.backends.ssh import SSH
 import json
 
+
 class OpenWRT(SSH):
     """
     OpenWRT SSH backend
     """
-    
+
     _ubus_dict = {}
     _iwinfo_dict = {}
 
@@ -30,7 +31,6 @@ class OpenWRT(SSH):
         """ get os name and version, return as tuple """
         # cache command output
         output = self.run('cat /etc/openwrt_release')
-
         # init empty dict
         info = {}
 
@@ -47,26 +47,22 @@ class OpenWRT(SSH):
         os = info['id']
         version = info['release']
 
-        if info['description']:
-
-            if info['revision']:
+        if info.get('description'):
+            if info.get('revision'):
                 additional_info = "%(description)s, %(revision)s" % info
             else:
                 additional_info = "%(description)s" % info
-
             # remove redundant OpenWRT occuerrence
             additional_info = additional_info.replace('OpenWrt ', '')
-
             version = "%s (%s)" % (version, additional_info)
-
         return (os, version)
-    
+
     @property
     def ubus_dict(self):
         if not self._ubus_dict:
             self._ubus_dict = json.loads(self.run('ubus call network.device status'))
         return self._ubus_dict
-    
+
     @property
     def _ubus_interface_infos(self):
         """
@@ -77,14 +73,14 @@ class OpenWRT(SSH):
             if "network.interface." in interface:
                 list.append(json.loads(self.run('ubus call '+ interface + ' status')))
         return list
-    
+
     @property
     def interfaces_to_dict(self):
         for interface in self._ubus_interface_infos:
             for key, values in interface.iteritems():
                 self.ubus_dict[interface["l3_device"]][str(key)] = values
         return self.ubus_dict
-    
+
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
@@ -96,7 +92,7 @@ class OpenWRT(SSH):
             return output.split('[')[1].replace(']','')
         except IndexError:
             return None
-        
+
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
@@ -121,7 +117,7 @@ class OpenWRT(SSH):
         output = self.run('cat /proc/uptime')
         seconds = float(output.split()[0])
         return int(seconds)
-    
+
     @property
     def manufacturer(self):
         """
@@ -135,7 +131,7 @@ class OpenWRT(SSH):
                 manufacturer = self.get_manufacturer(mac_address)
                 if manufacturer:
                     return manufacturer
-    
+
     @property
     def uptime_tuple(self):
         """
@@ -148,7 +144,7 @@ class OpenWRT(SSH):
         days = int(hours // 24)
         output = days, hours, minutes
         return output
-    
+
     def _filter_radio_interfaces(self):
         """
         returns informations about wireless interfaces as per iw station wlanX dump
@@ -165,13 +161,13 @@ class OpenWRT(SSH):
         except Exception:
             pass
         return dictionary
-    
+
     def _filter_radio(self):
         """
         returns a dictionary containing the information extracted from iwinfo <device> info
         """
         dictionary = {}
-        # in case there is no wireless interface 
+        # in case there is no wireless interface
         if not "wlan0" in self.ubus_dict:
             return dictionary
 
@@ -229,5 +225,3 @@ class OpenWRT(SSH):
             "antennas": [],
             "routing_protocols": self._filter_routing_protocols()
         })
-
-
