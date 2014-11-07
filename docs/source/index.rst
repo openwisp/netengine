@@ -20,7 +20,7 @@ the mainly used firmwares in nowadays devices (e.g antennas and routers).
 Motivations
 ============
 
-Ninux, the association Netengine's idea came from, is an italian wireless community network with more than XXX nodes.
+Ninux, the association Netengine's idea came from, is an italian wireless community network with more than 300 nodes.
 Many times network debugging of a such number of devices can be a huge nightmare.
 Moreover Netengine wants to be a tool to properly fill databases used for purposes other than device debugging or control such as Ninux map ** map.ninux.org **
 
