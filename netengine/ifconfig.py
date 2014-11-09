@@ -21,7 +21,7 @@ class IfConfig(object):
         Parses an ifconfig block
         """
         mo = re.search(
-            r'^(?P<name>\w+|\w+:\d+)\s+' +
+            r'^(?P<name>\S+)\s+' +
             r'Link encap:(?P<link_encap>\S+(\s\S+)?)' +
             r'(\s+HWaddr\s+(?P<hardware_address>\S+))?' +
             r'(\s+inet addr:(?P<inet>\S+))?' +
