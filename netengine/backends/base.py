@@ -15,7 +15,6 @@ class BaseBackend(object):
     """
     Base NetEngine Backend
     """
-
     __netengine__ = True
     _dict = OrderedDict
 
@@ -139,7 +138,7 @@ class BaseBackend(object):
     def get_manufacturer(self, mac_address):
         """ returns the manufacturer of the network interface """
         # casting mac_address to str (unicode causes problems)
-        mac_address = str(mac_address) 
+        mac_address = str(mac_address)
         base = netengine.__file__
         file_path = os.path.dirname(os.path.dirname(base))
         manufacturer_file = open(os.path.join(file_path,"netengine/resources/manufacturer.txt"))

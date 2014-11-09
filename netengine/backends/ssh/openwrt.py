@@ -13,7 +13,6 @@ class OpenWRT(SSH):
     """
     OpenWRT SSH backend
     """
-
     _ubus_dict = {}
     _iwinfo_dict = {}
 
@@ -71,7 +70,7 @@ class OpenWRT(SSH):
         list = []
         for interface in self.run('ubus list').split():
             if "network.interface." in interface:
-                list.append(json.loads(self.run('ubus call '+ interface + ' status')))
+                list.append(json.loads(self.run('ubus call %s status' % interface)))
         return list
 
     @property
@@ -89,14 +88,13 @@ class OpenWRT(SSH):
         # Hardware: 168C:002A 0777:E805 [Ubiquiti Bullet M5]
         # and we'll extract only the string between square brackets
         try:
-            return output.split('[')[1].replace(']','')
+            return output.split('[')[1].replace(']', '')
         except IndexError:
             return None
 
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
-
         output = self.run("iwconfig 2>/dev/null | grep Mode | awk '{print $4}' | awk -F ':' '{print $2}'")
         output = output.strip()
 
