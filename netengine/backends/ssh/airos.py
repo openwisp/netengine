@@ -152,86 +152,28 @@ class AirOS(SSH):
         tmp
         """
         interfaces = self.get_interfaces()
-        
-        results = [] 
-        
+        results = []
+        # loop over interfaces
         for interface in interfaces:
-            # if this is an interesting interface
-            if interface.get('ip_address', '') == '':
-                continue
-            
-            result = None
-            
             # is it Ethernet?
-            if 'eth' in interface['interface']:
-                
-                result = self._dict({
-                    "type": "ethernet",
-                    "name": interface['interface'],
-                    "mac_address": interface['hardware_address'],
-                    "mtu": interface['mtu'],
-                    "standard": self.ethernet_standard,
-                    "duplex": self.ethernet_duplex,
-                    "tx_rate": None,
-                    "rx_rate": None,
-                    "ip": [
-                        self._dict({
-                            "version": 4,
-                            "address": interface['ip_address']
-                        })
-                    ]
-                })
+            if 'eth' in interface['name']:
+                interface['type'] = 'ethernet'
             # is it Wireless?
-            elif 'wlan' in interface['interface'] or 'ath' in interface['interface']:
-                
-                result = self._dict({
-                    "type": "wireless",
-                    "name": interface['interface'],
-                    "mac_address": interface['hardware_address'],
-                    "mtu": interface['mtu'],
-                    "standard": "802.11n",
+            elif 'wlan' in interface['name'] or 'ath' in interface['name']:
+                interface['type'] = 'ethernet'
+                interface['wireless'] = {
                     "channel": self.wireless_channel,
                     "channel_width": self.wireless_channel_width,
                     "mode": self.wireless_mode,
                     "output_power": self.wireless_output_power,
-                    "tx_rate": None,
-                    "rx_rate": None,
                     "dbm": self.wireless_dbm,
                     "noise": self.wireless_noise,
-                    "ip": [
-                        self._dict({
-                            "version": 4,
-                            "address": interface['ip_address']
-                        })
-                    ],
-                    "vap": [
-                        self._dict({
-                            "essid": "placeholder",
-                            "bssid": "",
-                            "encryption": ""
-                        })
-                    ]
-                })
-            else:
-                # TODO!!! VPN, BRIDGES, VLANS, etc..
-                pass
-            
-            if result:
-                
-                # check if it has an ipv6 address
-                ipv6_address = self.get_ipv6_of_interface(interface['interface'])
-                if ipv6_address:
-                    # subtract netmask
-                    ipv6_address = ipv6_address.split('/')[0]
-                    result["ip"].append(self._dict({
-                            "version": 6,
-                            "address": ipv6_address
-                    }))
-                
-                results.append(result)
-        
+                    "essid": "placeholder",
+                    "encryption": "placeholder"
+                }
+            results.append(interface)
+        # return results
         return results
-    
     def _filter_routing_protocols(self):
         results = []
         
