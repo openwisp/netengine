@@ -22,6 +22,8 @@ netengine
 
 ------------------------------
 
+.. image:: https://raw.githubusercontent.com/ninuxorg/netengine/master/docs/source/images/netengine-logo.png
+
 Abstraction layer for extracting information from network devices.
 
 Documentation: http://netengine.rtfd.org
