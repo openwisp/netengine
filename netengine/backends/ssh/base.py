@@ -5,7 +5,7 @@ except ImportError:
 
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
-from netengine.utils import ifconfig_to_python
+from netengine.utils import IfConfig
 
 
 __all__ = ['SSH']
@@ -102,19 +102,16 @@ class SSH(BaseBackend):
 
     def get_interfaces(self):
         """ get device interfaces """
-        return ifconfig_to_python(self.run('ifconfig'))
+        return IfConfig(self.run('ifconfig')).to_netjson(python=True)
 
     def get_ipv6_of_interface(self, interface_name):
         """ return ipv6 address for specified interface """
         command = "ip -6 addr show %s" % interface_name
-
         output = self.run(command)
-
         ipv6 = None
 
         for line in output.split('\n'):
             line = line.strip()
-
             if 'global' in line:
                 parts = line.split(' ')
                 ipv6 = parts[1]
@@ -130,13 +127,10 @@ class SSH(BaseBackend):
         returns None if not installed
         """
         version_string = self.run('olsrd -v')
-
         if 'not found' in version_string:
             return False
-
         # extract olsr version and url
         lines = version_string.split('\n')
         version = lines[0].split(' - ')[1].strip()
         url = lines[2].strip()
-
         return (version, url)
