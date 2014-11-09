@@ -12,14 +12,13 @@ class AirOS(SSH):
     """
     Ubiquiti AirOS SSH backend
     """
-    
     __ubntbox = None
     __systemcfg = None
-    
+
     def __str__(self):
         """ print a human readable object description """
         return u"<SSH (Ubiquity AirOS): %s@%s>" % (self.username, self.host)
-    
+
     @property
     def _ubntbox(self):
         """
@@ -28,12 +27,10 @@ class AirOS(SSH):
         # get result if not present in memory yet
         if not self.__ubntbox:
             output = self.run('ubntbox mca-status')
-            
             info = {}
-            
+            # loop over output
             for line in output.split('\r\n'):
                 parts = line.split('=')
-                
                 # main device info
                 if len(parts) > 2:
                     subparts = line.split(',')
@@ -45,12 +42,11 @@ class AirOS(SSH):
                     info[parts[0]] = parts[1]
                 else:
                     pass
-        
+            # store
             self.__ubntbox = info
-        
         # return output
         return self.__ubntbox
-    
+
     @property
     def _systemcfg(self):
         """
@@ -59,39 +55,38 @@ class AirOS(SSH):
         # if config hasn't been retrieved yet do it now
         if not self.__systemcfg:
             output = self.run('cat /tmp/system.cfg')
-        
             info = {}
-            
+            # parse lines
             for line in output.split('\n'):
                 parts = line.split('=')
-                
+                # if subvalues
                 if len(parts) == 2:
+                    # use sub dicttionaries
                     info[parts[0]] = parts[1]
-            
+            # store
             self.__systemcfg = info
-        
         # return config
         return self.__systemcfg
-    
+
     @property
     def os(self):
         """ get OS string, return tuple with OS name and OS version """
         return ('AirOS', self._ubntbox['firmwareVersion'])
-    
+
     @property
     def name(self):
         """ get device name """
         return self.run('uname -a').split(' ')[1]
-    
+
     @property
     def model(self):
         """ get device model name, eg: Nanostation M5, Rocket M5 """
         return self._ubntbox['platform']
-    
+
     @property
     def RAM_total(self):
         return int(self._ubntbox['memTotal'])
-    
+
     @property
     def ethernet_standard(self):
         """ determine ethernet standard """
@@ -103,7 +98,7 @@ class AirOS(SSH):
             return 'legacy'
         else:
             return None
-    
+
     @property
     def ethernet_duplex(self):
         """ determine if ethernet interface is full-duplex or not """
@@ -111,7 +106,7 @@ class AirOS(SSH):
             return 'full'
         elif 'Half' in self._ubntbox['lanSpeed']:
             return 'half'
-    
+
     @property
     def wireless_channel_width(self):
         """ retrieve wireless channel width """
@@ -121,32 +116,32 @@ class AirOS(SSH):
             return 40
         else:
             return None
-    
+
     @property
     def wireless_mode(self):
         """ retrieve wireless mode (AP/STA) """
         return self._ubntbox['wlanOpmode']
-    
+
     @property
     def wireless_channel(self):
         """ retrieve wireless channel / frequency """
         return self._ubntbox['freq']
-    
+
     @property
     def wireless_output_power(self):
         """ retrieve output power """
         return int(self._systemcfg['radio.1.txpower'])
-    
+
     @property
     def wireless_dbm(self):
         """ get dbm """
         return self._ubntbox['signal']
-    
+
     @property
     def wireless_noise(self):
         """ retrieve noise """
         return self._ubntbox['noise']
-    
+
     def _filter_interfaces(self):
         """
         tmp
@@ -174,20 +169,17 @@ class AirOS(SSH):
             results.append(interface)
         # return results
         return results
+
     def _filter_routing_protocols(self):
         results = []
-        
-        olsr = self.olsr
-        if olsr:
+        if self.olsr:
             results.append(self._dict({
                 "name": "olsr",
-                "version": olsr[0]
+                "version": self.olsr[0]
             }))
-        
         # other routing protocols
-        
         return results
-    
+
     def to_dict(self):
         return self._dict({
             "name": self.name,
@@ -200,6 +192,5 @@ class AirOS(SSH):
             "uptime": None,
             "uptime_tuple": None,
             "interfaces": self._filter_interfaces(),
-            "antennas": [],
             "routing_protocols": self._filter_routing_protocols()
         })
