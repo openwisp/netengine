@@ -11,7 +11,7 @@ setup(
     author='Federico Capoano (nemesisdesign)',
     author_email='ninux-dev@ml.ninux.org',
     license='MIT',
-    url='https://github.com/nemesisdesign/netengine',
+    url='https://github.com/ninuxorg/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
     install_requires=[
         'paramiko',
