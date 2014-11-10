@@ -89,6 +89,89 @@ wlan0     Link encap:Ethernet  HWaddr 00:16:44:60:32:d2
         self.assertEqual(wlan['rx_bytes'], '18964958')
         self.assertEqual(wlan['tx_bytes'], '147671')
 
+    def test_to_json(self):
+        output = """eth0      Link encap:Ethernet  HWaddr 00:26:b9:20:5f:09
+          inet addr:193.206.99.183  Bcast:193.206.99.255  Mask:255.255.255.128
+          inet6 addr: fe80::226:b9ff:fe20:5f09/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:8350427 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:5746099 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:1025704661 (1.0 GB)  TX bytes:12316739027 (12.3 GB)
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:10077 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:10077 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2589263 (2.5 MB)  TX bytes:2589263 (2.5 MB)
+
+wlan0     Link encap:Ethernet  HWaddr 00:16:44:60:32:d2
+          inet addr:172.19.184.164  Bcast:172.19.255.255  Mask:255.255.0.0
+          inet6 addr: fe80::216:44ff:fe60:32d2/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:148496 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:972 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:18964958 (18.9 MB)  TX bytes:147671 (147.6 KB)"""
+
+        json_output = IfConfig(output).to_json()
+        i = json.loads(json_output)
+        self.assertEqual(len(i), 3)
+        eth = i[0]
+        lo = i[1]
+        wlan = i[2]
+
+        self.assertEqual(eth['name'], 'eth0')
+        self.assertEqual(eth['link_encap'], 'Ethernet')
+        self.assertEqual(eth['hardware_address'], '00:26:b9:20:5f:09')
+        self.assertEqual(eth['inet'], '193.206.99.183')
+        self.assertEqual(eth['broadcast'], '193.206.99.255')
+        self.assertEqual(eth['mask'], '255.255.255.128')
+        self.assertEqual(eth['inet6'], '')
+        self.assertEqual(eth['inet6_local'], 'fe80::226:b9ff:fe20:5f09/64')
+        self.assertEqual(eth['mtu'], '1500')
+        self.assertEqual(eth['metric'], '1')
+        self.assertEqual(eth['rx_packets'], '8350427')
+        self.assertEqual(eth['tx_packets'], '5746099')
+        self.assertEqual(eth['collisions'], '0')
+        self.assertEqual(eth['txqueuelen'], '1000')
+        self.assertEqual(eth['rx_bytes'], '1025704661')
+        self.assertEqual(eth['tx_bytes'], '12316739027')
+
+        self.assertEqual(lo['name'], 'lo')
+        self.assertEqual(lo['link_encap'], 'Local Loopback')
+        self.assertEqual(lo['inet'], '127.0.0.1')
+        self.assertEqual(lo['mask'], '255.0.0.0')
+        self.assertEqual(lo['inet6'], '::1/128')
+        self.assertEqual(lo['mtu'], '65536')
+        self.assertEqual(lo['metric'], '1')
+        self.assertEqual(lo['rx_packets'], '10077')
+        self.assertEqual(lo['tx_packets'], '10077')
+        self.assertEqual(lo['collisions'], '0')
+        self.assertEqual(lo['txqueuelen'], '0')
+        self.assertEqual(lo['rx_bytes'], '2589263')
+        self.assertEqual(lo['tx_bytes'], '2589263')
+
+        self.assertEqual(wlan['name'], 'wlan0')
+        self.assertEqual(wlan['link_encap'], 'Ethernet')
+        self.assertEqual(wlan['hardware_address'], '00:16:44:60:32:d2')
+        self.assertEqual(wlan['inet'], '172.19.184.164')
+        self.assertEqual(wlan['broadcast'], '172.19.255.255')
+        self.assertEqual(wlan['mask'], '255.255.0.0')
+        self.assertEqual(wlan['inet6'], '')
+        self.assertEqual(wlan['inet6_local'], 'fe80::216:44ff:fe60:32d2/64')
+        self.assertEqual(wlan['mtu'], '1500')
+        self.assertEqual(wlan['metric'], '1')
+        self.assertEqual(wlan['rx_packets'], '148496')
+        self.assertEqual(wlan['tx_packets'], '972')
+        self.assertEqual(wlan['collisions'], '0')
+        self.assertEqual(wlan['txqueuelen'], '1000')
+        self.assertEqual(wlan['rx_bytes'], '18964958')
+        self.assertEqual(wlan['tx_bytes'], '147671')
+
     def test_simple_output_linux_openwrt_backfire(self):
         output = """eth0      Link encap:Ethernet  HWaddr 00:27:22:4D:7C:55
           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1

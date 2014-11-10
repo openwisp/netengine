@@ -44,7 +44,7 @@ class IfConfig(object):
         return {}
 
     def to_python(self):
-        """ returns python dictionary representation of if config output """
+        """ returns python dictionary representation of ifconfig output """
         return self.interfaces
 
     def to_json(self, **kwargs):
