@@ -1,7 +1,7 @@
 import unittest
 import json
 
-from netengine.ifconfig import IfConfig
+from netengine.utils.ifconfig import IfConfig
 
 
 __all__ = ['TestIfConfigParser']
@@ -267,7 +267,7 @@ wifi0     Link encap:Ethernet  HWaddr 00:27:22:16:8B:12
         self.assertEqual(len(i), 6)
         eth24 = i[3]
         self.assertEqual(eth24['name'], 'eth0.24')
-        
+
         i = IfConfig(output).to_netjson(python=True)
         self.assertEqual(len(i), 6)
         eth24 = i[3]
