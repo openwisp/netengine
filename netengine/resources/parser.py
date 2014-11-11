@@ -2,7 +2,6 @@ import os
 import json
 
 
-
 def parse_manufacturer():
     dictionary = {}
     manufacturer_file = open("manufacturers.txt")

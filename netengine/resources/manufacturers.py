@@ -1,4 +1,4 @@
-{
+dictionary = {
     "000000": "XEROX CORPORATION", 
     "000001": "XEROX CORPORATION", 
     "000002": "XEROX CORPORATION", 
