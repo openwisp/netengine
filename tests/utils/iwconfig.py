@@ -1,5 +1,6 @@
 import unittest
 import json
+from collections import OrderedDict
 
 from netengine.utils.iwconfig import IwConfig
 
@@ -32,12 +33,11 @@ r11v16    IEEE 802.11g  ESSID:"ExampleWifi"
           Tx excessive retries:3  Invalid misc:4   Missed beacon:5
 
 setup00   no wireless extensions."""
-
         i = IwConfig(output).to_python()
 
         self.assertEqual(len(i), 1)
         self.assertEqual(len(i[0].keys()), 21)
-        self.assertTrue(type(i[0]) is dict)
+        self.assertTrue(type(i[0]) is OrderedDict)
         self.assertEqual(i[0]['name'], 'r11v16')
         self.assertEqual(i[0]['ieee'], '802.11g')
         self.assertEqual(i[0]['essid'], 'ExampleWifi')
@@ -85,6 +85,13 @@ setup00   no wireless extensions."""
           Link Quality=69/70  Signal level=-27 dBm  Noise level=-96 dBm
           Rx invalid nwid:630390  Rx invalid crypt:1  Rx invalid frag:2
           Tx excessive retries:3  Invalid misc:4   Missed beacon:5"""
+
+        i = IwConfig(output).to_netjson(python=True)
+        self.assertEqual(len(i), 1)
+        self.assertTrue(type(i[0]) is OrderedDict)
+        self.assertEqual(len(i[0].keys()), 3)
+        self.assertEqual(len(i[0]['wireless'].keys()), 7)
+
         json_output = IwConfig(output).to_netjson()
         i = json.loads(json_output)
         self.assertEqual(len(i), 1)

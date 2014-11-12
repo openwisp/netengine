@@ -1,5 +1,6 @@
 import re
 import json
+from collections import OrderedDict
 
 
 class IwConfig(object):
@@ -26,7 +27,7 @@ class IwConfig(object):
                 self.interfaces.append(self._parse_block(block))
 
     def _parse_block(self, output):
-        result = {}
+        result = OrderedDict()
         lines = output.split('\n')
         # first line is special, split it in parts,
         # use double whitespace as delimeter
@@ -60,22 +61,22 @@ class IwConfig(object):
         """ convert to netjson format """
         result = []
         for i in self.interfaces:
-            wireless = {
-                'bitrate': i.get('bit_rate'),
-                'standard': i.get('ieee'),
-                'essid': i.get('essid'),
-                'mode': self.MODE_MAP.get(i['mode']),
-                'rts_threshold': i.get('rts_thr'),
-                'frag_threshold': i.get('fragment_thr')
-            }
+            wireless = OrderedDict((
+                ('bitrate', i.get('bit_rate')),
+                ('standard', i.get('ieee')),
+                ('essid', i.get('essid')),
+                ('mode', self.MODE_MAP.get(i['mode'])),
+                ('rts_threshold', i.get('rts_thr')),
+                ('frag_threshold', i.get('fragment_thr'))
+            ))
             if 'encryption_key' in i:
                 wireless['encryption'] = i['encryption_key'] != 'off'
-            
-            result.append({
-                'name': i['name'],
-                'mac': i['access_point'],
-                'wireless': wireless
-            })
+
+            result.append(OrderedDict((
+                ('name', i['name']),
+                ('mac', i['access_point']),
+                ('wireless', wireless)
+            )))
         # can return both python and json
         if python:
             return result
