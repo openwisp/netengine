@@ -1,5 +1,6 @@
 import unittest
 import json
+from collections import OrderedDict
 
 from netengine.utils.ifconfig import IfConfig
 
@@ -41,6 +42,7 @@ wlan0     Link encap:Ethernet  HWaddr 00:16:44:60:32:d2
         lo = i[1]
         wlan = i[2]
 
+        self.assertTrue(type(eth) is OrderedDict)
         self.assertEqual(eth['name'], 'eth0')
         self.assertEqual(eth['link_encap'], 'Ethernet')
         self.assertEqual(eth['hardware_address'], '00:26:b9:20:5f:09')
@@ -58,6 +60,7 @@ wlan0     Link encap:Ethernet  HWaddr 00:16:44:60:32:d2
         self.assertEqual(eth['rx_bytes'], '1025704661')
         self.assertEqual(eth['tx_bytes'], '12316739027')
 
+        self.assertTrue(type(lo) is OrderedDict)
         self.assertEqual(lo['name'], 'lo')
         self.assertEqual(lo['link_encap'], 'Local Loopback')
         self.assertEqual(lo['inet'], '127.0.0.1')
@@ -72,6 +75,7 @@ wlan0     Link encap:Ethernet  HWaddr 00:16:44:60:32:d2
         self.assertEqual(lo['rx_bytes'], '2589263')
         self.assertEqual(lo['tx_bytes'], '2589263')
 
+        self.assertTrue(type(wlan) is OrderedDict)
         self.assertEqual(wlan['name'], 'wlan0')
         self.assertEqual(wlan['link_encap'], 'Ethernet')
         self.assertEqual(wlan['hardware_address'], '00:16:44:60:32:d2')
@@ -347,6 +351,7 @@ wifi0     Link encap:Ethernet  HWaddr 00:27:22:16:8B:12
           Interrupt:48 Memory:b0000000-b0010000"""
 
         i = IfConfig(output).to_netjson(python=True)
+        self.assertTrue(type(i[0]) is OrderedDict)
         self.assertEqual(len(i), 6)
         eth24 = i[3]
         self.assertEqual(eth24['name'], 'eth0.24')

@@ -41,8 +41,29 @@ class IfConfig(object):
             output, re.MULTILINE|re.IGNORECASE
         )
         if mo:
-            return mo.groupdict('')
-        return {}
+            d = mo.groupdict('')
+            result = OrderedDict()
+            for key in ['name',
+                        'link_encap',
+                        'hardware_address',
+                        'inet',
+                        'broadcast',
+                        'mask',
+                        'inet6',
+                        'inet6_local',
+                        'mtu',
+                        'metric',
+                        'rx_packets',
+                        'tx_packets',
+                        'collisions',
+                        'txqueuelen',
+                        'rx_bytes',
+                        'tx_bytes']:
+                if key in d:
+                    result[key] = d[key]
+            return result
+        else:
+            return {}
 
     def to_python(self):
         """ returns python dictionary representation of ifconfig output """
@@ -56,12 +77,12 @@ class IfConfig(object):
         """ convert to netjson format """
         result = []
         for i in self.interfaces:
-            netjson = {
-                'name': i['name'],
-                'mac': i['hardware_address'],
-                'mtu': i['mtu'],
-                'ip': []
-            }
+            netjson = OrderedDict((
+                ('name', i['name']),
+                ('mac', i['hardware_address']),
+                ('mtu', i['mtu']),
+                ('ip', [])
+            ))
             if not netjson['mac']:
                 del netjson['mac']
             # add ipv4
