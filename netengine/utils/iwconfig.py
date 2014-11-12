@@ -5,6 +5,16 @@ import json
 class IwConfig(object):
     """ iwconfig parser class """
 
+    MODE_MAP = {
+        'Master': 'ap',
+        'Managed': 'sta',
+        'Ad-Hoc': 'adhoc',
+        'Repeater': 'wds',
+        'Secondary': 'wds',
+        'Monitor': 'mon',
+        'Auto': 'auto'
+    }
+
     def __init__(self, output):
         """
         :param output: iwconfig text output
@@ -45,3 +55,29 @@ class IwConfig(object):
     def to_json(self, **kwargs):
         """ returns json representation of ifconfig output """
         return json.dumps(self.interfaces, **kwargs)
+
+    def to_netjson(self, python=False, **kwargs):
+        """ convert to netjson format """
+        result = []
+        for i in self.interfaces:
+            wireless = {
+                'bitrate': i.get('bit_rate'),
+                'standard': i.get('ieee'),
+                'essid': i.get('essid'),
+                'mode': self.MODE_MAP.get(i['mode']),
+                'rts_threshold': i.get('rts_thr'),
+                'frag_threshold': i.get('fragment_thr')
+            }
+            if 'encryption_key' in i:
+                wireless['encryption'] = i['encryption_key'] != 'off'
+            
+            result.append({
+                'name': i['name'],
+                'mac': i['access_point'],
+                'wireless': wireless
+            })
+        # can return both python and json
+        if python:
+            return result
+        else:
+            return json.dumps(result, **kwargs)

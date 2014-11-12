@@ -47,6 +47,7 @@ setup00   no wireless extensions."""
         self.assertEqual(i[0]['bit_rate'], '0 kb/s')
         self.assertEqual(i[0]['tx_power'], '16 dBm')
         self.assertEqual(i[0]['rts_thr'], 'off')
+        self.assertEqual(i[0]['fragment_thr'], 'off')
         self.assertEqual(i[0]['encryption_key'], 'off')
         self.assertEqual(i[0]['power_management'], 'off')
         self.assertEqual(i[0]['link_quality'], '69/70')
@@ -69,8 +70,34 @@ setup00   no wireless extensions."""
           Link Quality=69/70  Signal level=-27 dBm  Noise level=-96 dBm
           Rx invalid nwid:630390  Rx invalid crypt:1  Rx invalid frag:2
           Tx excessive retries:3  Invalid misc:4   Missed beacon:5"""
-
         json_output = IwConfig(output).to_json()
         i = json.loads(json_output)
         self.assertEqual(len(i), 1)
         self.assertEqual(len(i[0].keys()), 21)
+
+    def test_to_netjson(self):
+        output = """wlan0    IEEE 802.11g  ESSID:"ExampleWifi"
+          Mode:Master  Frequency:2.417 GHz  Access Point: 00:12:0E:B8:92:AF
+          Bit Rate:0 kb/s   Tx-Power=16 dBm
+          RTS thr:off   Fragment thr:off
+          Encryption key:off
+          Power Management:off
+          Link Quality=69/70  Signal level=-27 dBm  Noise level=-96 dBm
+          Rx invalid nwid:630390  Rx invalid crypt:1  Rx invalid frag:2
+          Tx excessive retries:3  Invalid misc:4   Missed beacon:5"""
+        json_output = IwConfig(output).to_netjson()
+        i = json.loads(json_output)
+        self.assertEqual(len(i), 1)
+        self.assertEqual(len(i[0].keys()), 3)
+        self.assertEqual(len(i[0]['wireless'].keys()), 7)
+        self.assertEqual(i[0]['mac'], '00:12:0E:B8:92:AF')
+        self.assertEqual(i[0]['name'], 'wlan0')
+        self.assertEqual(i[0]['wireless'], {
+            "bitrate": "0 kb/s",
+            "encryption": False,
+            "essid": "ExampleWifi",
+            "frag_threshold": "off",
+            "mode": "ap",
+            "rts_threshold": "off",
+            "standard": "802.11g"
+        })
