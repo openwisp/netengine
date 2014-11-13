@@ -2,6 +2,8 @@ import json
 import netengine
 import os
 
+from netengine.utils import manufacturer_lookup
+
 try:
     from collections import OrderedDict
 except ImportError:
@@ -138,13 +140,4 @@ class BaseBackend(object):
     def get_manufacturer(self, mac_address):
         """ returns the manufacturer of the network interface """
         # casting mac_address to str (unicode causes problems)
-        mac_address = str(mac_address)
-        base = netengine.__file__
-        file_path = os.path.dirname(os.path.dirname(base))
-        manufacturer_file = open(os.path.join(file_path,"netengine/resources/manufacturer.txt"))
-        res = ""
-        mac_address1 = mac_address[0:8].replace(":","").upper()
-        for line in manufacturer_file.readlines():
-            if mac_address1 in line:
-                res = line.split(mac_address1)[1].replace("(base 16)","").split()
-                return ",".join(res).replace(","," ")
+        return manufacturer_lookup(mac_address)
