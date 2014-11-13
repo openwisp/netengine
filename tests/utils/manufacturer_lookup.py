@@ -4,7 +4,10 @@ import json
 from netengine.utils import manufacturer_lookup
 
 
-class TestDictLookup(unittest.TestCase):
+__all__ = ['TestManufacturerLookup']
+
+
+class TestManufacturerLookup(unittest.TestCase):
     def test_multiple_mac(self):
         all_capitalized_mac = "3C0E23DB1D1E"
         all_lowered_mac = "3C0E23db1d1e"
