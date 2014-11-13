@@ -1,10 +1,15 @@
 import os
 import json
+import urllib2
 
 
-def parse_manufacturer():
+def parse_manufacturers():
+    """
+    Downloads the latest MAC Address Block Large table
+    and converts it to a python dictionary
+    """
     dictionary = {}
-    manufacturer_file = open("manufacturers.txt")
+    manufacturer_file = urllib2.urlopen("https://standards.ieee.org/develop/regauth/oui/oui.txt")
     for line in manufacturer_file.readlines():
         if "(hex)" in line:
             pairs = []
@@ -19,4 +24,4 @@ def parse_manufacturer():
 
 
 if __name__ == '__main__':
-    parse_manufacturer()
+    parse_manufacturers()
