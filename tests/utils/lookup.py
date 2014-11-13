@@ -1,7 +1,6 @@
 import unittest
 import json
 
-from netengine.resources.manufacturers import dictionary
 from netengine.utils import manufacturer_lookup
 
 
@@ -12,8 +11,7 @@ class TestDictLookup(unittest.TestCase):
         mixed_dashed_mac = "3C-0E-23-DB-1D-1E"
         mixed_mac = "3c:0e-23:Db-1D-1e"
 
-        self.assertEqual(dictionary[all_capitalized_mac], "Cisco")
-        self.assertEqual(dictionary[all_lowered_mac], "Cisco")
-        self.assertEqual(dictionary[mixed_dashed_mac], "Cisco")
-        self.assertEqual(dictionary[mixed_mac], "Cisco")
-
+        self.assertEqual(manufacturer_lookup(all_capitalized_mac), "Cisco")
+        self.assertEqual(manufacturer_lookup(all_lowered_mac), "Cisco")
+        self.assertEqual(manufacturer_lookup(mixed_dashed_mac), "Cisco")
+        self.assertEqual(manufacturer_lookup(mixed_mac), "Cisco")
