@@ -1,4 +1,3 @@
 paramiko
 pysnmp
 ipaddress
-nose
