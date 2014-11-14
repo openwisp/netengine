@@ -42,6 +42,13 @@ class IwConfig(object):
             groups = [part.strip() for part in line.split('  ') if part.strip()]
             # loop over groups
             for group in groups:
+                # if group does not have delimiter
+                if ':' not in group and '=' not in group:
+                    # move current group in next group
+                    index = groups.index(group)
+                    groups[index+1] = '%s %s' % (group, groups[index+1])
+                    # skip to next iteration
+                    continue
                 # split keys & values (use = or : as delimeter)
                 key, value = re.split('=|:', group, 1)
                 # lowercase keys with underscore in place of spaces or dashes

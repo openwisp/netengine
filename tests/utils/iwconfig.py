@@ -108,3 +108,17 @@ setup00   no wireless extensions."""
             "rts_threshold": "off",
             "standard": "802.11g"
         })
+
+    def test_bug_1(self):
+        output = """wlan0     IEEE 802.11abgn  ESSID:"eduroam"
+          Mode:Managed  Frequency:2.442 GHz  Access Point: DE:9F:DB:27:77:93
+          Bit Rate=1 Mb/s   Tx-Power=16 dBm
+          Retry  long limit:7   RTS thr:off   Fragment thr:off
+          Power Management:off
+          Link Quality=48/70  Signal level=-62 dBm
+          Rx invalid nwid:0  Rx invalid crypt:0  Rx invalid frag:0
+          Tx excessive retries:0  Invalid misc:4459   Missed beacon:0"""
+
+        i = IwConfig(output).to_python()
+        self.assertEqual(i[0]['essid'], 'eduroam')
+        self.assertEqual(i[0]['retry_long_limit'], '7')
