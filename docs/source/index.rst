@@ -82,12 +82,13 @@ Contents:
 
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-   /topics/http
-   /topics/snmp
-   /topics/ssh
-   /topics/usage
+    /topics/usage
+    /topics/ssh
+    /topics/snmp
+    /topics/http
+    /topics/netengine-utils
 
 
 

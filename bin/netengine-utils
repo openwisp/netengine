@@ -1,0 +1,75 @@
+#!/usr/bin/env python
+
+import sys
+import argparse
+import subprocess as sub
+
+from netengine import get_version
+
+
+parser = argparse.ArgumentParser(description='Netengine Utilities',
+                                 prog='netengine-utils')
+
+parser.add_argument('utility',
+                    choices=['ifconfig', 'iwconfig', 'manufacturer_lookup'],
+                    action='store',
+                    type=str,
+                    help='utility')
+
+parser.add_argument('--netjson',
+                    action='store_true',
+                    default=False,
+                    help='netjson output if applicable')
+
+parser.add_argument('--value',
+                    action='store',
+                    type=str,
+                    help='value to pass to utility, if not specified will try to determine automatically')
+
+parser.add_argument('--version', '-v',
+                    action='version',
+                    version=get_version())
+
+args = parser.parse_args()
+
+
+# ------ ifconfig / iwconfig ------ #
+
+if args.utility in ['ifconfig', 'iwconfig']:
+    if args.utility == 'ifconfig':
+        from netengine.utils import IfConfig as Parser
+    else:
+        from netengine.utils import IwConfig as Parser
+
+    # if no value passed, execute ifconfig locally
+    if not args.value:
+        p = sub.Popen(args.utility, stdout=sub.PIPE, stderr=sub.PIPE)
+        output, errors = p.communicate()
+    # otherwise use passed value
+    else:
+        output = args.value
+        errors = None
+
+    # if got error print message and exit
+    if not output and errors:
+        print errors
+        sys.exit(1)
+
+    # initialize
+    obj = Parser(output.strip())
+
+    # if --netjson
+    if args.netjson:
+        print(obj.to_netjson(indent=4))
+    # default to json conversion
+    else:
+        print(obj.to_json(indent=4))
+
+elif args.utility == 'manufacturer_lookup':
+    from netengine.utils import manufacturer_lookup
+
+    if not args.value:
+        print('you must supply a mac address or mac prefix with --value')
+        sys.exit(1)
+
+    print(manufacturer_lookup(args.value))
