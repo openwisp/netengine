@@ -1,72 +1,61 @@
-"""
-Class to extract information from Ubiquiti AirOS devices
-"""
-
-__all__ = ['AirOS']
-
+from cached_property import cached_property
 
 from netengine.backends.ssh import SSH
+
+
+__all__ = ['AirOS']
 
 
 class AirOS(SSH):
     """
     Ubiquiti AirOS SSH backend
+    Version 5.5.8
     """
-    __ubntbox = None
-    __systemcfg = None
 
     def __str__(self):
         """ print a human readable object description """
         return u"<SSH (Ubiquity AirOS): %s@%s>" % (self.username, self.host)
 
-    @property
+    @cached_property
     def _ubntbox(self):
         """
         returns "ubntbox mca-status" output in a python dictionary
         """
-        # get result if not present in memory yet
-        if not self.__ubntbox:
-            output = self.run('ubntbox mca-status')
-            info = {}
-            # loop over output
-            for line in output.split('\r\n'):
-                parts = line.split('=')
-                # main device info
-                if len(parts) > 2:
-                    subparts = line.split(',')
-                    for subpart in subparts:
-                        key, value = subpart.split('=')
-                        info[key] = value
-                # all other stuff
-                elif len(parts) == 2:
-                    info[parts[0]] = parts[1]
-                else:
-                    pass
-            # store
-            self.__ubntbox = info
-        # return output
-        return self.__ubntbox
+        output = self.run('ubntbox mca-status')
+        info = {}
+        # loop over output
+        for line in output.split('\r\n'):
+            parts = line.split('=')
+            # main device info
+            if len(parts) > 2:
+                subparts = line.split(',')
+                for subpart in subparts:
+                    key, value = subpart.split('=')
+                    info[key] = value
+            # all other stuff
+            elif len(parts) == 2:
+                info[parts[0]] = parts[1]
+            else:
+                pass
+        # return dictionary
+        return info
 
-    @property
+    @cached_property
     def _systemcfg(self):
         """
         return main system configuration in a python dictionary
         """
-        # if config hasn't been retrieved yet do it now
-        if not self.__systemcfg:
-            output = self.run('cat /tmp/system.cfg')
-            info = {}
-            # parse lines
-            for line in output.split('\n'):
-                parts = line.split('=')
-                # if subvalues
-                if len(parts) == 2:
-                    # use sub dicttionaries
-                    info[parts[0]] = parts[1]
-            # store
-            self.__systemcfg = info
-        # return config
-        return self.__systemcfg
+        output = self.run('cat /tmp/system.cfg')
+        info = {}
+        # parse lines
+        for line in output.split('\n'):
+            parts = line.split('=')
+            # if subvalues
+            if len(parts) == 2:
+                # use sub dicttionaries
+                info[parts[0]] = parts[1]
+        # return dictionary
+        return info
 
     @property
     def os(self):
