@@ -30,7 +30,7 @@ class TestSSH(unittest.TestCase):
         self.device.validate()
         
     def test_olsr(self):
-        print self.device.olsr
+        print(self.device.olsr)
     
     def test_not_implemented_methods(self):
         device = self.device
@@ -64,7 +64,9 @@ class TestSSH(unittest.TestCase):
     
     def test_get_interface_mtu(self):
         interfaces = self.device.get_interfaces()
-        
         # ensure MTU for first 2 interfaces is not empty
         self.assertNotEqual(interfaces[0]['mtu'], '')
         self.assertNotEqual(interfaces[1]['mtu'], '')
+
+    def test_iwconfig(self):
+        self.assertIs(type(self.device.iwconfig()), list)

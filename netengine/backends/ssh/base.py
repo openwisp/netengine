@@ -5,7 +5,7 @@ except ImportError:
 
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
-from netengine.utils import IfConfig
+from netengine.utils import IfConfig, IwConfig
 
 
 __all__ = ['SSH']
@@ -89,16 +89,19 @@ class SSH(BaseBackend):
         executes command and returns stdout if success or stderr if error
         """
         stdin, stdout, stderr = self.exec_command(command, **kwargs)
-
         output = stdout.read().strip()
         error = stderr.read().strip()
-
-        # if error return error msg
-        if error != '':
-            return error
-        # otherwise return output
-        else:
+        if output and not error:
             return output
+        elif error and not output:
+            return error
+        else:
+            return '%s\n\n%s' % (output, error)
+    
+    def iwconfig(self):
+        """ iwconfig command converted to netjson """
+        output = self.run('iwconfig')
+        return IwConfig(output).to_netjson(python=True)
 
     def get_interfaces(self):
         """ get device interfaces """
