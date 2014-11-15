@@ -183,7 +183,7 @@ class AirOS(SSH):
             "type": "radio",
             "os": self.os[0],
             "os_version": self.os[1],
-            "manufacturer": "Ubiquiti Networks",
+            "manufacturer": "Ubiquiti Networks, INC",
             "model": self.model,
             "RAM_total": self.RAM_total,
             "uptime": self.uptime,
