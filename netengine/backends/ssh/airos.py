@@ -75,6 +75,10 @@ class AirOS(SSH):
     @property
     def RAM_total(self):
         return int(self._ubntbox['memTotal'])
+    
+    @property
+    def uptime(self):
+        return int(self._ubntbox['uptime'])
 
     @property
     def ethernet_standard(self):
@@ -182,8 +186,7 @@ class AirOS(SSH):
             "manufacturer": "Ubiquiti Networks",
             "model": self.model,
             "RAM_total": self.RAM_total,
-            "uptime": None,
-            "uptime_tuple": None,
+            "uptime": self.uptime,
             "interfaces": self._filter_interfaces(),
             "routing_protocols": self._filter_routing_protocols()
         })

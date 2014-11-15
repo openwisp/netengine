@@ -58,3 +58,6 @@ class TestSSHAirOS(unittest.TestCase):
         self.assertTrue(type(device.get_ipv6_of_interface('eth0')) in [str, type(None)])
         self.assertTrue(type(device.get_ipv6_of_interface('wrong')) is type(None))
         device.disconnect()
+    
+    def test_uptime(self):
+        self.assertIs(type(self.device.uptime), int)
