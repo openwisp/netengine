@@ -135,6 +135,7 @@ class AirOS(SSH):
         """
         tmp
         """
+        wireless_interfaces = self.iwconfig()
         interfaces = self.get_interfaces()
         results = []
         # loop over interfaces
@@ -144,17 +145,20 @@ class AirOS(SSH):
                 interface['type'] = 'ethernet'
             # is it Wireless?
             elif 'wlan' in interface['name'] or 'ath' in interface['name']:
-                interface['type'] = 'ethernet'
+                interface['type'] = 'wireless'
                 interface['wireless'] = {
                     "channel": self.wireless_channel,
                     "channel_width": self.wireless_channel_width,
                     "mode": self.wireless_mode,
-                    "output_power": self.wireless_output_power,
+                    "tx_power": self.wireless_output_power,
                     "dbm": self.wireless_dbm,
-                    "noise": self.wireless_noise,
-                    "essid": "placeholder",
-                    "encryption": "placeholder"
+                    "noise": self.wireless_noise
                 }
+                # merge with iwconfig
+                for wireless_if in wireless_interfaces:
+                    if wireless_if['name'] == interface['name']:
+                        interface['wireless'].update(wireless_if['wireless'])
+            # append result to list of interfaces
             results.append(interface)
         # return results
         return results
