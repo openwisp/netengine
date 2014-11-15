@@ -103,9 +103,10 @@ class SSH(BaseBackend):
         output = self.run('iwconfig')
         return IwConfig(output).to_netjson(python=True)
 
-    def get_interfaces(self):
-        """ get device interfaces """
-        return IfConfig(self.run('ifconfig')).to_netjson(python=True)
+    def ifconfig(self):
+        """ ifconfig command converted to netjson """
+        output = self.run('ifconfig')
+        return IfConfig(output).to_netjson(python=True)
 
     def get_ipv6_of_interface(self, interface_name):
         """ return ipv6 address for specified interface """

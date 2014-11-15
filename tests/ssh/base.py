@@ -61,12 +61,15 @@ class TestSSH(unittest.TestCase):
             device.wireless_noise
         
         device.disconnect()
-    
-    def test_get_interface_mtu(self):
-        interfaces = self.device.get_interfaces()
-        # ensure MTU for first 2 interfaces is not empty
-        self.assertNotEqual(interfaces[0]['mtu'], '')
-        self.assertNotEqual(interfaces[1]['mtu'], '')
 
     def test_iwconfig(self):
         self.assertIs(type(self.device.iwconfig()), list)
+    
+    def test_ifconfig(self):
+        self.assertIs(type(self.device.ifconfig()), list)
+
+    def test_get_interface_mtu(self):
+        interfaces = self.device.ifconfig()
+        # ensure MTU for first 2 interfaces is not empty
+        self.assertNotEqual(interfaces[0]['mtu'], '')
+        self.assertNotEqual(interfaces[1]['mtu'], '')

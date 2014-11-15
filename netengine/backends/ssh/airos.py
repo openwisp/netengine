@@ -136,7 +136,7 @@ class AirOS(SSH):
         tmp
         """
         wireless_interfaces = self.iwconfig()
-        interfaces = self.get_interfaces()
+        interfaces = self.ifconfig()
         results = []
         # loop over interfaces
         for interface in interfaces:

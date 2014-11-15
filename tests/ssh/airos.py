@@ -55,7 +55,6 @@ class TestSSHAirOS(unittest.TestCase):
 
     def test_temp_methods(self):
         device = self.device
-        self.assertTrue(type(device.get_interfaces()) is list)
         self.assertTrue(type(device.get_ipv6_of_interface('eth0')) in [str, type(None)])
         self.assertTrue(type(device.get_ipv6_of_interface('wrong')) is type(None))
         device.disconnect()
