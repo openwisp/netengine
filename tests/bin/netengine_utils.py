@@ -17,13 +17,19 @@ class TestNetengineUtilsIfConfig(unittest.TestCase):
     def test_version(self):
         p = sub.Popen(['netengine-utils', '--version'], stdout=sub.PIPE, stderr=sub.PIPE)
         self.assertIn(get_version(), p.communicate()[1])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
 
         p = sub.Popen(['netengine-utils', '-v'], stdout=sub.PIPE, stderr=sub.PIPE)
         self.assertIn(get_version(), p.communicate()[1])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
 
     def test_ifconfig(self):
         p = sub.Popen(['netengine-utils', 'ifconfig'], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(type(i), list)
         self.assertEqual(type(i[0]), dict)
         self.assertIn('name', i[0])
@@ -32,6 +38,8 @@ class TestNetengineUtilsIfConfig(unittest.TestCase):
     def test_ifconfig_netjson(self):
         p = sub.Popen(['netengine-utils', 'ifconfig', '--netjson'], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(type(i), list)
         self.assertEqual(type(i[0]), dict)
         self.assertIn('name', i[0])
@@ -56,6 +64,8 @@ lo        Link encap:Local Loopback
 
         p = sub.Popen(['netengine-utils', 'ifconfig', '--value', value], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(len(i), 2)
 
         self.assertEqual(i[0]['name'], 'eth0')
@@ -106,6 +116,8 @@ lo        Link encap:Local Loopback
 
         p = sub.Popen(['netengine-utils', 'ifconfig', '--netjson', '--value', value], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(len(i), 2)
 
         self.assertEqual(i[0]['name'], 'eth0')
@@ -127,11 +139,15 @@ class TestNetengineUtilsIwConfig(unittest.TestCase):
     def test_iwconfig(self):
         p = sub.Popen(['netengine-utils', 'iwconfig'], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(type(i), list)
 
-    def test_ifconfig_netjson(self):
+    def test_iwconfig_netjson(self):
         p = sub.Popen(['netengine-utils', 'iwconfig', '--netjson'], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(type(i), list)
 
     def test_iwconfig_value(self):
@@ -146,6 +162,8 @@ class TestNetengineUtilsIwConfig(unittest.TestCase):
 
         p = sub.Popen(['netengine-utils', 'iwconfig', '--value', value], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(len(i), 1)
 
         self.assertEqual(i[0]['name'], 'wlan0')
@@ -167,6 +185,8 @@ class TestNetengineUtilsIwConfig(unittest.TestCase):
 
         p = sub.Popen(['netengine-utils', 'iwconfig', '--netjson', '--value', value], stdout=sub.PIPE, stderr=sub.PIPE)
         i = json.loads(p.communicate()[0])
+        # ensure exit code is ok
+        self.assertEqual(p.returncode, 0)
         self.assertEqual(len(i), 1)
         self.assertEqual(i[0]['name'], 'wlan0')
         self.assertEqual(i[0]['mac'], 'DE:9F:DB:27:77:93')
@@ -185,10 +205,14 @@ class TestNetengineUtilsManufacturerLookup(unittest.TestCase):
         for value in values:
             p = sub.Popen(['netengine-utils', 'manufacturer_lookup', '--value', value], stdout=sub.PIPE, stderr=sub.PIPE)
             self.assertEqual(p.communicate()[0].strip(), 'Ubiquiti Networks, INC')
+            # ensure exit code is ok
+            self.assertEqual(p.returncode, 0)
 
-    def test_manufacturer_lookup_errors(self):
+    def test_manufacturer_lookup_missing_value(self):
         p = sub.Popen(['netengine-utils', 'manufacturer_lookup'], stdout=sub.PIPE, stderr=sub.PIPE)
         self.assertIn('you must supply', p.communicate()[0])
+        # ensure exit code is not ok
+        self.assertEqual(p.returncode, 1)
 
     def test_manufacturer_lookup_no_valid_manufacturer(self):
         p = sub.Popen(['netengine-utils', 'manufacturer_lookup', '--value', 'ab:ab:ab:ab:ab:ab'], stdout=sub.PIPE, stderr=sub.PIPE)
