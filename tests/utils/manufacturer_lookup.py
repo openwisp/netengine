@@ -2,6 +2,7 @@ import unittest
 import json
 
 from netengine.utils import manufacturer_lookup
+from netengine.exceptions import NetEngineError
 
 
 __all__ = ['TestManufacturerLookup']
@@ -18,3 +19,7 @@ class TestManufacturerLookup(unittest.TestCase):
         self.assertEqual(manufacturer_lookup(all_lowered_mac), "Cisco")
         self.assertEqual(manufacturer_lookup(mixed_dashed_mac), "Cisco")
         self.assertEqual(manufacturer_lookup(mixed_mac), "Cisco")
+
+    def test_error(self):
+        with self.assertRaises(NetEngineError):
+            manufacturer_lookup('ab:ab:ab:ab:ab:ab')
