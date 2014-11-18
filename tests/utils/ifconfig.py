@@ -1,7 +1,7 @@
 import unittest
 import json
-from collections import OrderedDict
 
+from netengine.shortcuts import OrderedDict
 from netengine.utils.ifconfig import IfConfig
 
 

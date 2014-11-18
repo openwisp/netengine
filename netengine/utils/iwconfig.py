@@ -1,6 +1,7 @@
 import re
 import json
-from collections import OrderedDict
+
+from netengine.shortcuts import OrderedDict
 
 
 class IwConfig(object):

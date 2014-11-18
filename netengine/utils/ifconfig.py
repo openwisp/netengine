@@ -1,7 +1,8 @@
 import re
 import json
 import ipaddress
-from collections import OrderedDict
+
+from netengine.shortcuts import OrderedDict
 
 
 class IfConfig(object):

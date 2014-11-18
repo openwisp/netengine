@@ -2,15 +2,13 @@ import json
 import netengine
 import os
 
+from netengine.shortcuts import OrderedDict
 from netengine.utils import manufacturer_lookup
 
-try:
-    from collections import OrderedDict
-except ImportError:
-    OrderedDict = dict  # python < 2.7
 
-
-__all__ = ['BaseBackend']
+__all__ = [
+    'BaseBackend'
+]
 
 
 class BaseBackend(object):
