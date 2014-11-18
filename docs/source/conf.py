@@ -44,7 +44,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'netengine'
-copyright = u'2014, Alessandro Bucciarelli, Federico Capoano'
+copyright = u'Ninux.org'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

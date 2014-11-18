@@ -1,85 +1,54 @@
-.. netengine documentation master file, created by
-   sphinx-quickstart on Fri Aug  8 15:35:40 2014.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
-
-Welcome to Netengine's documentation!
-=====================================
-
-
-**********
+=========
 Netengine
-**********
+=========
 
-Netengine is an open source library developed throughout GSOC2014 with Ninux.
-It provides a Python abstraction layer to retrieve info from network devices using different back ends and suiting
-the mainly used firmwares in nowadays devices (e.g antennas and routers).
+**Netengine** is a python library that aims to provide a single API to extract common
+information from network devices using different protocols (eg: SNMP, SSH, HTTP) and different firwmares (eg: OpenWRT, AirOS).
 
+You can immagine **Netengine** as a read-only ORM (Object Relational Mapper) equivalent for networks.
 
+===========
 Motivations
-============
+===========
 
-Ninux, the association Netengine's idea came from, is an italian wireless community network with more than 300 nodes.
-Many times network debugging of a such number of devices can be a huge nightmare.
-Moreover Netengine wants to be a tool to properly fill databases used for purposes other than device debugging or control such as Ninux map ** map.ninux.org **
+While dealing with networks in the real world, it's highly probable that you will
+deal with a network which is made with very different routers, switches and servers.
+Some may support standard SNMP mibs, some may not, some may implement other HTTP APIs,
+some may even implement obscure/custom SNMP mibs.
 
-=======================
+If you need to develop a web application that automates some networking tasks, you
+don't want to deal with all those differences in the application code, because it
+would become hard to mantain very soon. You also might not want to tie your web
+app code to a specific vendor or firmware because that would make your software unflexible.
+
+If we had a single API we could let web developers focus on the task they need to accomplish
+rather than dealing with SNMP, SSH, different firmwares, different linux distributions and so on.
+
+The goal of this project is to build that single API.
+
+======================
 Status of this project
-=======================
+======================
 
-The project aims to be completed by the end of August 2013 which is the end of GSOC2014 program.
-As it is, it is composed by 3 backends:
- * HTTP
- * SSH
- * SNMP
+We are currently in 0.1 beta version.
 
-=============
+The 0.1 final version will be out by April 2015.
+
+=======
 Install
-=============
-If you want to install Netengine in your system just continue reading, otherwise please go to "Optional step"
+=======
 
-Install via pip::
+Install the development version (tarball)::
 
- pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
+    pip install https://github.com/ninuxorg/netengine/tarball/master
 
-==============
-Optional step
-==============
-Sometimes you don't want to install libraries and dependencies in your main Python env, in this case please consider to create a virtualenv.
-Virtualenv is an environment completely detached from your main one, where you can add libraries and dependencies by adding anything to your main environment
+Alternatively, you can install via pip using git::
 
-To create your virtualenv type on a terminal::
-
- pip install virtualenv
-
-Now you con crete your own virtualenv by typing::
-
-  virtualenv <foo>
-
-Inside the folder foo you will find several subdirectories, the ones we are interested in are:
- * /bin
- * /src
-
-Before installing anything in you virtualenv named <foo>, please enter in /bin and type::
-
- source activate
-
-From now on, all you are going to install will be visible only inside the scope of virtualenv <foo>
-Now you can enter the directory /src and type::
-
- pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
-
-Now under /src you should have the directory **netengine**
-
-
-
-
+    pip install -e git+git://github.com/ninuxorg/netengine#egg=netengine
 
 ==========
 Contents:
 ==========
-
 
 .. toctree::
     :maxdepth: 2
@@ -89,8 +58,6 @@ Contents:
     /topics/snmp
     /topics/http
     /topics/netengine-utils
-
-
 
 Indices and tables
 ==================
