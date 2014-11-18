@@ -189,3 +189,9 @@ class TestNetengineUtilsManufacturerLookup(unittest.TestCase):
     def test_manufacturer_lookup_errors(self):
         p = sub.Popen(['netengine-utils', 'manufacturer_lookup'], stdout=sub.PIPE, stderr=sub.PIPE)
         self.assertIn('you must supply', p.communicate()[0])
+
+    def test_manufacturer_lookup_no_valid_manufacturer(self):
+        p = sub.Popen(['netengine-utils', 'manufacturer_lookup', '--value', 'ab:ab:ab:ab:ab:ab'], stdout=sub.PIPE, stderr=sub.PIPE)
+        self.assertIn('No valid manufacturer', p.communicate()[0])
+        # ensure exit code is not ok
+        self.assertEqual(p.returncode, 1)

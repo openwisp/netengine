@@ -5,6 +5,7 @@ import argparse
 import subprocess as sub
 
 from netengine import get_version
+from netengine.exceptions import NetEngineError
 
 
 parser = argparse.ArgumentParser(description='Netengine Utilities',
@@ -72,4 +73,10 @@ elif args.utility == 'manufacturer_lookup':
         print('you must supply a mac address or mac prefix with --value')
         sys.exit(1)
 
-    print(manufacturer_lookup(args.value))
+    try:
+        # success
+        print(manufacturer_lookup(args.value))
+    except NetEngineError as e:
+        # failure: no valid manufacturer found
+        print(e)
+        sys.exit(1)
