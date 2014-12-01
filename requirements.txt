@@ -3,3 +3,4 @@ pysnmp
 ipaddress
 cached-property
 argparse
+mechanize
