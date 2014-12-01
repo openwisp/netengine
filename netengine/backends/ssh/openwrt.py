@@ -121,7 +121,14 @@ class OpenWRT(SSH):
         """
         returns a string representing the manufacturer of the device
         """
-        # returns first not None value
+        # try to determine eth0 macaddress if exist
+        if 'eth0' in self.ubus_dict.keys():
+                mac_address = self.ubus_dict['eth0']['macaddr']
+                manufacturer = self.get_manufacturer(mac_address)
+                if manufacturer:
+                    return manufacturer
+
+        # eth0 doesn't exist, use the first not None value
         for interface in self.ubus_dict.keys():
             # ignore loopback interface
             if interface != "lo":
