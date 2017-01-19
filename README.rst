@@ -2,23 +2,16 @@
 netengine
 =========
 
-.. image:: https://readthedocs.org/projects/netengine/badge/?version=latest
-    :target: https://readthedocs.org/projects/netengine/?badge=latest
-    :alt: Documentation Status
-
-.. image:: https://landscape.io/github/ninuxorg/netengine/master/landscape.png
+.. image:: https://landscape.io/github/ninuxorg/netengine/master/landscape.svg
     :target: https://landscape.io/github/ninuxorg/netengine/master
     :alt: Code Health
 
-.. image:: https://requires.io/github/ninuxorg/netengine/requirements.png?branch=master
+.. image:: https://requires.io/github/ninuxorg/netengine/requirements.svg?branch=master
     :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
     :alt: Requirements Status
 
-.. image:: https://badge.fury.io/py/netengine.png
+.. image:: https://badge.fury.io/py/netengine.svg
     :target: http://badge.fury.io/py/netengine
-
-.. image:: https://pypip.in/d/netengine/badge.png
-    :target: https://pypi.python.org/pypi/netengine
 
 ------------------------------
 
