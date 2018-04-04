@@ -5,7 +5,7 @@ except ImportError:
 
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
-
+from netengine.resources.interfaces import interfaces
 
 __all__ = ['SNMP']
 
@@ -14,7 +14,7 @@ class SNMP(BaseBackend):
     """
     SNMP base backend
     """
-    
+
     _oid_to_retrieve = None
 
     def __init__(self, host, community='public', agent='my-agent', port=161):
@@ -70,7 +70,8 @@ class SNMP(BaseBackend):
     def get(self, oid):
         """
         alias to cmdgen.CommandGenerator().getCmd
-        :oid string|tuple|list: string, tuple or list representing the OID to get
+        :oid string|tuple|list: string,
+        tuple or list representing the OID to get
 
         example of valid oid parameters:
             * "1,3,6,1,2,1,1,5,0"
@@ -85,7 +86,8 @@ class SNMP(BaseBackend):
     def next(self, oid):
         """
         alias to cmdgen.CommandGenerator().nextCmd
-        :oid string|tuple|list: string, tuple or list representing the OID to get
+        :oid string|tuple|list:
+        string, tuple or list representing the OID to get
 
         example of valid oid parameters:
             * "1,3,6,1,2,1,1,5,0"
@@ -99,27 +101,39 @@ class SNMP(BaseBackend):
 
     def get_value(self, oid):
         """
-        returns value of oid, or raises NetEngineError Exception is anything wrong
-        :oid string|tuple|list: string, tuple or list representing the OID to get
+        returns value of oid,
+        or raises NetEngineError Exception is anything wrong
+        :oid string|tuple|list:
+        string, tuple or list representing the OID to get
         """
         result = self.get(oid)
         try:
             return str(result[3][0][1])  # snmp stores results in several arrays
         except IndexError:
             raise NetEngineError(str(result[0]))
-    
+
     def _value_to_retrieve(self):
         """
-        return the final SNMP indexes for the interfaces to be used in the other methods and properties
+        return the final SNMP indexes for the
+        interfaces to be used in the other methods and properties
         """
         value_to_retr = []
-        
+
         if (self._oid_to_retrieve is None):
             raise NetEngineError('Please fix properly the _oid_to_retrieve string in OpenWRT or AirOS SNMP backend')
-        
+
         indexes = self.next(self._oid_to_retrieve)[3]
-        
+
         for i in range(len(indexes)):
             value_to_retr.append(int(indexes[i][0][1]))
-        
+
         return value_to_retr
+
+    def interfaces(self, key):
+        """
+        Lookup to the interfaces' dictionary
+        """
+        try:
+            return interfaces[key]
+        except KeyError:
+            raise NetEngineError("No valid interfaces found for key: %s" % key)
