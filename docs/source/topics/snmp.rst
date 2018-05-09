@@ -43,6 +43,7 @@ Otherwise, if you want simply a value of the tree just type::
 
 
 
+
 OpenWRT example
 ================
 
@@ -53,9 +54,10 @@ The same instructions typed above can be applied to OpenWRT itself, just remembe
 
 
 
- Cisco example
- ================
+Cisco example
+================
 
- The same instructions typed above can be applied to Cisco itself, just remember to import the correct firmware by typing::
+The same instructions typed above can be applied to Cisco itself, just remember to import the correct firmware by typing::
 
   from netengine.backends.snmp import Cisco
+
