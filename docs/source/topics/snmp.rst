@@ -6,8 +6,8 @@ SNMP backend
 SNMP
 =======
 
-SNMP (Simple Network Management Protocol) is a network protocol very used to retrieve info from device.
-All the information are retrieved by using codes called MIBs. All MIBs have a tree-like structure, every main information is the root and by adding more detail to the info
+SNMP (Simple Network Management Protocol) is a network protocol very useful for retrieving info from a device.
+All the information is retrieved by using codes called MIBs. All MIBs have a tree-like structure, every main information is the root and by adding more detail to the info
 the tree gains more depth.
 Obviously, by getting the smallest MIB which is "1" or simply " . " one can get all the tree.
 
