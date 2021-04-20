@@ -11,4 +11,7 @@ class MockOutputMixin(object):
 
     @staticmethod
     def _get_mocked_value(oid, data, *args, **kwargs):
-        return data[oid]
+        result = data[oid]
+        if type(result) == list:
+            result = "\n".join(result[0:])
+        return result
