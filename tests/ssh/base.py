@@ -3,6 +3,7 @@ import mock
 
 from netengine.backends.ssh import SSH
 from netengine.exceptions import NetEngineError
+from paramiko.ssh_exception import SSHException
 
 from ..settings import settings
 from ..static import MockOutputMixin
@@ -31,13 +32,19 @@ class TestSSH(unittest.TestCase, MockOutputMixin):
         )
         self.exec_command_patcher.start()
 
+    @mock.patch('paramiko.SSHClient.connect')
+    def test_validate_negative_result(self, mocked_connect):
+        mocked_connect.side_effect = SSHException
+        wrong = SSH('10.40.0.254', 'root', 'pwd')
+        self.assertRaises(NetEngineError, wrong.validate)
+
     @mock.patch('paramiko.SSHClient.close')
     @mock.patch('paramiko.SSHClient.connect')
     def test_validate_positive_result(self, mocked_connect, mocked_close):
         self.device.disconnect()
         self.device.validate()
         mocked_connect.assert_called_once()
-        mocked_close.assert_called()
+        self.assertEqual(mocked_close.call_count, 2)
 
     def test_olsr(self):
         print(self.device.olsr)
