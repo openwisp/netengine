@@ -1,17 +1,20 @@
 import json
 import unittest
+import mock
 
 from netengine.backends.ssh import AirOS
 
 from ..settings import settings
+from ..static import MockOutputMixin
 
 
 __all__ = ['TestSSHAirOS']
 
 
-class TestSSHAirOS(unittest.TestCase):
+class TestSSHAirOS(unittest.TestCase, MockOutputMixin):
 
-    def setUp(self):
+    @mock.patch('paramiko.SSHClient.connect')
+    def setUp(self, mocked_connect):
         self.host = settings['airos-ssh']['host']
         self.username = settings['airos-ssh']['username']
         self.password = settings['airos-ssh']['password']
@@ -19,6 +22,15 @@ class TestSSHAirOS(unittest.TestCase):
 
         self.device = AirOS(self.host, self.username, self.password, self.port)
         self.device.connect()
+        mocked_connect.assert_called_once()
+        ssh_mock_data = self._load_mock_json('/test-airos-ssh.json')
+        self.ssh_patcher = mock.patch(
+            'netengine.backends.ssh.airos.SSH.run',
+            side_effect=lambda x: self._get_mocked_value(
+                oid=x, data=ssh_mock_data
+            ),
+        )
+        self.ssh_patcher.start()
 
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(), dict))
@@ -58,6 +70,6 @@ class TestSSHAirOS(unittest.TestCase):
         self.assertTrue(type(device.get_ipv6_of_interface('eth0')) in [str, type(None)])
         self.assertTrue(type(device.get_ipv6_of_interface('wrong')) is type(None))
         device.disconnect()
-    
+
     def test_uptime(self):
         self.assertIs(type(self.device.uptime), int)
