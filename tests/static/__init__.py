@@ -15,3 +15,10 @@ class MockOutputMixin(object):
         if type(result) == list:
             result = "\n".join(result[0:])
         return result
+
+    @staticmethod
+    def _get_mocked_getcmd(oid, data, *args, **kwargs):
+        result = data[oid]
+        if type(result) == list:
+            result = "\n".join(result[0:])
+        return [0, 0, 0, [[0, result.encode('ascii', 'ignore')], 0]]

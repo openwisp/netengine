@@ -1,14 +1,16 @@
 import unittest
+from mock import patch
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 
 from ..settings import settings
+from ..static import MockOutputMixin
 
 
 __all__ = ['TestSNMPAirOS']
 
 
-class TestSNMPAirOS(unittest.TestCase):
+class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     
     def setUp(self):
         self.host = settings['airos-snmp']['host']
@@ -16,29 +18,56 @@ class TestSNMPAirOS(unittest.TestCase):
         self.port = settings['airos-snmp'].get('port', 161)
         
         self.device = AirOS(self.host, self.community, port=self.port)
+        self.oid_mock_data = self._load_mock_json('/test-airos-snmp.json')
+        self.interfaces_patcher = patch(
+            'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
+            return_value=[1, 2, 3, 4, 5]
+        )
+        self.get_value_patcher = patch(
+            'netengine.backends.snmp.airos.AirOS.get',
+            side_effect=lambda x: self._get_mocked_getcmd(
+                oid=x, data=self.oid_mock_data
+            ),
+        )
+        self.get_value_patcher.start()
     
     def test_get_value_error(self):
-        with self.assertRaises(NetEngineError):
-            self.device.get_value('.')
+        self.get_value_patcher.stop()
+        with patch(
+            'netengine.backends.snmp.openwrt.SNMP.get',
+            side_effect=lambda x: self.device._oid(x)
+        ):
+            with self.assertRaises(NetEngineError):
+                self.device.get_value('.')
     
     def test_validate_negative_result(self):
-        wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
-        self.assertRaises(NetEngineError, wrong.validate)
+        self.get_value_patcher.stop()
+        with patch(
+            'netengine.backends.snmp.openwrt.SNMP.get',
+            side_effect=lambda x: self.device._oid(x)
+        ):
+            wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
+            self.assertRaises(NetEngineError, wrong.validate)
     
     def test_validate_positive_result(self):
         self.device.validate()
     
     def test_get(self):
+        self.get_value_patcher.stop()
         with self.assertRaises(AttributeError):
             self.device.get({})
         
         with self.assertRaises(AttributeError):
             self.device.get(object)
         
-        self.device.get('1,3,6,1,2,1,1,5,0')
-        self.device.get(u'1,3,6,1,2,1,1,5,0')
-        self.device.get((1,3,6,1,2,1,1,5,0))
-        self.device.get([1,3,6,1,2,1,1,5,0])
+        with patch(
+            'netengine.backends.snmp.openwrt.SNMP.get',
+            side_effect=lambda x: self.device._oid(x)
+        ):
+            self.device.get('1,3,6,1,2,1,1,5,0')
+            self.device.get(u'1,3,6,1,2,1,1,5,0')
+            self.device.get((1,3,6,1,2,1,1,5,0))
+            self.device.get([1,3,6,1,2,1,1,5,0])
     
     def test_properties(self):
         device = self.device
@@ -57,30 +86,40 @@ class TestSNMPAirOS(unittest.TestCase):
         self.assertTrue(type(self.device.os) == tuple)
         
     def test_get_interfaces(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.get_interfaces()) == list)
 
     def test_get_interfaces_mtu(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_mtu) == list)
     
     def test_interfaces_state(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_state) == list)
     
     def test_interfaces_speed(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_speed) == list)
         
     def test_interfaces_bytes(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_bytes) == list)
     
     def test_interfaces_MAC(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_MAC) == list)
     
     def test_interfaces_type(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_type) == list)
     
     def test_interfaces_to_dict(self):
+        self.interfaces_patcher.start()
         self.assertTrue(type(self.device.interfaces_to_dict) == list)
-        
-    def test_wireless_dbm(self):
+
+    @patch('netengine.backends.snmp.openwrt.SNMP.next')
+    def test_wireless_dbm(self, mock_nextcmd):
+        mock_nextcmd.return_value = [0, 0, 0, [[[0, 0]]] * 5]
         self.assertTrue(type(self.device.wireless_dbm) == list)
     
     def test_interfaces_number(self):
@@ -95,13 +134,19 @@ class TestSNMPAirOS(unittest.TestCase):
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
-    def test_to_dict(self):
-        self.assertTrue(isinstance(self.device.to_dict(), dict))
+    def test_to_dict(self, mock_nextcmd):
+        self.interfaces_patcher.start()
+        with patch(
+            'netengine.backends.snmp.openwrt.SNMP.next',
+            return_value=[0, 0, 0, [[[0, 0,]]] * 5]
+        ):
+            self.assertTrue(isinstance(self.device.to_dict(), dict))
     
     def test_manufacturer_to_dict(self):
         self.assertIsNotNone(self.device.to_dict()['manufacturer'])
     
     def test_manufacturer(self):
+        self.interfaces_patcher.start()
         self.assertIsNotNone(self.device.manufacturer)
     
     def test_model(self):
@@ -115,3 +160,6 @@ class TestSNMPAirOS(unittest.TestCase):
     
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
+
+    def tearDown(self):
+        self.get_value_patcher.stop()
