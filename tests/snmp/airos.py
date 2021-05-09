@@ -23,6 +23,10 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
             return_value=[1, 2, 3, 4, 5]
         )
+        self.nextcmd_patcher = patch(
+            'netengine.backends.snmp.openwrt.SNMP.next',
+            return_value=[0, 0, 0, [[[0, 0,]]] * 5]
+        )
         self.get_value_patcher = patch(
             'netengine.backends.snmp.airos.AirOS.get',
             side_effect=lambda x: self._get_mocked_getcmd(
@@ -32,20 +36,14 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.get_value_patcher.start()
     
     def test_get_value_error(self):
-        self.get_value_patcher.stop()
-        with patch(
-            'netengine.backends.snmp.openwrt.SNMP.get',
-            side_effect=lambda x: self.device._oid(x)
-        ):
+        with self.get_value_patcher as p:
+            p.side_effect = lambda x: self.device._oid(x)
             with self.assertRaises(NetEngineError):
                 self.device.get_value('.')
     
     def test_validate_negative_result(self):
-        self.get_value_patcher.stop()
-        with patch(
-            'netengine.backends.snmp.openwrt.SNMP.get',
-            side_effect=lambda x: self.device._oid(x)
-        ):
+        with self.get_value_patcher as p:
+            p.side_effect = lambda x: self.device._oid(x)
             wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
             self.assertRaises(NetEngineError, wrong.validate)
     
@@ -53,17 +51,12 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.device.validate()
     
     def test_get(self):
-        self.get_value_patcher.stop()
-        with self.assertRaises(AttributeError):
-            self.device.get({})
-        
-        with self.assertRaises(AttributeError):
-            self.device.get(object)
-        
-        with patch(
-            'netengine.backends.snmp.openwrt.SNMP.get',
-            side_effect=lambda x: self.device._oid(x)
-        ):
+        with self.get_value_patcher as p:
+            p.side_effect = lambda x: self.device._oid(x)
+            with self.assertRaises(AttributeError):
+                self.device.get({})
+            with self.assertRaises(AttributeError):
+                self.device.get(object)
             self.device.get('1,3,6,1,2,1,1,5,0')
             self.device.get(u'1,3,6,1,2,1,1,5,0')
             self.device.get((1,3,6,1,2,1,1,5,0))
@@ -86,41 +79,40 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertTrue(type(self.device.os) == tuple)
         
     def test_get_interfaces(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.get_interfaces()) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.get_interfaces()) == list)
 
     def test_get_interfaces_mtu(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_mtu) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_mtu) == list)
     
     def test_interfaces_state(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_state) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_state) == list)
     
     def test_interfaces_speed(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_speed) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_speed) == list)
         
     def test_interfaces_bytes(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_bytes) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_bytes) == list)
     
     def test_interfaces_MAC(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_MAC) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_MAC) == list)
     
     def test_interfaces_type(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_type) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_type) == list)
     
     def test_interfaces_to_dict(self):
-        self.interfaces_patcher.start()
-        self.assertTrue(type(self.device.interfaces_to_dict) == list)
+        with self.interfaces_patcher:
+            self.assertTrue(type(self.device.interfaces_to_dict) == list)
 
-    @patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_wireless_dbm(self, mock_nextcmd):
-        mock_nextcmd.return_value = [0, 0, 0, [[[0, 0]]] * 5]
-        self.assertTrue(type(self.device.wireless_dbm) == list)
+    def test_wireless_dbm(self):
+        with self.nextcmd_patcher:
+            self.assertTrue(type(self.device.wireless_dbm) == list)
     
     def test_interfaces_number(self):
         self.assertTrue(type(self.device.interfaces_number) == int)
@@ -135,19 +127,15 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertTrue(type(self.device.RAM_total) == int)
 
     def test_to_dict(self, mock_nextcmd):
-        self.interfaces_patcher.start()
-        with patch(
-            'netengine.backends.snmp.openwrt.SNMP.next',
-            return_value=[0, 0, 0, [[[0, 0,]]] * 5]
-        ):
+        with self.interfaces_patcher, self.nextcmd_patcher:
             self.assertTrue(isinstance(self.device.to_dict(), dict))
     
     def test_manufacturer_to_dict(self):
         self.assertIsNotNone(self.device.to_dict()['manufacturer'])
     
     def test_manufacturer(self):
-        self.interfaces_patcher.start()
-        self.assertIsNotNone(self.device.manufacturer)
+        with self.interfaces_patcher:
+            self.assertIsNotNone(self.device.manufacturer)
     
     def test_model(self):
         self.assertTrue(type(self.device.model) == str)

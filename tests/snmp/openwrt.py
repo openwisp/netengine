@@ -1,5 +1,5 @@
 import unittest
-import mock
+from mock import patch
 from netengine.backends.snmp import OpenWRT
 
 from ..settings import settings
@@ -17,7 +17,15 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.device = OpenWRT(self.host, self.community, self.port)
 
         self.oid_mock_data = self._load_mock_json('/test-openwrt-snmp-oid.json')
-        self.get_value_patcher = mock.patch(
+        self.interfaces_count_patcher = patch(
+            'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
+            return_value=[1, 2, 3, 4, 5]
+        )
+        self.nextcmd_patcher = patch(
+            'netengine.backends.snmp.openwrt.SNMP.next',
+            return_value=[0, 0, 0, [0] * 5]
+        )
+        self.get_value_patcher = patch(
             'netengine.backends.snmp.openwrt.OpenWRT.get_value',
             side_effect=lambda x: self._get_mocked_value(
                 oid=x, data=self.oid_mock_data
@@ -28,13 +36,11 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_os(self):
         self.assertTrue(type(self.device.os) == tuple)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_manufacturer(self, mock_nextcmd, mock_value_to_retr):
-        mock_value_to_retr.return_value = [1, 2, 3, 4, 5]
-        mock_nextcmd.return_value = [0, 0, 0, [0] * 5]
-        self.assertIsNotNone(self.device.manufacturer)
-        mock_nextcmd.assert_called_once_with('1.3.6.1.2.1.2.2.1.6.')
+    def test_manufacturer(self):
+        with self.interfaces_count_patcher:
+            with self.nextcmd_patcher as p:
+                self.assertIsNotNone(self.device.manufacturer)
+                p.assert_called_once_with('1.3.6.1.2.1.2.2.1.6.')
 
     def test_name(self):
         self.assertTrue(type(self.device.name) == str)
@@ -45,71 +51,57 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_uptime_tuple(self):
         self.assertTrue(type(self.device.uptime_tuple) == tuple)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    def test_get_interfaces(self, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        self.assertTrue(type(self.device.get_interfaces()) == list)
+    def test_get_interfaces(self):
+        with self.interfaces_count_patcher:
+            self.assertTrue(type(self.device.get_interfaces()) == list)
 
     def test_interfaces_speed(self):
         self.assertTrue(type(self.device.interfaces_speed) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    def test_interfaces_bytes(self, mock_interfaces_count):
-        self.assertTrue(type(self.device.interfaces_bytes) == list)
+    def test_interfaces_bytes(self):
+        with self.interfaces_count_patcher:
+            self.assertTrue(type(self.device.interfaces_bytes) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_interfaces_MAC(self, mock_nextcmd, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        mock_nextcmd.return_value = [0, 0, 0, [0] * 5]
-        self.assertTrue(type(self.device.interfaces_MAC) == list)
+    def test_interfaces_MAC(self):
+        with self.interfaces_count_patcher, self.nextcmd_patcher:
+            self.assertTrue(type(self.device.interfaces_MAC) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    def test_interfaces_type(self, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        self.assertTrue(type(self.device.interfaces_type) == list)
+    def test_interfaces_type(self):
+        with self.interfaces_count_patcher:
+            self.assertTrue(type(self.device.interfaces_type) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    def test_interfaces_mtu(self, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        self.assertTrue(type(self.device.interfaces_mtu) == list)
+    def test_interfaces_mtu(self):
+        with self.interfaces_count_patcher:
+            self.assertTrue(type(self.device.interfaces_mtu) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    def test_interfaces_state(self, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        self.assertTrue(type(self.device.interfaces_state) == list)
+    def test_interfaces_state(self):
+        with self.interfaces_count_patcher:
+            self.assertTrue(type(self.device.interfaces_state) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_interfaces_to_dict(self, mock_nextcmd):
-        mock_nextcmd.return_value = (0, 0, 0, [])
-        self.assertTrue(type(self.device.interfaces_to_dict) == list)
+    def test_interfaces_to_dict(self):
+        with self.nextcmd_patcher as p:
+            p.return_value = (0, 0, 0, [])
+            self.assertTrue(type(self.device.interfaces_to_dict) == list)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_interface_addr_and_mask(self, mock_nextcmd):
-        mock_nextcmd.return_value = (0, 0, 0, [])
-        self.assertTrue(type(self.device.interface_addr_and_mask) == dict)
+    def test_interface_addr_and_mask(self):
+        with self.nextcmd_patcher as p:
+            p.return_value = (0, 0, 0, [])
+            self.assertTrue(type(self.device.interface_addr_and_mask) == dict)
 
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_to_dict(self, mock_nextcmd, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        mock_nextcmd.return_value = [0, 0, 0, [0] * 5]
-        device_dict = self.device.to_dict()
+    def test_to_dict(self):
+        with self.interfaces_count_patcher, self.nextcmd_patcher:
+            device_dict = self.device.to_dict()
+            self.assertTrue(isinstance(device_dict, dict))
+            self.assertEqual(
+                len(device_dict['interfaces']), len(self.device.get_interfaces())
+            )
 
-        self.assertTrue(isinstance(device_dict, dict))
-        self.assertEqual(
-            len(device_dict['interfaces']), len(self.device.get_interfaces())
-        )
-
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP._value_to_retrieve')
-    @mock.patch('netengine.backends.snmp.openwrt.SNMP.next')
-    def test_manufacturer_to_dict(self, mock_nextcmd, mock_interfaces_count):
-        mock_interfaces_count.return_value = [1, 2, 3, 4, 5]
-        mock_nextcmd.return_value = [0, 0, 0, [0] * 5]
-        self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+    def test_manufacturer_to_dict(self):
+        with self.interfaces_count_patcher, self.nextcmd_patcher:
+            self.assertIsNotNone(self.device.to_dict()['manufacturer'])
 
     def tearDown(self):
         self.get_value_patcher.stop()
