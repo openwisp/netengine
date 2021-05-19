@@ -118,7 +118,9 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertTrue(type(self.device.interfaces_number) == int)
     
     def test_wireless_to_dict(self):
-        self.assertTrue(type(self.device.wireless_links) == list)
+        with self.interfaces_patcher, self.nextcmd_patcher as np:
+            np.side_effect = lambda x: self._get_mocked_wireless_links(oid=x)
+            self.assertTrue(type(self.device.wireless_links) == list)
 
     def test_RAM_free(self):
         self.assertTrue(type(self.device.RAM_free) == int)
@@ -126,12 +128,15 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_RAM_total(self):
         self.assertTrue(type(self.device.RAM_total) == int)
 
-    def test_to_dict(self, mock_nextcmd):
-        with self.interfaces_patcher, self.nextcmd_patcher:
+    def test_to_dict(self):
+        with self.interfaces_patcher, self.nextcmd_patcher as np:
+            np.side_effect = lambda x: self._get_mocked_wireless_links(oid=x)
             self.assertTrue(isinstance(self.device.to_dict(), dict))
     
     def test_manufacturer_to_dict(self):
-        self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+        with self.interfaces_patcher, self.nextcmd_patcher as np:
+            np.side_effect = lambda x: self._get_mocked_wireless_links(oid=x)
+            self.assertIsNotNone(self.device.to_dict()['manufacturer'])
     
     def test_manufacturer(self):
         with self.interfaces_patcher:

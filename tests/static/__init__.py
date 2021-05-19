@@ -22,3 +22,12 @@ class MockOutputMixin(object):
         if type(result) == list:
             result = "\n".join(result[0:])
         return [0, 0, 0, [[0, result.encode('ascii', 'ignore')], 0]]
+
+    @staticmethod
+    def _get_mocked_wireless_links(oid):
+        return_data = {
+            '1.3.6.1.4.1.14988.1.1.1.2.1': [0, 0, 0, [[[0, 0], 0]] * 28],
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0, 0, [0, 0]],
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [None, 0, 0, []],
+        }
+        return return_data[oid]
