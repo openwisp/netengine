@@ -17,7 +17,7 @@ class MockOutputMixin(object):
         return result
 
     @staticmethod
-    def _get_mocked_getcmd(oid, data, *args, **kwargs):
+    def _get_encoded_mocked_value(oid, data, *args, **kwargs):
         result = data[oid]
         if type(result) == list:
             result = "\n".join(result[0:])

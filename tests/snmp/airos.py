@@ -29,7 +29,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         )
         self.get_value_patcher = patch(
             'netengine.backends.snmp.airos.AirOS.get',
-            side_effect=lambda x: self._get_mocked_getcmd(
+            side_effect=lambda x: self._get_encoded_mocked_value(
                 oid=x, data=self.oid_mock_data
             ),
         )
