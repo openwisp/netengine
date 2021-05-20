@@ -40,11 +40,6 @@ Clone repo::
 
     cd netengine/
 
-Edit settings json file according to your network::
-
-    cp test-settings.example.json test-settings.json
-    vim test-settings.json
-
 Run tests with::
 
     nosetests

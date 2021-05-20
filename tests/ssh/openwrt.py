@@ -3,7 +3,6 @@ import mock
 
 from netengine.backends.ssh import OpenWRT
 
-from ..settings import settings
 from ..static import MockOutputMixin
 
 

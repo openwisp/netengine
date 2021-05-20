@@ -89,4 +89,5 @@ class TestBaseBackend(unittest.TestCase):
         
     def test_get_manufacturer_unicode(self):
         device = BaseBackend()
-        self.assertIsNone(device.get_manufacturer(u"wrong MAC"))
+        with self.assertRaises(NetEngineError):
+            device.get_manufacturer(u"wrong MAC")

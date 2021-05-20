@@ -5,7 +5,6 @@ from netengine.backends.ssh import SSH
 from netengine.exceptions import NetEngineError
 from paramiko.ssh_exception import SSHException
 
-from ..settings import settings
 from ..static import MockOutputMixin
 
 

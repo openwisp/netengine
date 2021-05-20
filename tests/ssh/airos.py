@@ -4,7 +4,6 @@ import mock
 
 from netengine.backends.ssh import AirOS
 
-from ..settings import settings
 from ..static import MockOutputMixin
 
 
@@ -15,12 +14,7 @@ class TestSSHAirOS(unittest.TestCase, MockOutputMixin):
 
     @mock.patch('paramiko.SSHClient.connect')
     def setUp(self, mocked_connect):
-        self.host = settings['airos-ssh']['host']
-        self.username = settings['airos-ssh']['username']
-        self.password = settings['airos-ssh']['password']
-        self.port = settings['airos-ssh'].get('port', 22)
-
-        self.device = AirOS(self.host, self.username, self.password, self.port)
+        self.device = AirOS('test-host.com', 'test-user', 'test-pass', 22)
         self.device.connect()
         mocked_connect.assert_called_once()
         ssh_mock_data = self._load_mock_json('/test-airos-ssh.json')
