@@ -2,6 +2,7 @@ import unittest
 from mock import patch
 from netengine.backends.snmp import OpenWRT
 
+from ..settings import settings
 from ..static import MockOutputMixin
 
 __all__ = ['TestSNMPOpenWRT']
@@ -9,7 +10,12 @@ __all__ = ['TestSNMPOpenWRT']
 
 class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def setUp(self):
-        self.device = OpenWRT('0.0.0.0', 'public', 161)
+        self.host = settings['openwrt-snmp']['host']
+        self.community = settings['openwrt-snmp']['community']
+        self.port = settings['openwrt-snmp'].get('port', 161)
+        self.device = OpenWRT(self.host, self.community, self.port)
+
+        # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json('/test-openwrt-snmp-oid.json')
         self.interfaces_count_patcher = patch(
             'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
@@ -25,6 +31,10 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
                 oid=x, data=self.oid_mock_data
             ).encode('ascii', 'ignore'),
         )
+        if settings['disable_mocks']:
+            self.interfaces_count_patcher = self.DisableMock()
+            self.nextcmd_patcher = self.DisableMock()
+            self.get_value_patcher = self.DisableMock()
         self.get_value_patcher.start()
 
     def test_os(self):
