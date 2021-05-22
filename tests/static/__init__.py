@@ -1,7 +1,57 @@
 import json
+import mock
 import os
 
+from ..settings import settings
+
+
 class MockOutputMixin(object):
+
+    class DisableMockMixin(object):
+        """
+        Disables the mock object in context managers restoring the mocked
+        function to its original state
+        """
+        def assert_called(self, *args, **kwargs):
+            pass
+
+        def assert_not_called(self, *args, **kwargs):
+            pass
+
+        def assert_called_once(self, *args, **kwargs):
+            pass
+
+        def assert_called_with(self, *args, **kwargs):
+            pass
+
+        def assert_called_once_with(self, *args, **kwargs):
+            pass
+
+        def assert_has_calls(self, *args, **kwargs):
+            pass
+
+        def assert_any_call(self, *args, **kwargs):
+            pass
+
+        def start(self):
+            pass
+
+        def stop(self):
+            pass
+
+        def __enter__(self, *args, **kwargs):
+            return self
+
+        def __exit__(self, *args, **kwargs):
+            return True
+
+
+    def _patch(self, *args, **kwargs):
+        if settings['disable_mocks']:
+            return self.DisableMockMixin()
+        else:
+            return mock.patch(*args, **kwargs)
+
     @staticmethod
     def _load_mock_json(file):
         base_dir = os.path.dirname(os.path.abspath(__file__))

@@ -1,8 +1,8 @@
 import unittest
-from mock import patch
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 
+from ..settings import settings
 from ..static import MockOutputMixin
 
 
@@ -12,17 +12,22 @@ __all__ = ['TestSNMPAirOS']
 class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     
     def setUp(self):
-        self.device = AirOS('0.0.0.0', 'public', 161)
+        self.host = settings['airos-snmp']['host']
+        self.community = settings['airos-snmp']['community']
+        self.port = settings['airos-snmp'].get('port', 161)
+        self.device = AirOS(self.host, self.community, port=self.port)
+
+        # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json('/test-airos-snmp.json')
-        self.interfaces_patcher = patch(
+        self.interfaces_patcher = self._patch(
             'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
             return_value=[1, 2, 3, 4, 5]
         )
-        self.nextcmd_patcher = patch(
+        self.nextcmd_patcher = self._patch(
             'netengine.backends.snmp.openwrt.SNMP.next',
             return_value=[0, 0, 0, [[[0, 0,]]] * 5]
         )
-        self.get_value_patcher = patch(
+        self.get_value_patcher = self._patch(
             'netengine.backends.snmp.airos.AirOS.get',
             side_effect=lambda x: self._get_encoded_mocked_value(
                 oid=x, data=self.oid_mock_data

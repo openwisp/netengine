@@ -1,10 +1,10 @@
 import unittest
-import mock
 
 from netengine.backends.ssh import SSH
 from netengine.exceptions import NetEngineError
 from paramiko.ssh_exception import SSHException
 
+from ..settings import settings
 from ..static import MockOutputMixin
 
 
@@ -12,38 +12,43 @@ __all__ = ['TestSSH']
 
 
 class TestSSH(unittest.TestCase, MockOutputMixin):
-    @mock.patch('paramiko.SSHClient.connect')
-    def setUp(self, mocked_connect):
-        self.host = 'test-host.com'
-        self.username = 'test-user'
-        self.password = 'test-password'
-        self.port = 22
+
+    def setUp(self):
+        self.host = settings['base-ssh']['host']
+        self.username = settings['base-ssh']['username']
+        self.password = settings['base-ssh']['password']
+        self.port = settings['base-ssh'].get('port', 22)
         self.device = SSH(self.host, self.username, self.password, self.port)
         self.assertTrue(self.device.__netengine__)
-        self.device.connect()
-        mocked_connect.assert_called_once_with(
-            self.host, username=self.username, password=self.password, port=self.port
-        )
+
+        # mock calls being made to devices
         ssh_mock_data = self._load_mock_json('/test-base-ssh.json')
-        self.exec_command_patcher = mock.patch(
+        self.exec_command_patcher = self._patch(
             'netengine.backends.ssh.base.SSH.run',
             side_effect=lambda x: self._get_mocked_value(oid=x, data=ssh_mock_data),
         )
+        self.connect_patcher = self._patch('paramiko.SSHClient.connect')
+        self.close_patcher = self._patch('paramiko.SSHClient.close')
+        with self.connect_patcher as p:
+            self.device.connect()
+            p.assert_called_once_with(
+                self.host, username=self.username, password=self.password, port=self.port
+            )
         self.exec_command_patcher.start()
 
-    @mock.patch('paramiko.SSHClient.connect')
-    def test_validate_negative_result(self, mocked_connect):
-        mocked_connect.side_effect = SSHException
-        wrong = SSH('10.40.0.254', 'root', 'pwd')
-        self.assertRaises(NetEngineError, wrong.validate)
+    def test_validate_negative_result(self):
+        with self.connect_patcher as p:
+            p.side_effect = SSHException
+            wrong = SSH('10.40.0.254', 'root', 'pwd')
+            self.assertRaises(NetEngineError, wrong.validate)
 
-    @mock.patch('paramiko.SSHClient.close')
-    @mock.patch('paramiko.SSHClient.connect')
-    def test_validate_positive_result(self, mocked_connect, mocked_close):
-        self.device.disconnect()
-        self.device.validate()
-        mocked_connect.assert_called_once()
-        self.assertEqual(mocked_close.call_count, 2)
+    def test_validate_positive_result(self):
+        with self.connect_patcher as cn, self.close_patcher as cl:
+            self.device.disconnect()
+            self.device.validate()
+            cn.assert_called_once()
+            if not settings['disable_mocks']:
+                self.assertEqual(cl.call_count, 2)
 
     def test_olsr(self):
         print(self.device.olsr)

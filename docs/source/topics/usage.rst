@@ -30,19 +30,22 @@ Further example will be found inside dedicated docs for every backend
 Running tests
 *************
 
-Install nose::
+Install test reqirements::
 
-    pip install nose
-
-Clone repo::
-
-    git clone git://github.com/ninuxorg/netengine
-
-    cd netengine/
+    pip install -r reqirements.txt
+    pip install -r requirements-test.txt
 
 Run tests with::
 
-    nosetests
+    ./runtests
+
+To run tests on real devices, first copy the settings file::
+
+    cp test-settings.example.json test-settings.json
+
+Then change the credentials accordingly, now run tests with::
+
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests
 
 See test coverage with::
 
@@ -62,3 +65,6 @@ Run specific tests by specifying the relative path::
     nosetests tests.ssh
     # ssh airos specific tests
     nosetests tests.ssh.airos
+
+    # run without mocks with a custom test file
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nosetests tests.ssh

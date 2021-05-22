@@ -1,8 +1,8 @@
 import unittest
-import mock
 
 from netengine.backends.ssh import OpenWRT
 
+from ..settings import settings
 from ..static import MockOutputMixin
 
 
@@ -11,18 +11,25 @@ __all__ = ['TestSSHOpenWRT']
 
 class TestSSHOpenWRT(unittest.TestCase, MockOutputMixin):
 
-    @mock.patch('paramiko.SSHClient.connect')
-    def setUp(self, mocked_connect):
-        self.device = OpenWRT('test-host.com', 'test-user', 'test-pass', 22)
-        self.device.connect()
-        mocked_connect.assert_called_once()
+    def setUp(self):
+        self.host = settings['openwrt-ssh']['host']
+        self.username = settings['openwrt-ssh']['username']
+        self.password = settings['openwrt-ssh']['password']
+        self.port = settings['openwrt-ssh'].get('port', 22)
+        self.device = OpenWRT(self.host, self.username, self.password, self.port)
+
+        # mock calls being made to devices
         ssh_mock_data = self._load_mock_json('/test-openwrt-ssh.json')
-        self.ssh_patcher = mock.patch(
+        self.ssh_patcher = self._patch(
             'netengine.backends.ssh.openwrt.SSH.run',
             side_effect=lambda x: self._get_mocked_value(
                 oid=x, data=ssh_mock_data
             ),
         )
+        self.connect_patcher = self._patch('paramiko.SSHClient.connect')
+        with self.connect_patcher as p:
+            self.device.connect()
+            p.assert_called_once()
         self.ssh_patcher.start()
 
     def test_properties(self):

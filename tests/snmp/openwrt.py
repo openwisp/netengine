@@ -1,7 +1,7 @@
 import unittest
-from mock import patch
 from netengine.backends.snmp import OpenWRT
 
+from ..settings import settings
 from ..static import MockOutputMixin
 
 __all__ = ['TestSNMPOpenWRT']
@@ -9,17 +9,22 @@ __all__ = ['TestSNMPOpenWRT']
 
 class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def setUp(self):
-        self.device = OpenWRT('0.0.0.0', 'public', 161)
+        self.host = settings['openwrt-snmp']['host']
+        self.community = settings['openwrt-snmp']['community']
+        self.port = settings['openwrt-snmp'].get('port', 161)
+        self.device = OpenWRT(self.host, self.community, self.port)
+
+        # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json('/test-openwrt-snmp-oid.json')
-        self.interfaces_count_patcher = patch(
+        self.interfaces_count_patcher = self._patch(
             'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
             return_value=[1, 2, 3, 4, 5]
         )
-        self.nextcmd_patcher = patch(
+        self.nextcmd_patcher = self._patch(
             'netengine.backends.snmp.openwrt.SNMP.next',
             return_value=[0, 0, 0, [0] * 5]
         )
-        self.get_value_patcher = patch(
+        self.get_value_patcher = self._patch(
             'netengine.backends.snmp.openwrt.OpenWRT.get_value',
             side_effect=lambda x: self._get_mocked_value(
                 oid=x, data=self.oid_mock_data

@@ -3,6 +3,7 @@ import unittest
 from netengine.backends.snmp import SNMP
 from netengine.exceptions import NetEngineError
 
+from ..settings import settings
 
 
 __all__ = ['TestSNMP']
@@ -11,9 +12,9 @@ __all__ = ['TestSNMP']
 class TestSNMP(unittest.TestCase):
 
     def setUp(self):
-        self.host = '0.0.0.0'
-        self.community = 'public'
-        self.port = 161
+        self.host = settings['base-snmp']['host']
+        self.community = settings['base-snmp']['community']
+        self.port = settings['base-snmp'].get('port', 161)
         
     def test_instantiation(self):
         device = SNMP(self.host, self.community, self.port)
