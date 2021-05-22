@@ -3,7 +3,6 @@ from mock import patch
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 
-from ..settings import settings
 from ..static import MockOutputMixin
 
 
@@ -13,12 +12,7 @@ __all__ = ['TestSNMPAirOS']
 class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     
     def setUp(self):
-        self.host = settings['airos-snmp']['host']
-        self.community = settings['airos-snmp']['community']
-        self.port = settings['airos-snmp'].get('port', 161)
-        self.device = AirOS(self.host, self.community, port=self.port)
-
-        # mock calls being made to devices
+        self.device = AirOS('0.0.0.0', 'public', 161)
         self.oid_mock_data = self._load_mock_json('/test-airos-snmp.json')
         self.interfaces_patcher = patch(
             'netengine.backends.snmp.openwrt.SNMP._value_to_retrieve',
@@ -34,10 +28,6 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
                 oid=x, data=self.oid_mock_data
             ),
         )
-        if settings['disable_mocks']:
-            self.interfaces_patcher = self.DisableMock()
-            self.nextcmd_patcher = self.DisableMock()
-            self.get_value_patcher = self.DisableMock()
         self.get_value_patcher.start()
     
     def test_get_value_error(self):
