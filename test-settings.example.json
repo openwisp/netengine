@@ -1,20 +1,4 @@
 {
-    "base-ssh": {
-        "host": "yourhost",
-        "username": "root",
-        "password": "password"
-    },
-    "airos-ssh": {
-        "host": "your_airos_device",
-        "username": "root",
-        "password": "password"
-    },
-    "openwrt-ssh": {
-        "host": "your_openwrt_device",
-        "username": "root",
-        "password": "password"
-    },
-
     "base-snmp": {
         "host": "yourhost",
         "community": "public",
