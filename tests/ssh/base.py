@@ -24,8 +24,10 @@ class TestSSH(unittest.TestCase, MockOutputMixin):
         # mock calls being made to devices
         ssh_mock_data = self._load_mock_json('/test-base-ssh.json')
         self.exec_command_patcher = self._patch(
-            'netengine.backends.ssh.base.SSH.run',
-            side_effect=lambda x: self._get_mocked_value(oid=x, data=ssh_mock_data),
+            'paramiko.SSHClient.exec_command',
+            side_effect=lambda x: self._get_mocked_exec_command(
+                command=x, data = ssh_mock_data
+            ),
         )
         self.connect_patcher = self._patch('paramiko.SSHClient.connect')
         self.close_patcher = self._patch('paramiko.SSHClient.close')
@@ -35,6 +37,7 @@ class TestSSH(unittest.TestCase, MockOutputMixin):
                 self.host, username=self.username, password=self.password, port=self.port
             )
         self.exec_command_patcher.start()
+        self.connect_patcher.start()
 
     def test_validate_negative_result(self):
         with self.connect_patcher as p:

@@ -1,6 +1,7 @@
 import json
 import mock
 import os
+from StringIO import StringIO
 
 from ..settings import settings
 
@@ -60,24 +61,32 @@ class MockOutputMixin(object):
         return data
 
     @staticmethod
-    def _get_mocked_value(oid, data, *args, **kwargs):
-        result = data[oid]
+    def _get_mocked_getcmd(data, input):
+        oid = input[2]
+        result = data[oid].encode('ascii', 'ignore')
         if type(result) == list:
             result = "\n".join(result[0:])
-        return result
+        return [0, 0, 0, [[0, result]]]
 
     @staticmethod
-    def _get_encoded_mocked_value(oid, data, *args, **kwargs):
-        result = data[oid]
+    def _get_mocked_exec_command(command, data):
+        result = data[command]
         if type(result) == list:
             result = "\n".join(result[0:])
-        return [0, 0, 0, [[0, result.encode('ascii', 'ignore')], 0]]
+        stdout = stderr = StringIO()
+        stdout.write(result)
+        stderr.write(None)
+        stdout.seek(0)
+        stderr.seek(0)
+        return 0, stdout, stderr
 
     @staticmethod
-    def _get_mocked_wireless_links(oid):
+    def _get_mocked_wireless_links(data):
+        oid = data[2]
         return_data = {
             '1.3.6.1.4.1.14988.1.1.1.2.1': [0, 0, 0, [[[0, 0], 0]] * 28],
             '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0, 0, [0, 0]],
             '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [None, 0, 0, []],
+            '1.3.6.1.2.1.1.9.1.1': [0, 0, 0, [[[0, 1]]] * 5]
         }
         return return_data[oid]

@@ -21,9 +21,9 @@ class TestSSHOpenWRT(unittest.TestCase, MockOutputMixin):
         # mock calls being made to devices
         ssh_mock_data = self._load_mock_json('/test-openwrt-ssh.json')
         self.ssh_patcher = self._patch(
-            'netengine.backends.ssh.openwrt.SSH.run',
-            side_effect=lambda x: self._get_mocked_value(
-                oid=x, data=ssh_mock_data
+            'paramiko.SSHClient.exec_command',
+            side_effect=lambda x: self._get_mocked_exec_command(
+                command=x, data = ssh_mock_data
             ),
         )
         self.connect_patcher = self._patch('paramiko.SSHClient.connect')
@@ -31,6 +31,7 @@ class TestSSHOpenWRT(unittest.TestCase, MockOutputMixin):
             self.device.connect()
             p.assert_called_once()
         self.ssh_patcher.start()
+        self.connect_patcher.start()
 
     def test_properties(self):
         device = self.device
@@ -71,3 +72,4 @@ class TestSSHOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def tearDown(self):
         self.ssh_patcher.stop()
+        self.connect_patcher.stop()
