@@ -30,7 +30,7 @@ The goal of this project is to build that single API.
 Status of this project
 ======================
 
-We are currently in 0.1 pre-alpha version.
+We are currently in 0.1 alpha version.
 
 The 0.1 final version will be out by August 2021.
 
@@ -38,7 +38,7 @@ The 0.1 final version will be out by August 2021.
 
     The legacy versions of this project had support for SSH and HTTP for extracting information from
     devices. To see how it worked, visit the
-    `0.1.0 pre-alpha release <https://github.com/openwisp/netengine/releases/tag/0.1.0a>`_ page on
+    `0.1.0 alpha release <https://github.com/openwisp/netengine/releases/tag/0.1.0a>`_ page on
     github.
 
 =======

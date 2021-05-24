@@ -27,7 +27,7 @@ setup(
     author='Federico Capoano (nemesisdesign)',
     author_email='ninux-dev@ml.ninux.org',
     license='MIT',
-    url='https://github.com/ninuxorg/netengine',
+    url='https://github.com/openwisp/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
     install_requires=get_install_requires(),
     zip_safe=False,

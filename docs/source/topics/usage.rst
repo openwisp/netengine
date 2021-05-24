@@ -36,7 +36,7 @@ Install nose::
 
 Clone repo::
 
-    git clone git://github.com/ninuxorg/netengine
+    git clone git://github.com/openwisp/netengine
 
     cd netengine/
 

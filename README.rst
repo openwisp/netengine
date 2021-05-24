@@ -2,12 +2,12 @@
 netengine
 =========
 
-.. image:: https://landscape.io/github/ninuxorg/netengine/master/landscape.svg
-    :target: https://landscape.io/github/ninuxorg/netengine/master
+.. image:: https://landscape.io/github/openwisp/netengine/master/landscape.svg
+    :target: https://landscape.io/github/openwisp/netengine/master
     :alt: Code Health
 
-.. image:: https://requires.io/github/ninuxorg/netengine/requirements.svg?branch=master
-    :target: https://requires.io/github/ninuxorg/netengine/requirements/?branch=master
+.. image:: https://requires.io/github/openwisp/netengine/requirements.svg?branch=master
+    :target: https://requires.io/github/openwisp/netengine/requirements/?branch=master
     :alt: Requirements Status
 
 .. image:: https://badge.fury.io/py/netengine.svg
@@ -15,7 +15,7 @@ netengine
 
 ------------------------------
 
-.. image:: https://raw.githubusercontent.com/ninuxorg/netengine/master/docs/source/images/netengine-logo.png
+.. image:: https://raw.githubusercontent.com/openwisp/netengine/master/docs/source/images/netengine-logo.png
 
 Abstraction layer for extracting information from network devices.
 
@@ -24,7 +24,7 @@ Documentation: http://netengine.rtfd.org
 Contribute
 ==========
 
-1. Join the `ninux-dev mailing list`_
+1. Join the `OpenWISP mailing list`_
 2. Fork this repo
 3. Follow `PEP8, Style Guide for Python Code`_
 4. Write code
@@ -35,4 +35,4 @@ Contribute
 9. Send pull request
 
 .. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
-.. _ninux-dev mailing list: http://ml.ninux.org/mailman/listinfo/ninux-dev
+.. _OpenWISP mailing list: https://groups.google.com/g/openwisp
