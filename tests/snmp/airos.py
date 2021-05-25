@@ -20,11 +20,11 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json('/test-airos-snmp.json')
         self.nextcmd_patcher = self._patch(
-            'netengine.backends.snmp.base.cmdgen.CommandGenerator.nextCmd',
+            'pysnmp.entity.rfc3413.oneliner.cmdgen.CommandGenerator.nextCmd',
             return_value=[0, 0, 0, [[[0, 1]]] * 5]
         )
         self.getcmd_patcher = self._patch(
-            'netengine.backends.snmp.base.cmdgen.CommandGenerator.getCmd',
+            'pysnmp.entity.rfc3413.oneliner.cmdgen.CommandGenerator.getCmd',
             side_effect=lambda *args: self._get_mocked_getcmd(
                 data=self.oid_mock_data, input=args
             )
@@ -32,16 +32,14 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.getcmd_patcher.start()
     
     def test_get_value_error(self):
-        with self.getcmd_patcher as p:
-            p.side_effect = NetEngineError
-            with self.assertRaises(NetEngineError):
-                self.device.get_value('.')
+        self.getcmd_patcher.stop()
+        with self.assertRaises(NetEngineError):
+            self.device.get_value('.')
     
     def test_validate_negative_result(self):
-        with self.getcmd_patcher as p:
-            p.side_effect = NetEngineError
-            wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
-            self.assertRaises(NetEngineError, wrong.validate)
+        self.getcmd_patcher.stop()
+        wrong = AirOS('10.40.0.254', 'wrong', 'wrong')
+        self.assertRaises(NetEngineError, wrong.validate)
     
     def test_validate_positive_result(self):
         self.device.validate()
@@ -67,60 +65,60 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         device.uptime_tuple
     
     def test_name(self):
-        self.assertTrue(type(self.device.name) == str)
+        self.assertIsInstance(self.device.name, str)
     
     def test_os(self):
-        self.assertTrue(type(self.device.os) == tuple)
+        self.assertIsInstance(self.device.os, tuple)
         
     def test_get_interfaces(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.get_interfaces()) == list)
+            self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_get_interfaces_mtu(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_mtu) == list)
+            self.assertIsInstance(self.device.interfaces_mtu, list)
     
     def test_interfaces_state(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_state) == list)
+            self.assertIsInstance(self.device.interfaces_state, list)
     
     def test_interfaces_speed(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_speed) == list)
+            self.assertIsInstance(self.device.interfaces_speed, list)
         
     def test_interfaces_bytes(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_bytes) == list)
+            self.assertIsInstance(self.device.interfaces_bytes, list)
     
     def test_interfaces_MAC(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_MAC) == list)
+            self.assertIsInstance(self.device.interfaces_MAC, list)
     
     def test_interfaces_type(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_type) == list)
+            self.assertIsInstance(self.device.interfaces_type, list)
     
     def test_interfaces_to_dict(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.interfaces_to_dict) == list)
+            self.assertIsInstance(self.device.interfaces_to_dict, list)
 
     def test_wireless_dbm(self):
         with self.nextcmd_patcher:
-            self.assertTrue(type(self.device.wireless_dbm) == list)
+            self.assertIsInstance(self.device.wireless_dbm, list)
     
     def test_interfaces_number(self):
-        self.assertTrue(type(self.device.interfaces_number) == int)
+        self.assertIsInstance(self.device.interfaces_number, int)
     
     def test_wireless_to_dict(self):
         with self.nextcmd_patcher as np:
             np.side_effect = lambda *args: self._get_mocked_wireless_links(data=args)
-            self.assertTrue(type(self.device.wireless_links) == list)
+            self.assertIsInstance(self.device.wireless_links, list)
 
     def test_RAM_free(self):
-        self.assertTrue(type(self.device.RAM_free) == int)
+        self.assertIsInstance(self.device.RAM_free, int)
         
     def test_RAM_total(self):
-        self.assertTrue(type(self.device.RAM_total) == int)
+        self.assertIsInstance(self.device.RAM_total, int)
 
     def test_to_dict(self):
         with self.nextcmd_patcher as np:
@@ -137,16 +135,16 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             self.assertIsNotNone(self.device.manufacturer)
     
     def test_model(self):
-        self.assertTrue(type(self.device.model) == str)
+        self.assertIsInstance(self.device.model, str)
     
     def test_firmware(self):
-        self.assertTrue(type(self.device.firmware) == str)
+        self.assertIsInstance(self.device.firmware, str)
         
     def test_uptime(self):
-        self.assertTrue(type(self.device.uptime) == int)
+        self.assertIsInstance(self.device.uptime, int)
     
     def test_uptime_tuple(self):
-        self.assertTrue(type(self.device.uptime_tuple) == tuple)
+        self.assertIsInstance(self.device.uptime_tuple, tuple)
 
     def tearDown(self):
         self.getcmd_patcher.stop()

@@ -102,7 +102,10 @@ class SNMP(BaseBackend):
         returns value of oid, or raises NetEngineError Exception is anything wrong
         :oid string|tuple|list: string, tuple or list representing the OID to get
         """
-        result = self.get(oid)
+        try:
+            result = self.get(oid)
+        except Exception as e:
+            raise NetEngineError('pysnmp raised an exception: {0}'.format(e))
         try:
             return str(result[3][0][1])  # snmp stores results in several arrays
         except IndexError:
