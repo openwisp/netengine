@@ -3,7 +3,9 @@ Netengine
 =========
 
 **Netengine** is a python library that aims to provide a single API to extract common
-information from network devices using the Simple Network Management Protocol (SNMP) and different firwmares (eg: OpenWRT, AirOS).
+information from network devices with different firwmares (eg: OpenWRT, AirOS) using different protocols
+such as the Simple Network Management Protocol (SNMP), and the ability to easily add other backends
+like SSH and HTTP (`read more <#status-of-this-project>`_).
 
 You can immagine **Netengine** as a read-only ORM (Object Relational Mapper) equivalent for networks.
 
