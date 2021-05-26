@@ -1,7 +1,4 @@
-paramiko
 pysnmp
 ipaddress
-cached-property
 argparse
-mechanize
 mock

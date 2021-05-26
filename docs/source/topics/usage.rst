@@ -35,7 +35,9 @@ Install test reqirements::
     pip install -r reqirements.txt
     pip install -r requirements-test.txt
 
-Run tests with::
+Clone repo::
+
+    git clone git://github.com/openwisp/netengine
 
     ./runtests
 
@@ -61,10 +63,5 @@ Run specific tests by specifying the relative path::
     # snmp openwrt specific tests
     nosetests tests.snmp.openwrt
 
-    # ssh tests
-    nosetests tests.ssh
-    # ssh airos specific tests
-    nosetests tests.ssh.airos
-
     # run without mocks with a custom test file
-    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nosetests tests.ssh
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nosetests tests.snmp
