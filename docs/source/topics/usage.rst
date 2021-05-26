@@ -36,7 +36,7 @@ Install nose::
 
 Clone repo::
 
-    git clone git://github.com/ninuxorg/netengine
+    git clone git://github.com/openwisp/netengine
 
     cd netengine/
 
@@ -62,8 +62,3 @@ Run specific tests by specifying the relative path::
     nosetests tests.snmp
     # snmp openwrt specific tests
     nosetests tests.snmp.openwrt
-
-    # ssh tests
-    nosetests tests.ssh
-    # ssh airos specific tests
-    nosetests tests.ssh.airos
