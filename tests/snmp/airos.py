@@ -1,9 +1,10 @@
 import unittest
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
+from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 from ..settings import settings
-from ..static import MockOutputMixin
+from ..static import MockOutputMixin, SpyMock
 
 
 __all__ = ['TestSNMPAirOS']
@@ -19,15 +20,19 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
 
         # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json('/test-airos-snmp.json')
-        self.nextcmd_patcher = self._patch(
-            'pysnmp.entity.rfc3413.oneliner.cmdgen.CommandGenerator.nextCmd',
+        self.nextcmd_patcher = SpyMock._patch(
+            target=cmdgen.CommandGenerator,
+            attribute='nextCmd',
+            wrap_obj=self.device._command,
             return_value=[0, 0, 0, [[[0, 1]]] * 5]
         )
-        self.getcmd_patcher = self._patch(
-            'pysnmp.entity.rfc3413.oneliner.cmdgen.CommandGenerator.getCmd',
+        self.getcmd_patcher = SpyMock._patch(
+            target=cmdgen.CommandGenerator,
+            attribute='getCmd',
+            wrap_obj=self.device._command,
             side_effect=lambda *args: self._get_mocked_getcmd(
                 data=self.oid_mock_data, input=args
-            )
+            ),
         )
         self.getcmd_patcher.start()
     
@@ -111,7 +116,12 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     
     def test_wireless_to_dict(self):
         with self.nextcmd_patcher as np:
-            np.side_effect = lambda *args: self._get_mocked_wireless_links(data=args)
+            SpyMock._update_patch(
+                np,
+                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
+                    data=args
+                ),
+            )
             self.assertIsInstance(self.device.wireless_links, list)
 
     def test_RAM_free(self):
@@ -122,12 +132,22 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
 
     def test_to_dict(self):
         with self.nextcmd_patcher as np:
-            np.side_effect = lambda *args: self._get_mocked_wireless_links(data=args)
+            SpyMock._update_patch(
+                np,
+                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
+                    data=args
+                ),
+            )
             self.assertTrue(isinstance(self.device.to_dict(), dict))
     
     def test_manufacturer_to_dict(self):
         with self.nextcmd_patcher as np:
-            np.side_effect = lambda *args: self._get_mocked_wireless_links(data=args)
+            SpyMock._update_patch(
+                np,
+                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
+                    data=args
+                ),
+            )
             self.assertIsNotNone(self.device.to_dict()['manufacturer'])
     
     def test_manufacturer(self):
