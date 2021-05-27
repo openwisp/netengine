@@ -2,6 +2,7 @@ import unittest
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 from pysnmp.entity.rfc3413.oneliner import cmdgen
+from pysnmp.smi.error import NoSuchObjectError
 
 from ..settings import settings
 from ..static import MockOutputMixin, SpyMock
@@ -38,7 +39,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     
     def test_get_value_error(self):
         self.getcmd_patcher.stop()
-        with self.assertRaises(NetEngineError):
+        with self.assertRaises(NoSuchObjectError):
             self.device.get_value('.')
     
     def test_validate_negative_result(self):
