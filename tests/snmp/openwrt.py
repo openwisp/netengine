@@ -21,7 +21,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             target=cmdgen.CommandGenerator,
             attribute='nextCmd',
             wrap_obj=self.device._command,
-            return_value=[0, 0, 0, [0] * 5]
+            return_value=[0, 0, 0, [[[0, 1]]] * 5]
         )
         self.getcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
@@ -37,8 +37,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.os, tuple)
 
     def test_manufacturer(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsNotNone(self.device.manufacturer)
 
     def test_name(self):
@@ -51,36 +50,30 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.uptime_tuple, tuple)
 
     def test_get_interfaces(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_interfaces_speed(self):
         self.assertIsInstance(self.device.interfaces_speed, list)
 
     def test_interfaces_bytes(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.interfaces_bytes, list)
 
     def test_interfaces_MAC(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.interfaces_MAC, list)
 
     def test_interfaces_type(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.interfaces_type, list)
 
     def test_interfaces_mtu(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.interfaces_mtu, list)
 
     def test_interfaces_state(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+        with self.nextcmd_patcher:
             self.assertIsInstance(self.device.interfaces_state, list)
 
     def test_interfaces_to_dict(self):
