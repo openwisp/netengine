@@ -64,7 +64,6 @@ Contents:
 
     /topics/usage
     /topics/snmp
-    /topics/netengine-utils
 
 Indices and tables
 ==================

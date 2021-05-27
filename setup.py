@@ -40,6 +40,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: System :: Networking',
     ],
-    scripts=['bin/netengine-utils'],
     test_suite='nose.collector'
 )
