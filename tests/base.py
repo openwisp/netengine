@@ -2,7 +2,7 @@ import unittest
 
 from netengine import get_version, __version__
 from netengine.backends import BaseBackend
-from netengine.exceptions import NetEngineError
+from netaddr import AddrFormatError
 
 
 __all__ = ['TestBaseBackend']
@@ -89,5 +89,5 @@ class TestBaseBackend(unittest.TestCase):
         
     def test_get_manufacturer_unicode(self):
         device = BaseBackend()
-        with self.assertRaises(NetEngineError):
+        with self.assertRaises(AddrFormatError):
             device.get_manufacturer(u"wrong MAC")
