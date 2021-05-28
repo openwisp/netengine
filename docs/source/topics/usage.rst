@@ -39,7 +39,7 @@ Clone repo::
 
     git clone git://github.com/openwisp/netengine
 
-    ./runtests
+    ./runtests.py
 
 To run tests on real devices, first copy the settings file::
 
