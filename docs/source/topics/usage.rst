@@ -30,24 +30,24 @@ Further example will be found inside dedicated docs for every backend
 Running tests
 *************
 
-Install nose::
+Install test reqirements::
 
-    pip install nose
+    pip install -r reqirements.txt
+    pip install -r requirements-test.txt
 
 Clone repo::
 
     git clone git://github.com/openwisp/netengine
 
-    cd netengine/
+    ./runtests.py
 
-Edit settings json file according to your network::
+To run tests on real devices, first copy the settings file::
 
     cp test-settings.example.json test-settings.json
-    vim test-settings.json
 
-Run tests with::
+Then change the credentials accordingly, now run tests with::
 
-    nosetests
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests.py
 
 See test coverage with::
 
@@ -62,3 +62,6 @@ Run specific tests by specifying the relative path::
     nosetests tests.snmp
     # snmp openwrt specific tests
     nosetests tests.snmp.openwrt
+
+    # run without mocks with a custom test file
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nosetests tests.snmp

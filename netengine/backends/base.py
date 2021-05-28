@@ -1,7 +1,7 @@
 import json
 
 from netengine.shortcuts import OrderedDict
-from netaddr import EUI, NotRegisteredError, AddrFormatError
+from netaddr import EUI, NotRegisteredError
 
 
 __all__ = [
@@ -135,7 +135,9 @@ class BaseBackend(object):
 
     def get_manufacturer(self, mac_address):
         """ returns the manufacturer of the network interface """
+        if not mac_address:
+            return ''
         try:
             return EUI(mac_address).oui.registration().org
-        except (NotRegisteredError, AddrFormatError):
-            return None
+        except NotRegisteredError:
+            return ''
