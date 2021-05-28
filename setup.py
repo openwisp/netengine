@@ -24,8 +24,8 @@ setup(
     version=get_version(),
     description="Abstraction layer for extracting information from network devices.",
     long_description=open('README.rst').read(),
-    author='Federico Capoano (nemesisdesign)',
-    author_email='ninux-dev@ml.ninux.org',
+    author='OpenWISP and Ninux.org Contributors',
+    author_email='support@openwisp.io',
     license='MIT',
     url='https://github.com/openwisp/netengine',
     packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
@@ -40,6 +40,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: System :: Networking',
     ],
-    scripts=['bin/netengine-utils'],
     test_suite='nose.collector'
 )
