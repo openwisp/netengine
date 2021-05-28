@@ -47,7 +47,7 @@ To run tests on real devices, first copy the settings file::
 
 Then change the credentials accordingly, now run tests with::
 
-    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests.py
 
 See test coverage with::
 
