@@ -2,7 +2,7 @@ import json
 import mock
 import os
 
-from ..settings import settings
+from .settings import settings
 
 class SpyMock:
     @staticmethod

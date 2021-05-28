@@ -3,7 +3,7 @@ from netengine.backends.snmp import OpenWRT
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 from ..settings import settings
-from ..static import MockOutputMixin, SpyMock
+from ..utils import MockOutputMixin, SpyMock
 
 __all__ = ['TestSNMPOpenWRT']
 
@@ -16,7 +16,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.device = OpenWRT(self.host, self.community, self.port)
 
         # mock calls being made to devices
-        self.oid_mock_data = self._load_mock_json('/test-openwrt-snmp-oid.json')
+        self.oid_mock_data = self._load_mock_json('/static/test-openwrt-snmp-oid.json')
         self.nextcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
             attribute='nextCmd',
