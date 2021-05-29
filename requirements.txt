@@ -1,3 +1,2 @@
-netaddr
-pysnmp
-argparse
+netaddr~=0.8.0
+pysnmp~=4.4.12

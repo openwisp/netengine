@@ -1,3 +1,3 @@
-nose
-coverage
-openwisp-utils[qa]
+nose~=1.3.7
+coverage~=5.5
+openwisp-utils[qa]~=0.7.4
