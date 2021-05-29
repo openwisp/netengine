@@ -1,5 +1,3 @@
 netaddr
 pysnmp
-ipaddress
 argparse
-mock

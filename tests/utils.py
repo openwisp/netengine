@@ -1,8 +1,9 @@
 import json
-import mock
 import os
+from unittest import mock
 
 from .settings import settings
+
 
 class SpyMock:
     @staticmethod
@@ -30,7 +31,7 @@ class MockOutputMixin(object):
     @staticmethod
     def _get_mocked_getcmd(data, input):
         oid = input[2]
-        result = data[oid].encode('ascii', 'ignore')
+        result = data[oid]
         if type(result) == list:
             result = "\n".join(result[0:])
         return [0, 0, 0, [[0, result]]]
@@ -42,6 +43,6 @@ class MockOutputMixin(object):
             '1.3.6.1.4.1.14988.1.1.1.2.1': [0, 0, 0, [[[0, 0], 0]] * 28],
             '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0, 0, [0, 0]],
             '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [None, 0, 0, []],
-            '1.3.6.1.2.1.1.9.1.1': [0, 0, 0, [[[0, 1]]] * 5]
+            '1.3.6.1.2.1.1.9.1.1': [0, 0, 0, [[[0, 1]]] * 5],
         }
         return return_data[oid]

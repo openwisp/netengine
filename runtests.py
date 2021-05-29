@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os
+
 try:
     import nose
 except:
@@ -18,6 +19,6 @@ if __name__ == "__main__":
             os.path.abspath(__file__),
             "--with-cov",
             "--cover-package=netengine",
-            tests_path
+            tests_path,
         ]
     )

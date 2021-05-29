@@ -5,25 +5,23 @@ from netengine.exceptions import NetEngineError
 
 from ..settings import settings
 
-
 __all__ = ['TestSNMP']
 
 
 class TestSNMP(unittest.TestCase):
-
     def setUp(self):
         self.host = settings['base-snmp']['host']
         self.community = settings['base-snmp']['community']
         self.port = settings['base-snmp'].get('port', 161)
-        
+
     def test_instantiation(self):
         device = SNMP(self.host, self.community, self.port)
         self.assertTrue(device.__netengine__)
         self.assertIn('SNMP', str(device))
-    
+
     def test_not_implemented_methods(self):
         device = SNMP(self.host, self.community)
-        
+
         with self.assertRaises(NotImplementedError):
             device.os
         with self.assertRaises(NotImplementedError):
@@ -48,22 +46,22 @@ class TestSNMP(unittest.TestCase):
             device.wireless_dbm
         with self.assertRaises(NotImplementedError):
             device.wireless_noise
-    
+
     def test_raised_exception(self):
         class WrongSNMPBackend(SNMP):
             pass
-        
+
         device = WrongSNMPBackend(self.host, self.community)
-        
+
         with self.assertRaises(NetEngineError):
             device._value_to_retrieve()
-        
+
         # this time define the _oid_to_retrieve attribute
         class RightSNMPBackend(SNMP):
             _oid_to_retrieve = ''
-        
+
         device = RightSNMPBackend(self.host, self.community)
-        
+
         # now we expect a different kind of error
         with self.assertRaises(IndexError):
             device._value_to_retrieve()

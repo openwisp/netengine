@@ -1,11 +1,12 @@
 try:
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError:
-    raise ImportError('pysnmp library is not installed, install it with "pip install pysnmp"')
+    raise ImportError(
+        'pysnmp library is not installed, install it with "pip install pysnmp"'
+    )
 
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
-
 
 __all__ = ['SNMP']
 
@@ -14,7 +15,7 @@ class SNMP(BaseBackend):
     """
     SNMP base backend
     """
-    
+
     _oid_to_retrieve = None
 
     def __init__(self, host, community='public', agent='my-agent', port=161):
@@ -31,15 +32,7 @@ class SNMP(BaseBackend):
 
     def __str__(self):
         """ prints a human readable object description """
-        return "<SNMP: %s>" % self.host
-
-    def __repr__(self):
-        """ returns unicode string represantation """
-        return self.__str__()
-
-    def __unicode__(self):
-        """ unicode __str__() for python2.7 """
-        return unicode(self.__str__())
+        return f'<SNMP: {self.host}>'
 
     @property
     def _command(self):
@@ -52,10 +45,10 @@ class SNMP(BaseBackend):
         """
         returns valid oid value to be passed to getCmd() or nextCmd()
         """
-        if type(oid) not in (str, unicode, tuple, list):
+        if type(oid) not in (str, tuple, list):
             raise AttributeError('get accepts only strings, tuples or lists')
         # allow string representations of oids with commas ,
-        elif isinstance(oid, basestring):
+        elif isinstance(oid, str):
             # ignore spaces
             oid = oid.replace(' ', '').replace(',', '.')
         # convert lists and tuples into strings
@@ -79,7 +72,7 @@ class SNMP(BaseBackend):
             * [1, 3, 6, 1, 2, 1, 1, 5, 0]
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
-        print 'DEBUG: SNMP GET %s' % self._oid(oid)
+        print(f'DEBUG: SNMP GET {self._oid(oid)}')
         return self._command.getCmd(self.community, self.transport, self._oid(oid))
 
     def next(self, oid):
@@ -94,7 +87,7 @@ class SNMP(BaseBackend):
             * [1, 3, 6, 1, 2, 1, 1, 5, 0]
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
-        print 'DEBUG: SNMP NEXT %s' % self._oid(oid)
+        print(f'DEBUG: SNMP NEXT {self._oid(oid)}')
         return self._command.nextCmd(self.community, self.transport, self._oid(oid))
 
     def get_value(self, oid):
@@ -107,19 +100,21 @@ class SNMP(BaseBackend):
             return str(result[3][0][1])  # snmp stores results in several arrays
         except IndexError:
             raise NetEngineError(str(result[0]))
-    
+
     def _value_to_retrieve(self):
         """
         return the final SNMP indexes for the interfaces to be used in the other methods and properties
         """
         value_to_retr = []
-        
-        if (self._oid_to_retrieve is None):
-            raise NetEngineError('Please fix properly the _oid_to_retrieve string in OpenWRT or AirOS SNMP backend')
-        
+
+        if self._oid_to_retrieve is None:
+            raise NetEngineError(
+                'Please fix properly the _oid_to_retrieve string in OpenWRT or AirOS SNMP backend'
+            )
+
         indexes = self.next(self._oid_to_retrieve)[3]
-        
+
         for i in range(len(indexes)):
             value_to_retr.append(int(indexes[i][0][1]))
-        
+
         return value_to_retr
