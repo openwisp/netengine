@@ -6,9 +6,12 @@ __all__ = ['OpenWRT']
 
 
 import binascii
+import logging
 from datetime import timedelta
 
 from netengine.backends.snmp import SNMP
+
+logger = logging.getLogger(__name__)
 
 
 class OpenWRT(SNMP):
@@ -20,7 +23,7 @@ class OpenWRT(SNMP):
     _interface_dict = {}
 
     def __str__(self):
-        """ print a human readable object description """
+        """print a human readable object description"""
         return f'<SNMP (OpenWRT): {self.host}>'
 
     def validate(self):
@@ -107,12 +110,16 @@ class OpenWRT(SNMP):
                 mac_string = binascii.b2a_hex(i.encode()).decode()
                 mac_trans.append(
                     ':'.join(
-                        [mac_string[i : i + 2] for i in range(0, 12, 2) if i != '']
+                        [
+                            mac_string[slice(i, i + 2)]
+                            for i in range(0, 12, 2)
+                            if i != ''
+                        ]
                     )
                 )
             for i in range(0, len(self.get_interfaces())):
                 result = self._dict(
-                    {"name": self.get_interfaces()[i], "mac_address": mac_trans[i]}
+                    {'name': self.get_interfaces()[i], 'mac_address': mac_trans[i]}
                 )
                 results.append(result)
 
@@ -129,7 +136,7 @@ class OpenWRT(SNMP):
         """
         if self._interfaces_mtu is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
             tmp = list(starting)
             tmp[18] = str(4)
             to = ''.join(tmp)
@@ -137,8 +144,8 @@ class OpenWRT(SNMP):
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "mtu": int(self.get_value(to + str(i))),
+                        'name': self.get_value(starting + str(i)),
+                        'mtu': int(self.get_value(to + str(i))),
                     }
                 )
                 results.append(result)
@@ -156,8 +163,8 @@ class OpenWRT(SNMP):
         """
         if self._interfaces_speed is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            starting_speed = "1.3.6.1.2.1.2.2.1.5."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            starting_speed = '1.3.6.1.2.1.2.2.1.5.'
 
             STOP_AFTER_FAILS = 3
 
@@ -188,7 +195,7 @@ class OpenWRT(SNMP):
                 # get speed and convert to int
                 speed = int(self.get_value(starting_speed + str(i)))
 
-                result = self._dict({"name": name, "speed": speed})
+                result = self._dict({'name': name, 'speed': speed})
 
                 results.append(result)
                 # increment i
@@ -207,24 +214,27 @@ class OpenWRT(SNMP):
         """
         if self._interfaces_state is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            operative = "1.3.6.1.2.1.2.2.1.8."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            operative = '1.3.6.1.2.1.2.2.1.8.'
             tmp = list(starting)
             tmp[18] = str(4)
             for i in self._value_to_retrieve():
-                if self.get_value(starting + str(i)) != "":
+                if self.get_value(starting + str(i)) != '':
                     if int(self.get_value(operative + str(i))) == 1:
                         result = self._dict(
-                            {"name": self.get_value(starting + str(i)), "state": "up"}
+                            {'name': self.get_value(starting + str(i)), 'state': 'up'}
                         )
                         results.append(result)
                     else:
                         result = self._dict(
-                            {"name": self.get_value(starting + str(i)), "state": "down"}
+                            {
+                                'name': self.get_value(starting + str(i)),
+                                'state': 'down',
+                            }
                         )
                         results.append(result)
-                elif self.get_value(starting + str(i)) == "":
-                    result = self._dict({"name": "", "state": ""})
+                elif self.get_value(starting + str(i)) == '':
+                    result = self._dict({'name': '', 'state': ''})
                     results.append(result)
 
             self._interfaces_state = results
@@ -240,16 +250,16 @@ class OpenWRT(SNMP):
         """
         if self._interfaces_bytes is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            starting_rx = "1.3.6.1.2.1.2.2.1.10."
-            starting_tx = "1.3.6.1.2.1.2.2.1.16."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            starting_rx = '1.3.6.1.2.1.2.2.1.10.'
+            starting_tx = '1.3.6.1.2.1.2.2.1.16.'
 
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "tx": int(self.get_value(starting_tx + str(i))),
-                        "rx": int(self.get_value(starting_rx + str(i))),
+                        'name': self.get_value(starting + str(i)),
+                        'tx': int(self.get_value(starting_tx + str(i))),
+                        'rx': int(self.get_value(starting_rx + str(i))),
                     }
                 )
                 results.append(result)
@@ -266,15 +276,19 @@ class OpenWRT(SNMP):
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
-            types = {"6": "ethernetCsmacd", "24": "softwareLoopback", "131": "tunnel"}
+            types = {
+                '6': 'ethernetCsmacd',
+                '24': 'softwareLoopback',
+                '131': 'tunnel',
+            }
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            types_oid = "1.3.6.1.2.1.2.2.1.3."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            types_oid = '1.3.6.1.2.1.2.2.1.3.'
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "type": types[self.get_value(types_oid + str(i))],
+                        'name': self.get_value(starting + str(i)),
+                        'type': types[self.get_value(types_oid + str(i))],
                     }
                 )
                 results.append(result)
@@ -295,9 +309,9 @@ class OpenWRT(SNMP):
             for i in range(0, len(interface_name)):
                 self._interface_dict[self._value_to_retrieve()[i]] = interface_name[i]
 
-            interface_ip_address = self.next("1.3.6.1.2.1.4.20.1.1")[3]
-            interface_index = self.next("1.3.6.1.2.1.4.20.1.2")[3]
-            interface_netmask = self.next("1.3.6.1.2.1.4.20.1.3")[3]
+            interface_ip_address = self.next('1.3.6.1.2.1.4.20.1.1')[3]
+            interface_index = self.next('1.3.6.1.2.1.4.20.1.2')[3]
+            interface_netmask = self.next('1.3.6.1.2.1.4.20.1.3')[3]
 
             results = {}
 
@@ -309,7 +323,7 @@ class OpenWRT(SNMP):
 
                 name = self._interface_dict[int(interface_index[i][0][1])]
 
-                results[name] = {"address": ip_address, "netmask": netmask}
+                results[name] = {'address': ip_address, 'netmask': netmask}
 
             self._interface_addr_and_mask = results
 
@@ -323,25 +337,25 @@ class OpenWRT(SNMP):
         results = []
         for i in range(0, len(self.get_interfaces())):
 
-            print(f'====== {i} ======')
+            logger.info(f'====== {i} ======')
 
-            print('... name ...')
+            logger.info('... name ...')
             name = self.interfaces_MAC[i]['name']
-            print('... if_type ...')
+            logger.info('... if_type ...')
             if_type = self.interfaces_type[i]['type']
-            print('... mac_address ...')
+            logger.info('... mac_address ...')
             mac_address = self.interfaces_MAC[i]['mac_address']
-            print('... rx_bytes ...')
+            logger.info('... rx_bytes ...')
             rx_bytes = int(self.interfaces_bytes[i]['rx'])
-            print('... tx_bytes ...')
+            logger.info('... tx_bytes ...')
             tx_bytes = int(self.interfaces_bytes[i]['tx'])
-            print('... state ...')
+            logger.info('... state ...')
             state = self.interfaces_state[i]['state']
-            print('... mtu ...')
+            logger.info('... mtu ...')
             mtu = int(self.interfaces_mtu[i]['mtu'])
-            print('... speed ...')
+            logger.info('... speed ...')
             speed = int(self.interfaces_speed[i]['speed'])
-            print('... ip address & subnet ...')
+            logger.info('... ip address & subnet ...')
             ip_and_netmask = self.interface_addr_and_mask
 
             if name in list(ip_and_netmask.keys()):
@@ -353,16 +367,16 @@ class OpenWRT(SNMP):
 
             result = self._dict(
                 {
-                    "name": name,
-                    "type": if_type,
-                    "mac_address": mac_address,
-                    "ip_address": ip_address,
-                    "netmask": netmask,
-                    "rx_bytes": rx_bytes,
-                    "tx_bytes": tx_bytes,
-                    "state": state,
-                    "mtu": mtu,
-                    "speed": speed,
+                    'name': name,
+                    'type': if_type,
+                    'mac_address': mac_address,
+                    'ip_address': ip_address,
+                    'netmask': netmask,
+                    'rx_bytes': rx_bytes,
+                    'tx_bytes': tx_bytes,
+                    'state': state,
+                    'mtu': mtu,
+                    'speed': speed,
                 }
             )
             results.append(result)
@@ -373,22 +387,22 @@ class OpenWRT(SNMP):
         """
         returns the total RAM of the device
         """
-        return int(self.get_value("1.3.6.1.2.1.25.2.3.1.5.1"))
+        return int(self.get_value('1.3.6.1.2.1.25.2.3.1.5.1'))
 
     def to_dict(self):
         return self._dict(
             {
-                "name": self.name,
-                "type": "radio",
-                "os": self.os[0],
-                "os_version": self.os[1],
-                "manufacturer": self.manufacturer,
-                "model": None,
-                "RAM_total": self.RAM_total,
-                "uptime": self.uptime,
-                "uptime_tuple": self.uptime_tuple,
-                "interfaces": self.get_interfaces(),
-                "antennas": [],
-                "routing_protocols": None,
+                'name': self.name,
+                'type': 'radio',
+                'os': self.os[0],
+                'os_version': self.os[1],
+                'manufacturer': self.manufacturer,
+                'model': None,
+                'RAM_total': self.RAM_total,
+                'uptime': self.uptime,
+                'uptime_tuple': self.uptime_tuple,
+                'interfaces': self.get_interfaces(),
+                'antennas': [],
+                'routing_protocols': None,
             }
         )

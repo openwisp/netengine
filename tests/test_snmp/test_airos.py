@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.smi.error import NoSuchObjectError
@@ -168,4 +169,4 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.uptime_tuple, tuple)
 
     def tearDown(self):
-        self.getcmd_patcher.stop()
+        patch.stopall()

@@ -33,7 +33,7 @@ class MockOutputMixin(object):
         oid = input[2]
         result = data[oid]
         if type(result) == list:
-            result = "\n".join(result[0:])
+            result = '\n'.join(result[0:])
         return [0, 0, 0, [[0, result]]]
 
     @staticmethod

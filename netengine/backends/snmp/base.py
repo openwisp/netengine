@@ -5,10 +5,14 @@ except ImportError:
         'pysnmp library is not installed, install it with "pip install pysnmp"'
     )
 
+import logging
+
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 
 __all__ = ['SNMP']
+
+logger = logging.getLogger(__name__)
 
 
 class SNMP(BaseBackend):
@@ -31,7 +35,7 @@ class SNMP(BaseBackend):
         self.port = port
 
     def __str__(self):
-        """ prints a human readable object description """
+        """prints a human readable object description"""
         return f'<SNMP: {self.host}>'
 
     @property
@@ -66,13 +70,13 @@ class SNMP(BaseBackend):
         :oid string|tuple|list: string, tuple or list representing the OID to get
 
         example of valid oid parameters:
-            * "1,3,6,1,2,1,1,5,0"
-            * "1, 3, 6, 1, 2, 1, 1, 5, 0"
-            * "1.3.6.1.2.1.1.5.0"
+            * '1,3,6,1,2,1,1,5,0'
+            * '1, 3, 6, 1, 2, 1, 1, 5, 0'
+            * '1.3.6.1.2.1.1.5.0'
             * [1, 3, 6, 1, 2, 1, 1, 5, 0]
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
-        print(f'DEBUG: SNMP GET {self._oid(oid)}')
+        logger.info(f'DEBUG: SNMP GET {self._oid(oid)}')
         return self._command.getCmd(self.community, self.transport, self._oid(oid))
 
     def next(self, oid):
@@ -81,13 +85,13 @@ class SNMP(BaseBackend):
         :oid string|tuple|list: string, tuple or list representing the OID to get
 
         example of valid oid parameters:
-            * "1,3,6,1,2,1,1,5,0"
-            * "1, 3, 6, 1, 2, 1, 1, 5, 0"
-            * "1.3.6.1.2.1.1.5.0"
+            * '1,3,6,1,2,1,1,5,0'
+            * '1, 3, 6, 1, 2, 1, 1, 5, 0'
+            * '1.3.6.1.2.1.1.5.0'
             * [1, 3, 6, 1, 2, 1, 1, 5, 0]
             * (1, 3, 6, 1, 2, 1, 1, 5, 0)
         """
-        print(f'DEBUG: SNMP NEXT {self._oid(oid)}')
+        logger.info(f'DEBUG: SNMP NEXT {self._oid(oid)}')
         return self._command.nextCmd(self.community, self.transport, self._oid(oid))
 
     def get_value(self, oid):

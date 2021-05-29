@@ -1,4 +1,5 @@
 import unittest
+from unittest.mock import patch
 
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
@@ -97,7 +98,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             device_dict = self.device.to_dict()
             self.assertTrue(isinstance(device_dict, dict))
             self.assertEqual(
-                len(device_dict['interfaces']), len(self.device.get_interfaces())
+                len(device_dict['interfaces']), len(self.device.get_interfaces()),
             )
 
     def test_manufacturer_to_dict(self):
@@ -106,4 +107,4 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             self.assertIsNotNone(self.device.to_dict()['manufacturer'])
 
     def tearDown(self):
-        self.getcmd_patcher.stop()
+        patch.stopall()

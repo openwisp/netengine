@@ -6,9 +6,12 @@ __all__ = ['AirOS']
 
 
 import binascii
+import logging
 from datetime import timedelta
 
-from netengine.backends.snmp import SNMP
+from .base import SNMP
+
+logger = logging.getLogger(__name__)
 
 
 class AirOS(SNMP):
@@ -19,7 +22,7 @@ class AirOS(SNMP):
     _oid_to_retrieve = '1.3.6.1.2.1.1.9.1.1'
 
     def __str__(self):
-        """ print a human readable object description """
+        """print a human readable object description"""
         return f'<SNMP (Ubiquity AirOS): {self.host}>'
 
     def validate(self):
@@ -70,7 +73,7 @@ class AirOS(SNMP):
                 length = len(tmp)
                 i = 0
                 for piece in tmp:
-                    if "v" in piece:
+                    if 'v' in piece:
                         return 'AirOS ' + '.'.join(tmp[i:length])
                     i = i + 1
 
@@ -139,7 +142,7 @@ class AirOS(SNMP):
         """
         if self._interfaces_mtu is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
             tmp = list(starting)
             tmp[18] = str(4)
             to = ''.join(tmp)
@@ -147,8 +150,8 @@ class AirOS(SNMP):
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "mtu": int(self.get_value(to + str(i))),
+                        'name': self.get_value(starting + str(i)),
+                        'mtu': int(self.get_value(to + str(i))),
                     }
                 )
                 results.append(result)
@@ -166,22 +169,25 @@ class AirOS(SNMP):
         """
         if self._interfaces_state is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            operative = "1.3.6.1.2.1.2.2.1.8."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            operative = '1.3.6.1.2.1.2.2.1.8.'
             tmp = list(starting)
             tmp[18] = str(4)
             for i in self._value_to_retrieve():
-                if self.get_value(starting + str(i)) != "":
+                if self.get_value(starting + str(i)) != '':
                     if int(self.get_value(operative + str(i))) == 1:
                         result = self._dict(
-                            {"name": self.get_value(starting + str(i)), "state": "up"}
+                            {'name': self.get_value(starting + str(i)), 'state': 'up'}
                         )
                     else:
                         result = self._dict(
-                            {"name": self.get_value(starting + str(i)), "state": "down"}
+                            {
+                                'name': self.get_value(starting + str(i)),
+                                'state': 'down',
+                            }
                         )
-                elif self.get_value(starting + str(i)) == "":
-                    result = self._dict({"name": "", "state": ""})
+                elif self.get_value(starting + str(i)) == '':
+                    result = self._dict({'name': '', 'state': ''})
                 # append result to list
                 results.append(result)
 
@@ -198,14 +204,14 @@ class AirOS(SNMP):
         """
         if self._interfaces_speed is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            starting_speed = "1.3.6.1.2.1.2.2.1.5."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            starting_speed = '1.3.6.1.2.1.2.2.1.5.'
 
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "speed": int(self.get_value(starting_speed + str(i))),
+                        'name': self.get_value(starting + str(i)),
+                        'speed': int(self.get_value(starting_speed + str(i))),
                     }
                 )
                 results.append(result)
@@ -223,16 +229,16 @@ class AirOS(SNMP):
         """
         if self._interfaces_bytes is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            starting_rx = "1.3.6.1.2.1.2.2.1.10."
-            starting_tx = "1.3.6.1.2.1.2.2.1.16."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            starting_rx = '1.3.6.1.2.1.2.2.1.10.'
+            starting_tx = '1.3.6.1.2.1.2.2.1.16.'
 
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "tx": int(self.get_value(starting_tx + str(i))),
-                        "rx": int(self.get_value(starting_rx + str(i))),
+                        'name': self.get_value(starting + str(i)),
+                        'tx': int(self.get_value(starting_tx + str(i))),
+                        'rx': int(self.get_value(starting_rx + str(i))),
                     }
                 )
                 results.append(result)
@@ -249,8 +255,8 @@ class AirOS(SNMP):
         """
         if self._interfaces_MAC is None:
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            starting_mac = "1.3.6.1.2.1.2.2.1.6."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            starting_mac = '1.3.6.1.2.1.2.2.1.6.'
 
             for i in self._value_to_retrieve():
                 mac = binascii.b2a_hex(
@@ -260,12 +266,12 @@ class AirOS(SNMP):
                 # address is intended by inserting ':' every two chars of mac
                 # to obtain something as 00:11:22:22:33:44:55
                 mac_transformed = ':'.join(
-                    mac[j : j + 2] for j in range(0, 12, 2) if mac != ""
+                    mac[slice(j, j + 2)] for j in range(0, 12, 2) if mac != ''
                 )
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "mac_address": mac_transformed,
+                        'name': self.get_value(starting + str(i)),
+                        'mac_address': mac_transformed,
                     }
                 )
                 results.append(result)
@@ -282,16 +288,16 @@ class AirOS(SNMP):
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
-            types = {"6": "ethernetCsmacd", "24": "softwareLoopback"}
+            types = {'6': 'ethernetCsmacd', '24': 'softwareLoopback'}
             results = []
-            starting = "1.3.6.1.2.1.2.2.1.2."
-            types_oid = "1.3.6.1.2.1.2.2.1.3."
+            starting = '1.3.6.1.2.1.2.2.1.2.'
+            types_oid = '1.3.6.1.2.1.2.2.1.3.'
 
             for i in self._value_to_retrieve():
                 result = self._dict(
                     {
-                        "name": self.get_value(starting + str(i)),
-                        "type": types[self.get_value(types_oid + str(i))],
+                        'name': self.get_value(starting + str(i)),
+                        'type': types[self.get_value(types_oid + str(i))],
                     }
                 )
                 results.append(result)
@@ -307,17 +313,17 @@ class AirOS(SNMP):
         """
         results = []
         for i in range(0, len(self.get_interfaces())):
-            print(f'===== {i} =====')
+            logger.info(f'===== {i} =====')
             result = self._dict(
                 {
-                    "name": self.interfaces_MAC[i]['name'],
-                    "type": self.interfaces_type[i]['type'],
-                    "mac_address": self.interfaces_MAC[i]['mac_address'],
-                    "rx_bytes": int(self.interfaces_bytes[i]['rx']),
-                    "tx_bytes": int(self.interfaces_bytes[i]['tx']),
-                    "state": self.interfaces_state[i]['state'],
-                    "mtu": int(self.interfaces_mtu[i]['mtu']),
-                    "speed": int(self.interfaces_speed[i]['speed']),
+                    'name': self.interfaces_MAC[i]['name'],
+                    'type': self.interfaces_type[i]['type'],
+                    'mac_address': self.interfaces_MAC[i]['mac_address'],
+                    'rx_bytes': int(self.interfaces_bytes[i]['rx']),
+                    'tx_bytes': int(self.interfaces_bytes[i]['tx']),
+                    'state': self.interfaces_state[i]['state'],
+                    'mtu': int(self.interfaces_mtu[i]['mtu']),
+                    'speed': int(self.interfaces_speed[i]['speed']),
                 }
             )
             results.append(result)
@@ -352,7 +358,7 @@ class AirOS(SNMP):
         rx_rate = []
 
         for i in range(0, len(results[3]), link_number):
-            separated_by_meaning.append(results[3][i : i + link_number])
+            separated_by_meaning.append(results[3][slice(i, i + link_number)])
 
         for i in range(0, len(separated_by_meaning[0])):
             dbm.append(int(separated_by_meaning[0][i][0][1]))
@@ -366,13 +372,13 @@ class AirOS(SNMP):
         for i in range(0, link_number):
             result = self._dict(
                 {
-                    "dbm": dbm[i],
-                    "tx_bytes": tx_bytes[i],
-                    "rx_bytes": rx_bytes[i],
-                    "tx_packets": tx_packets[i],
-                    "rx_packets": rx_packets[i],
-                    "tx_rate": tx_rate[i],
-                    "rx_rate": rx_rate[i],
+                    'dbm': dbm[i],
+                    'tx_bytes': tx_bytes[i],
+                    'rx_bytes': rx_bytes[i],
+                    'tx_packets': tx_packets[i],
+                    'rx_packets': rx_packets[i],
+                    'tx_rate': tx_rate[i],
+                    'rx_rate': rx_rate[i],
                 }
             )
             final.append(result)
@@ -397,20 +403,20 @@ class AirOS(SNMP):
     def to_dict(self):
         return self._dict(
             {
-                "name": self.name,
-                "type": "radio",
-                "os": self.os[0],
-                "os_version": self.os[1],
-                "manufacturer": self.manufacturer,
-                "model": self.model,
-                "RAM_total": self.RAM_total,
-                "RAM_free": self.RAM_free,
-                "uptime": self.uptime,
-                "uptime_tuple": self.uptime_tuple,
-                "interfaces": self.interfaces_to_dict,
-                "antennas": [],
-                "wireless_dbm": self.wireless_dbm,
-                "wireless_links": self.wireless_links,
-                "routing_protocols": None,
+                'name': self.name,
+                'type': 'radio',
+                'os': self.os[0],
+                'os_version': self.os[1],
+                'manufacturer': self.manufacturer,
+                'model': self.model,
+                'RAM_total': self.RAM_total,
+                'RAM_free': self.RAM_free,
+                'uptime': self.uptime,
+                'uptime_tuple': self.uptime_tuple,
+                'interfaces': self.interfaces_to_dict,
+                'antennas': [],
+                'wireless_dbm': self.wireless_dbm,
+                'wireless_links': self.wireless_links,
+                'routing_protocols': None,
             }
         )

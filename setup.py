@@ -27,7 +27,7 @@ def get_install_requires():
 setup(
     name='netengine',
     version=get_version(),
-    description="Abstraction layer for extracting information from network devices.",
+    description='Abstraction layer for extracting information from network devices.',
     long_description=open('README.rst').read(),
     author='OpenWISP and Ninux.org Contributors',
     author_email='support@openwisp.io',

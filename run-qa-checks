@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e
+
+openwisp-qa-check --skip-checkmigrations
+
+# test sphinx docs
+mkdir -p docs/source/_static
+make -C docs html

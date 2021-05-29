@@ -20,7 +20,10 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - 2.7
+          - 3.6
+          - 3.7
+          - 3.8
+          - 3.9
 
     steps:
     - uses: actions/checkout@v2
@@ -33,20 +36,19 @@ jobs:
         python-version: ${{ matrix.python-version }}
 
     - name: Upgrade python system packages
-      run: pip install -U "pip==20.2.4" wheel setuptools
+      run: pip install -U wheel setuptools
 
     - name: Install netengine
-      run: |
-        pip install -e .
+      run: pip install -e .
 
     - name: Install test dependencies
-      run: |
-        pip install -U -r requirements.txt
-        pip install nose
+      run: pip install -U -r requirements-test.txt
+
+    - name: Run QA Checks
+      run: ./run-qa-checks
 
     - name: Run tests
-      run: |
-        ./runtests
+      run: ./runtests.py
 
     - name: Upload Coverage
       run: coveralls --service=github
@@ -59,11 +61,11 @@ jobs:
     name: Finish Coveralls
     needs: build
     runs-on: ubuntu-latest
-    container: python:2-slim
+    container: python:3-slim
     steps:
       - name: Finished
         run: |
-          python2 -m pip install --upgrade coveralls
+          python3 -m pip install --upgrade coveralls
           coveralls --finish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,8 +1,7 @@
 import json
+from collections import OrderedDict
 
 from netaddr import EUI, NotRegisteredError
-
-from netengine.shortcuts import OrderedDict
 
 __all__ = ['BaseBackend']
 
@@ -16,10 +15,10 @@ class BaseBackend(object):
     _dict = OrderedDict
 
     def __str__(self):
-        raise NotImplementedError("Not implemented, must be extended")
+        raise NotImplementedError('Not implemented, must be extended')
 
     def __repr__(self):
-        """ returns unicode string represantation """
+        """returns unicode string represantation"""
         return self.__str__()
 
     def validate(self):
@@ -129,7 +128,7 @@ class BaseBackend(object):
         raise NotImplementedError('Not implemented')
 
     def get_manufacturer(self, mac_address):
-        """ returns the manufacturer of the network interface """
+        """returns the manufacturer of the network interface"""
         if not mac_address:
             return ''
         try:

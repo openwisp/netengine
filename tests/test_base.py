@@ -86,4 +86,4 @@ class TestBaseBackend(unittest.TestCase):
     def test_get_manufacturer_unicode(self):
         device = BaseBackend()
         with self.assertRaises(AddrFormatError):
-            device.get_manufacturer("wrong MAC")
+            device.get_manufacturer('wrong MAC')
