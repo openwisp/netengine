@@ -13,5 +13,10 @@
         "host": "0.0.0.0",
         "community": "public",
         "port": 161
+    },
+    "cisco-snmp": {
+        "host": "your_openwrt_device",
+        "community": "public",
+        "port": 161
     }
 }

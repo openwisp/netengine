@@ -14,9 +14,10 @@ Obviously, by getting the smallest MIB which is "1" or simply " . " one can get 
 
 
 
-The SNMP backend provides support for 2 firmwares:
+The SNMP backend provides support for 3 firmwares:
  * AirOS
  * OpenWRT
+ * Cisco
 
 
 
@@ -42,9 +43,21 @@ Otherwise, if you want simply a value of the tree just type::
 
 
 
+
 OpenWRT example
 ================
 
 The same instructions typed above can be applied to OpenWRT itself, just remember to import the correct firmware by typing::
 
  from netengine.backends.snmp import OpenWRT
+
+
+
+
+Cisco example
+================
+
+The same instructions typed above can be applied to Cisco itself, just remember to import the correct firmware by typing::
+
+  from netengine.backends.snmp import Cisco
+

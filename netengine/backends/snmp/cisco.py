@@ -1,9 +1,8 @@
 """
-NetEngine SNMP OpenWRT backend
+NetEngine SNMP Cisco backend
 """
 
-__all__ = ['OpenWRT']
-
+__all__ = ['Cisco']
 
 import binascii
 from datetime import timedelta
@@ -11,9 +10,9 @@ from datetime import timedelta
 from netengine.backends.snmp import SNMP
 
 
-class OpenWRT(SNMP):
+class Cisco(SNMP):
     """
-    OpenWRT SNMP backend
+    Cisco SNMP backend
     """
 
     _oid_to_retrieve = '1.3.6.1.2.1.2.2.1.1'
@@ -21,12 +20,12 @@ class OpenWRT(SNMP):
 
     def __str__(self):
         """ print a human readable object description """
-        return u"<SNMP (OpenWRT): %s>" % self.host
+        return u"<SNMP (Cisco): %s>" % self.host
 
     def validate(self):
         """
-        raises NetEngineError exception if
-        anything is wrong with the connection
+        raises NetEngineError exception if anything
+        is wrong with the connection
         for example: wrong host, invalid community
         """
         # this triggers a connection which
@@ -38,7 +37,7 @@ class OpenWRT(SNMP):
         """
         returns (os_name, os_version)
         """
-        os_name = 'OpenWRT'
+        os_name = 'Cisco'
         os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
         return os_name, os_version
 
@@ -99,17 +98,18 @@ class OpenWRT(SNMP):
         """
         if self._interfaces_MAC is None:
             results = []
-            mac1 = []
-            mac = self.next('1.3.6.1.2.1.2.2.1.6.')[3]
-            for i in range(1, len(mac) + 1):
-                mac1.append(self.get_value('1.3.6.1.2.1.2.2.1.6.' + str(i)))
-            mac_trans = []
-            for i in mac1:
-                mac_trans.append(':'.join(binascii.b2a_hex(i)[a:a+2] for a in range(0, 12, 2) if i != ""))
-            for i in range(0, len(self.get_interfaces())):
+            starting = "1.3.6.1.2.1.2.2.1.2."
+            starting_mac = "1.3.6.1.2.1.2.2.1.6."
+
+            for i in self._value_to_retrieve():
+                mac = binascii.b2a_hex(self.get_value(starting_mac + str(i)))
+                # now we are going to format mac as the canonical way as a MAC
+                # address is intended by inserting ':' every two chars of mac
+                # to obtain something as 00:11:22:22:33:44:55
+                mac_transformed = ':'.join(mac[j:j+2] for j in range(0, 12, 2) if mac != "")
                 result = self._dict({
-                    "name": self.get_interfaces()[i],
-                    "mac_address": mac_trans[i]
+                    "name": self.get_value(starting + str(i)),
+                    "mac_address": mac_transformed
                 })
                 results.append(result)
 
@@ -154,42 +154,12 @@ class OpenWRT(SNMP):
             starting = "1.3.6.1.2.1.2.2.1.2."
             starting_speed = "1.3.6.1.2.1.2.2.1.5."
 
-            STOP_AFTER_FAILS = 3
-
-            i = 1
-            # counter that indicates how many consecutive attempts failed
-            consecutive_fails = 0
-            while True:
-                # break cycles if STOP_AFTER_FAILS reached
-                if consecutive_fails == STOP_AFTER_FAILS:
-                    break
-
-                # get name
-                name = self.get_value(starting + str(i))
-
-                # if nothing found
-                if name == '':
-                    # increment fail counter
-                    consecutive_fails += 1
-                    # increment i
-                    i += 1
-                    # skip to next iteration
-                    continue
-                else:
-                    # reset fail counter
-                    consecutive_fails = 0
-
-                # get speed and convert to int
-                speed = int(self.get_value(starting_speed + str(i)))
-
+            for i in self._value_to_retrieve():
                 result = self._dict({
-                    "name": name,
-                    "speed": speed
+                    "name": self.get_value(starting + str(i)),
+                    "speed": int(self.get_value(starting_speed + str(i)))
                 })
-
                 results.append(result)
-                # increment i
-                i += 1
 
             self._interfaces_speed = results
 
@@ -264,13 +234,14 @@ class OpenWRT(SNMP):
     @property
     def interfaces_type(self):
         """
-        Returns an ordered dict with the
-        interface type (e.g Ethernet, loopback)
+        Returns an ordered dict with the interface type
+        (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
             types_oid = "1.3.6.1.2.1.2.2.1.3."
+
             for i in self._value_to_retrieve():
                 value_type = self.get_value(types_oid + str(i))
                 result = self._dict({
@@ -386,7 +357,11 @@ class OpenWRT(SNMP):
         """
         returns the total RAM of the device
         """
-        return int(self.get_value("1.3.6.1.2.1.25.2.3.1.5.1"))
+        memoryPoolUsed = int(self.get_value("1.3.6.1.4.1.9.9.48.1.1.1.5.2"))
+        memoryPoolFree = int(self.get_value("1.3.6.1.4.1.9.9.48.1.1.1.6.2"))
+        processorRam = int(self.get_value("1.3.6.1.4.1.9.3.6.6.0"))
+        totalRAM = memoryPoolUsed + memoryPoolFree + processorRam
+        return totalRAM
 
     def to_dict(self):
         return self._dict({

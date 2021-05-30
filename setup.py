@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-from setuptools import setup, find_packages
-
 from netengine import get_version
+from setuptools import find_packages, setup
 
 
 def get_install_requires():
