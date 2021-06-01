@@ -45,5 +45,5 @@ setup(
         'Programming Language :: Python',
         'Topic :: System :: Networking',
     ],
-    test_suite='nose.collector',
+    test_suite='nose2.collector.collector',
 )

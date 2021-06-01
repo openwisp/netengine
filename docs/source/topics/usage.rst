@@ -53,17 +53,17 @@ Then change the credentials accordingly, now run tests with::
 
 See test coverage with::
 
-    nosetests --with-coverage --cover-package=netengine
+    nose2 --with-coverage
 
 Run specific tests by specifying the relative path::
 
     # base tests
-    nosetests tests.base
+    nose2 tests.base
 
     # snmp tests
-    nosetests tests.snmp
+    nose2 tests.snmp
     # snmp openwrt specific tests
-    nosetests tests.snmp.openwrt
+    nose2 tests.snmp.openwrt
 
     # run without mocks with a custom test file
-    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nosetests tests.snmp
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' nose2 tests.snmp

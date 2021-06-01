@@ -48,7 +48,7 @@ jobs:
       run: ./run-qa-checks
 
     - name: Run tests
-      run: ./runtests.py
+      run: coverage run --source=netengine ./runtests.py
 
     - name: Upload Coverage
       run: coveralls --service=github
