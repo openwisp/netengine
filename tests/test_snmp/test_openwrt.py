@@ -1,8 +1,11 @@
+import json
 import unittest
 from unittest.mock import patch
 
+from jsonschema import validate
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
+from netengine.backends.schema import schema
 from netengine.backends.snmp import OpenWRT
 
 from ..settings import settings
@@ -94,17 +97,20 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def test_to_dict(self):
         with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
+            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])
             device_dict = self.device.to_dict()
             self.assertTrue(isinstance(device_dict, dict))
             self.assertEqual(
                 len(device_dict['interfaces']), len(self.device.get_interfaces()),
             )
 
-    def test_manufacturer_to_dict(self):
+    def test_netjson_compliance(self):
         with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
-            self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])
+            device_dict = self.device.to_dict()
+            device_json = self.device.to_json()
+            validate(instance=device_dict, schema=schema)
+            validate(instance=json.loads(device_json), schema=schema)
 
     def tearDown(self):
         patch.stopall()

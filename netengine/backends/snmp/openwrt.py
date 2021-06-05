@@ -368,15 +368,7 @@ class OpenWRT(SNMP):
             result = self._dict(
                 {
                     'name': name,
-                    'type': if_type,
-                    'mac_address': mac_address,
-                    'ip_address': ip_address,
-                    'netmask': netmask,
-                    'rx_bytes': rx_bytes,
-                    'tx_bytes': tx_bytes,
-                    'state': state,
-                    'mtu': mtu,
-                    'speed': speed,
+                    'statistics': {'rx_bytes': rx_bytes, 'tx_bytes': tx_bytes,},
                 }
             )
             results.append(result)
@@ -392,17 +384,9 @@ class OpenWRT(SNMP):
     def to_dict(self):
         return self._dict(
             {
-                'name': self.name,
-                'type': 'radio',
-                'os': self.os[0],
-                'os_version': self.os[1],
-                'manufacturer': self.manufacturer,
-                'model': None,
-                'RAM_total': self.RAM_total,
-                'uptime': self.uptime,
-                'uptime_tuple': self.uptime_tuple,
-                'interfaces': self.get_interfaces(),
-                'antennas': [],
-                'routing_protocols': None,
+                'type': 'DeviceMonitoring',
+                'general': {'uptime': self.uptime,},
+                'resources': {'memory': {'total': self.RAM_total,}},
+                'interfaces': self.interfaces_to_dict,
             }
         )

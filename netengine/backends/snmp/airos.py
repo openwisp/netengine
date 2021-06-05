@@ -317,13 +317,10 @@ class AirOS(SNMP):
             result = self._dict(
                 {
                     'name': self.interfaces_MAC[i]['name'],
-                    'type': self.interfaces_type[i]['type'],
-                    'mac_address': self.interfaces_MAC[i]['mac_address'],
-                    'rx_bytes': int(self.interfaces_bytes[i]['rx']),
-                    'tx_bytes': int(self.interfaces_bytes[i]['tx']),
-                    'state': self.interfaces_state[i]['state'],
-                    'mtu': int(self.interfaces_mtu[i]['mtu']),
-                    'speed': int(self.interfaces_speed[i]['speed']),
+                    'statistics': {
+                        'rx_bytes': int(self.interfaces_bytes[i]['rx']),
+                        'tx_bytes': int(self.interfaces_bytes[i]['tx']),
+                    },
                 }
             )
             results.append(result)
@@ -403,20 +400,11 @@ class AirOS(SNMP):
     def to_dict(self):
         return self._dict(
             {
-                'name': self.name,
-                'type': 'radio',
-                'os': self.os[0],
-                'os_version': self.os[1],
-                'manufacturer': self.manufacturer,
-                'model': self.model,
-                'RAM_total': self.RAM_total,
-                'RAM_free': self.RAM_free,
-                'uptime': self.uptime,
-                'uptime_tuple': self.uptime_tuple,
+                'type': 'DeviceMonitoring',
+                'general': {'uptime': self.uptime,},
+                'resources': {
+                    'memory': {'total': self.RAM_total, 'free': self.RAM_free,},
+                },
                 'interfaces': self.interfaces_to_dict,
-                'antennas': [],
-                'wireless_dbm': self.wireless_dbm,
-                'wireless_links': self.wireless_links,
-                'routing_protocols': None,
             }
         )

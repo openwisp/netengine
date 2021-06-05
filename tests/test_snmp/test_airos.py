@@ -1,9 +1,12 @@
+import json
 import unittest
 from unittest.mock import patch
 
+from jsonschema import validate
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 from pysnmp.smi.error import NoSuchObjectError
 
+from netengine.backends.schema import schema
 from netengine.backends.snmp import AirOS
 from netengine.exceptions import NetEngineError
 
@@ -142,7 +145,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             )
             self.assertTrue(isinstance(self.device.to_dict(), dict))
 
-    def test_manufacturer_to_dict(self):
+    def test_netjson_compliance(self):
         with self.nextcmd_patcher as np:
             SpyMock._update_patch(
                 np,
@@ -150,7 +153,10 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
                     data=args
                 ),
             )
-            self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+            device_dict = self.device.to_dict()
+            device_json = self.device.to_json()
+            validate(instance=device_dict, schema=schema)
+            validate(instance=json.loads(device_json), schema=schema)
 
     def test_manufacturer(self):
         with self.nextcmd_patcher:
