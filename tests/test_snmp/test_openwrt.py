@@ -80,7 +80,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def test_interfaces_state(self):
         with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_state, list)
+            self.assertIsInstance(self.device.interfaces_up, list)
 
     def test_interfaces_to_dict(self):
         with self.nextcmd_patcher as p:
@@ -95,11 +95,32 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_RAM_total(self):
         self.assertIsInstance(self.device.RAM_total, int)
 
+    def test_RAM_shared(self):
+        self.assertIsInstance(self.device.RAM_shared, int)
+
+    def test_RAM_cached(self):
+        self.assertIsInstance(self.device.RAM_cached, int)
+
+    def test_RAM_free(self):
+        self.assertIsInstance(self.device.RAM_free, int)
+
+    def test_SWAP_total(self):
+        self.assertIsInstance(self.device.SWAP_total, int)
+
+    def test_SWAP_free(self):
+        self.assertIsInstance(self.device.SWAP_free, int)
+
+    def test_CPU_count(self):
+        self.assertIsInstance(self.device.CPU_count, int)
+
+    def test_neighbors(self):
+        self.assertIsInstance(self.device.neighbors, list)
+
     def test_to_dict(self):
         with self.nextcmd_patcher as p:
             SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])
             device_dict = self.device.to_dict()
-            self.assertTrue(isinstance(device_dict, dict))
+            self.assertIsInstance(device_dict, dict)
             self.assertEqual(
                 len(device_dict['interfaces']), len(self.device.get_interfaces()),
             )

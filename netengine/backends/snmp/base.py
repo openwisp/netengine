@@ -5,6 +5,7 @@ except ImportError:
         'pysnmp library is not installed, install it with "pip install pysnmp"'
     )
 
+import binascii
 import logging
 
 from netengine.backends import BaseBackend
@@ -44,6 +45,17 @@ class SNMP(BaseBackend):
         alias to cmdgen.CommandGenerator()
         """
         return cmdgen.CommandGenerator()
+
+    def _octet_to_mac(self, octet_mac):
+        """
+        returns a valid mac address for a given octetstring
+        """
+        mac_address = binascii.b2a_hex(octet_mac.encode()).decode()
+        if mac_address is not '':
+            mac_address = ':'.join(
+                [mac_address[slice(i, i + 2)] for i in range(0, 12, 2) if i != '']
+            )
+        return mac_address
 
     def _oid(self, oid):
         """
