@@ -116,6 +116,9 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_neighbors(self):
         self.assertIsInstance(self.device.neighbors, list)
 
+    def test_local_time(self):
+        self.assertIsInstance(self.device.local_time, int)
+
     def test_to_dict(self):
         with self.nextcmd_patcher as p:
             SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])

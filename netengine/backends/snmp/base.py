@@ -51,7 +51,7 @@ class SNMP(BaseBackend):
         returns a valid mac address for a given octetstring
         """
         mac_address = binascii.b2a_hex(octet_mac.encode()).decode()
-        if mac_address is not '':
+        if mac_address != '':
             mac_address = ':'.join(
                 [mac_address[slice(i, i + 2)] for i in range(0, 12, 2) if i != '']
             )

@@ -401,9 +401,9 @@ class AirOS(SNMP):
         return self._dict(
             {
                 'type': 'DeviceMonitoring',
-                'general': {'uptime': self.uptime,},
+                'general': {'uptime': self.uptime},
                 'resources': {
-                    'memory': {'total': self.RAM_total, 'free': self.RAM_free,},
+                    'memory': {'total': self.RAM_total, 'free': self.RAM_free},
                 },
                 'interfaces': self.interfaces_to_dict,
             }

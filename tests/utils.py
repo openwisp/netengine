@@ -1,3 +1,4 @@
+import codecs
 import json
 import os
 from unittest import mock
@@ -32,7 +33,12 @@ class MockOutputMixin(object):
     def _get_mocked_getcmd(data, input):
         oid = input[2]
         result = data[oid]
-        if type(result) == list:
+        if type(result) == dict:
+            _type = result['type']
+            _value = result['value']
+            if _type == 'bytes':
+                result = codecs.escape_decode(_value)[0]
+        elif type(result) == list:
             result = '\n'.join(result[0:])
         return [0, 0, 0, [[0, result]]]
 

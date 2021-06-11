@@ -11,6 +11,7 @@ import struct
 from datetime import timedelta
 
 import pytz
+from netaddr import EUI, mac_unix_expanded
 
 from netengine.backends.snmp import SNMP
 
@@ -480,7 +481,7 @@ class OpenWRT(SNMP):
                     'free': self.RAM_free,
                     'cached': self.RAM_cached,
                 },
-                'swap': {'total': self.SWAP_total, 'free': self.SWAP_free,},
+                'swap': {'total': self.SWAP_total, 'free': self.SWAP_free},
             }
         )
         return result
@@ -505,14 +506,14 @@ class OpenWRT(SNMP):
         neighbor_states = self.next('1.3.6.1.2.1.4.35.1.7')[3]
         result = []
 
-        for i in range(len(neighbors)):
-            interface_num = neighbors[i][0][0].getOid()[10]
+        for index, neighbor in enumerate(neighbors):
+            mac = EUI(int(neighbor[0][1].prettyPrint(), 16), dialect=mac_unix_expanded)
+            interface_num = neighbor[0][0].getOid()[10]
             interface = self.get(f'1.3.6.1.2.1.31.1.1.1.1.{interface_num}')[3][0][1]
-            state = states_map[str(neighbor_states[i][0][1])]
-            mac = self._octet_to_mac(str(neighbors[i][0][1]))
+            state = states_map[str(neighbor_states[index][0][1])]
             result.append(
                 self._dict(
-                    {'mac': str(mac), 'state': str(state), 'interface': str(interface),}
+                    {'mac': str(mac), 'state': str(state), 'interface': str(interface)}
                 )
             )
         return result
