@@ -29,7 +29,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             target=cmdgen.CommandGenerator,
             attribute='nextCmd',
             wrap_obj=self.device._command,
-            return_value=[0, 0, 0, [[[0, 1]]] * 5],
+            side_effect=self._get_mocked_nextcmd,
         )
         self.getcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
@@ -40,6 +40,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             ),
         )
         self.getcmd_patcher.start()
+        self.nextcmd_patcher.start()
 
     def test_get_value_error(self):
         self.getcmd_patcher.stop()
@@ -81,53 +82,37 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.os, tuple)
 
     def test_get_interfaces(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.get_interfaces(), list)
+        self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_get_interfaces_mtu(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_mtu, list)
+        self.assertIsInstance(self.device.interfaces_mtu, list)
 
     def test_interfaces_state(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_state, list)
+        self.assertIsInstance(self.device.interfaces_state, list)
 
     def test_interfaces_speed(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_speed, list)
+        self.assertIsInstance(self.device.interfaces_speed, list)
 
     def test_interfaces_bytes(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_bytes, list)
+        self.assertIsInstance(self.device.interfaces_bytes, list)
 
     def test_interfaces_MAC(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_MAC, list)
+        self.assertIsInstance(self.device.interfaces_MAC, list)
 
     def test_interfaces_type(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_type, list)
+        self.assertIsInstance(self.device.interfaces_type, list)
 
     def test_interfaces_to_dict(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_to_dict, list)
+        self.assertIsInstance(self.device.interfaces_to_dict, list)
 
     def test_wireless_dbm(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.wireless_dbm, list)
+        self.assertIsInstance(self.device.wireless_dbm, list)
 
     def test_interfaces_number(self):
         self.assertIsInstance(self.device.interfaces_number, int)
 
     def test_wireless_to_dict(self):
-        with self.nextcmd_patcher as np:
-            SpyMock._update_patch(
-                np,
-                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
-                    data=args
-                ),
-            )
-            self.assertIsInstance(self.device.wireless_links, list)
+        self.assertIsInstance(self.device.wireless_links, list)
 
     def test_RAM_free(self):
         self.assertIsInstance(self.device.RAM_free, int)
@@ -136,31 +121,16 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.RAM_total, int)
 
     def test_to_dict(self):
-        with self.nextcmd_patcher as np:
-            SpyMock._update_patch(
-                np,
-                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
-                    data=args
-                ),
-            )
-            self.assertTrue(isinstance(self.device.to_dict(), dict))
+        self.assertTrue(isinstance(self.device.to_dict(), dict))
 
     def test_netjson_compliance(self):
-        with self.nextcmd_patcher as np:
-            SpyMock._update_patch(
-                np,
-                _mock_side_effect=lambda *args: self._get_mocked_wireless_links(
-                    data=args
-                ),
-            )
-            device_dict = self.device.to_dict()
-            device_json = self.device.to_json()
-            validate(instance=device_dict, schema=schema)
-            validate(instance=json.loads(device_json), schema=schema)
+        device_dict = self.device.to_dict()
+        device_json = self.device.to_json()
+        validate(instance=device_dict, schema=schema)
+        validate(instance=json.loads(device_json), schema=schema)
 
     def test_manufacturer(self):
-        with self.nextcmd_patcher:
-            self.assertIsNotNone(self.device.manufacturer)
+        self.assertIsNotNone(self.device.manufacturer)
 
     def test_model(self):
         self.assertIsInstance(self.device.model, str)

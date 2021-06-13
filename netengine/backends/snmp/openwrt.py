@@ -507,10 +507,15 @@ class OpenWRT(SNMP):
         result = []
 
         for index, neighbor in enumerate(neighbors):
-            mac = EUI(int(neighbor[0][1].prettyPrint(), 16), dialect=mac_unix_expanded)
-            interface_num = neighbor[0][0].getOid()[10]
-            interface = self.get(f'1.3.6.1.2.1.31.1.1.1.1.{interface_num}')[3][0][1]
-            state = states_map[str(neighbor_states[index][0][1])]
+            try:
+                mac = EUI(
+                    int(neighbor[0][1].prettyPrint(), 16), dialect=mac_unix_expanded
+                )
+                interface_num = neighbor[0][0].getOid()[10]
+                interface = self.get(f'1.3.6.1.2.1.31.1.1.1.1.{interface_num}')[3][0][1]
+                state = states_map[str(neighbor_states[index][0][1])]
+            except (IndexError, TypeError):
+                continue
             result.append(
                 self._dict(
                     {'mac': str(mac), 'state': str(state), 'interface': str(interface)}

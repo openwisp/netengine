@@ -3,7 +3,17 @@ import json
 import os
 from unittest import mock
 
+from pysnmp.hlapi import OctetString
+
 from .settings import settings
+
+
+class MockOid:
+    def getOid(self):
+        return self.oid
+
+    def __init__(self, oid):
+        self.oid = oid
 
 
 class SpyMock:
@@ -43,17 +53,27 @@ class MockOutputMixin(object):
         return [0, 0, 0, [[0, result]]]
 
     @staticmethod
-    def _get_mocked_wireless_links(data):
-        oid = data[2]
-        return_data = {
-            '1.3.6.1.4.1.14988.1.1.1.2.1': [0, 0, 0, [[[0, 0], 0]] * 28],
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0, 0, [0, 0]],
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [None, 0, 0, []],
-            '1.3.6.1.2.1.1.9.1.1': [
-                0,
-                0,
-                0,
-                [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+    def _get_mocked_nextcmd(*args, **kwargs):
+        def _get_nextcmd_list(return_value):
+            # pass `None` as the data we don't use
+            return [None, None, None, return_value]
+
+        res = {
+            '1.3.6.1.4.1.14988.1.1.1.2.1': [[[0, 0], 0]] * 28,
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0],
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [],
+            '1.3.6.1.2.1.1.9.1.1': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.4.35.1.4': [
+                MockOid('1.3.6.1.2.5'),
+                OctetString('0x040e3cca555f'),
             ],
+            '1.3.6.1.2.1.4.35.1.7': [MockOid('1.3.6.1.2.5'), 1],
+            '1.3.6.1.2.1.2.2.1.6.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.2.2.1.1': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.4.20.1.1': [[[0, OctetString('127.0.0.1')]]],
+            '1.3.6.1.2.1.4.20.1.2': [[[0, 1]]],
+            '1.3.6.1.2.1.25.3.3.1.2': [0, 2],
+            '1.3.6.1.2.1.4.20.1.3': [[[0, OctetString('192.168.0.1')]]],
         }
-        return return_data[oid]
+        oid = args[2]
+        return _get_nextcmd_list(res[oid])

@@ -27,7 +27,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             target=cmdgen.CommandGenerator,
             attribute='nextCmd',
             wrap_obj=self.device._command,
-            return_value=[0, 0, 0, [[[0, 1]]] * 5],
+            side_effect=self._get_mocked_nextcmd,
         )
         self.getcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
@@ -38,13 +38,13 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             ),
         )
         self.getcmd_patcher.start()
+        self.nextcmd_patcher.start()
 
     def test_os(self):
         self.assertIsInstance(self.device.os, tuple)
 
     def test_manufacturer(self):
-        with self.nextcmd_patcher:
-            self.assertIsNotNone(self.device.manufacturer)
+        self.assertIsNotNone(self.device.manufacturer)
 
     def test_name(self):
         self.assertIsInstance(self.device.name, str)
@@ -56,41 +56,31 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.uptime_tuple, tuple)
 
     def test_get_interfaces(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.get_interfaces(), list)
+        self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_interfaces_speed(self):
         self.assertIsInstance(self.device.interfaces_speed, list)
 
     def test_interfaces_bytes(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_bytes, list)
+        self.assertIsInstance(self.device.interfaces_bytes, list)
 
     def test_interfaces_MAC(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_MAC, list)
+        self.assertIsInstance(self.device.interfaces_MAC, list)
 
     def test_interfaces_type(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_type, list)
+        self.assertIsInstance(self.device.interfaces_type, list)
 
     def test_interfaces_mtu(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_mtu, list)
+        self.assertIsInstance(self.device.interfaces_mtu, list)
 
     def test_interfaces_state(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_up, list)
+        self.assertIsInstance(self.device.interfaces_up, list)
 
     def test_interfaces_to_dict(self):
-        with self.nextcmd_patcher as p:
-            p.return_value = (0, 0, 0, [])
-            self.assertIsInstance(self.device.interfaces_to_dict, list)
+        self.assertIsInstance(self.device.interfaces_to_dict, list)
 
     def test_interface_addr_and_mask(self):
-        with self.nextcmd_patcher as p:
-            p.return_value = (0, 0, 0, [])
-            self.assertIsInstance(self.device.interface_addr_and_mask, dict)
+        self.assertIsInstance(self.device.interface_addr_and_mask, dict)
 
     def test_RAM_total(self):
         self.assertIsInstance(self.device.RAM_total, int)
@@ -120,21 +110,17 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.assertIsInstance(self.device.local_time, int)
 
     def test_to_dict(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])
-            device_dict = self.device.to_dict()
-            self.assertIsInstance(device_dict, dict)
-            self.assertEqual(
-                len(device_dict['interfaces']), len(self.device.get_interfaces()),
-            )
+        device_dict = self.device.to_dict()
+        self.assertIsInstance(device_dict, dict)
+        self.assertEqual(
+            len(device_dict['interfaces']), len(self.device.get_interfaces()),
+        )
 
     def test_netjson_compliance(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, []])
-            device_dict = self.device.to_dict()
-            device_json = self.device.to_json()
-            validate(instance=device_dict, schema=schema)
-            validate(instance=json.loads(device_json), schema=schema)
+        device_dict = self.device.to_dict()
+        device_json = self.device.to_json()
+        validate(instance=device_dict, schema=schema)
+        validate(instance=json.loads(device_json), schema=schema)
 
     def tearDown(self):
         patch.stopall()
