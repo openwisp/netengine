@@ -73,7 +73,6 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         device.model
         device.os
         device.uptime
-        device.uptime_tuple
 
     def test_name(self):
         self.assertIsInstance(self.device.name, str)
@@ -141,8 +140,28 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_uptime(self):
         self.assertIsInstance(self.device.uptime, int)
 
-    def test_uptime_tuple(self):
-        self.assertIsInstance(self.device.uptime_tuple, tuple)
+    def test_RAM_buffered(self):
+        self.assertIsInstance(self.device.RAM_buffered, int)
+
+    def test_RAM_cached(self):
+        self.assertIsInstance(self.device.RAM_cached, int)
+
+    def test_SWAP_total(self):
+        self.assertIsInstance(self.device.SWAP_total, int)
+
+    def test_SWAP_free(self):
+        self.assertIsInstance(self.device.SWAP_free, int)
+
+    def test_local_time(self):
+        self.assertIsInstance(self.device.local_time, int)
+
+    def test_load(self):
+        load = self.device.load
+        self.assertIsInstance(load, list)
+        self.assertEquals(len(load), 3)
+        self.assertIsInstance(load[0], int)
+        self.assertIsInstance(load[1], int)
+        self.assertIsInstance(load[2], int)
 
     def tearDown(self):
         patch.stopall()

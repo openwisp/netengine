@@ -7,7 +7,8 @@ __all__ = ['AirOS']
 
 import binascii
 import logging
-from datetime import timedelta
+import time
+from datetime import datetime
 
 from .base import SNMP
 
@@ -97,15 +98,6 @@ class AirOS(SNMP):
         returns an integer representing the number of seconds of uptime
         """
         return int(self.get_value('1.3.6.1.2.1.1.3.0')) // 100
-
-    @property
-    def uptime_tuple(self):
-        """
-        returns (days, hours, minutes)
-        """
-        td = timedelta(seconds=self.uptime)
-
-        return td.days, td.seconds // 3600, (td.seconds // 60) % 60
 
     @property
     def interfaces_number(self):
@@ -382,6 +374,17 @@ class AirOS(SNMP):
         return final
 
     @property
+    def local_time(self):
+        """
+        returns the local time of the host device as a timestamp
+        """
+        epoch = str(self.get('1.3.6.1.4.1.41112.1.4.8.1.0')[3][0][1])
+        timestamp = int(
+            time.mktime(datetime.strptime(epoch, '%Y-%m-%d %H:%M:%S').timetuple())
+        )
+        return timestamp
+
+    @property
     def RAM_total(self):
         """
         Returns the total RAM of the device
@@ -397,14 +400,74 @@ class AirOS(SNMP):
         free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0')
         return int(free)
 
+    @property
+    def RAM_buffered(self):
+        """
+        Returns the buffered RAM of the device
+        """
+        buffered = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.3.0')
+        return int(buffered)
+
+    @property
+    def RAM_cached(self):
+        """
+        Returns the cached RAM of the device
+        """
+        cached = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.4.0')
+        return int(cached)
+
+    @property
+    def load(self):
+        """
+        Returns an array with load average values respectively in the last
+        minute, in the last 5 minutes and in the last 15 minutes
+        """
+        one = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.1'))
+        five = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.2'))
+        fifteen = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.3'))
+        return [one, five, fifteen]
+
+    @property
+    def SWAP_total(self):
+        """
+        Returns the total SWAP of the device
+        """
+        total = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.1.0')
+        return int(total)
+
+    @property
+    def SWAP_free(self):
+        """
+        Returns the free SWAP of the device
+        """
+        free = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.2.0')
+        return int(free)
+
+    @property
+    def resources_to_dict(self):
+        """
+        returns an ordered dict with hardware resources information
+        """
+        result = self._dict(
+            {
+                'load': self.load,
+                'memory': {
+                    'total': self.RAM_total,
+                    'buffered': self.RAM_buffered,
+                    'free': self.RAM_free,
+                    'cached': self.RAM_cached,
+                },
+                'swap': {'total': self.SWAP_total, 'free': self.SWAP_free},
+            }
+        )
+        return result
+
     def to_dict(self):
         return self._dict(
             {
                 'type': 'DeviceMonitoring',
-                'general': {'uptime': self.uptime},
-                'resources': {
-                    'memory': {'total': self.RAM_total, 'free': self.RAM_free},
-                },
+                'general': {'uptime': self.uptime, 'local_time': self.local_time},
+                'resources': self.resources_to_dict,
                 'interfaces': self.interfaces_to_dict,
             }
         )
