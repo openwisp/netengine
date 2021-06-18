@@ -412,7 +412,6 @@ class OpenWRT(SNMP):
                     tzinfo=pytz.utc,
                 ).timestamp()
             )
-        logger.warning('Invalid timestring was supplied')
 
     @property
     def RAM_total(self):

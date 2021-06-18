@@ -7,7 +7,6 @@ __all__ = ['AirOS']
 
 import binascii
 import logging
-import time
 from datetime import datetime
 
 from .base import SNMP
@@ -379,9 +378,7 @@ class AirOS(SNMP):
         returns the local time of the host device as a timestamp
         """
         epoch = str(self.get('1.3.6.1.4.1.41112.1.4.8.1.0')[3][0][1])
-        timestamp = int(
-            time.mktime(datetime.strptime(epoch, '%Y-%m-%d %H:%M:%S').timetuple())
-        )
+        timestamp = int(datetime.strptime(epoch, '%Y-%m-%d %H:%M:%S').timestamp())
         return timestamp
 
     @property
@@ -422,9 +419,10 @@ class AirOS(SNMP):
         Returns an array with load average values respectively in the last
         minute, in the last 5 minutes and in the last 15 minutes
         """
-        one = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.1'))
-        five = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.2'))
-        fifteen = int(self.get_value('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.3'))
+        array = (self.next('1.3.6.1.4.1.10002.1.1.1.4.2.1.3'))[3]
+        one = int(array[0][0][1])
+        five = int(array[1][0][1])
+        fifteen = int(array[2][0][1])
         return [one, five, fifteen]
 
     @property

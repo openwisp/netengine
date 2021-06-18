@@ -158,7 +158,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_load(self):
         load = self.device.load
         self.assertIsInstance(load, list)
-        self.assertEquals(len(load), 3)
+        self.assertEqual(len(load), 3)
         self.assertIsInstance(load[0], int)
         self.assertIsInstance(load[1], int)
         self.assertIsInstance(load[2], int)
