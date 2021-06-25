@@ -513,7 +513,7 @@ class OpenWRT(SNMP):
                 interface_num = neighbor[0][0].getOid()[10]
                 interface = self.get(f'1.3.6.1.2.1.31.1.1.1.1.{interface_num}')[3][0][1]
                 state = states_map[str(neighbor_states[index][0][1])]
-            except (IndexError, TypeError):
+            except (IndexError, TypeError, ValueError):
                 continue
             result.append(
                 self._dict(
