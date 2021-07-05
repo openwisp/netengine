@@ -507,6 +507,11 @@ class OpenWRT(SNMP):
 
         for index, neighbor in enumerate(neighbors):
             try:
+                oid = neighbor[0][0].getOid()
+                if oid[12] == 4:
+                    ip = oid[13:]
+                else:
+                    ip = self._ascii_blocks_to_ipv6(str(oid[13:]))
                 mac = EUI(
                     int(neighbor[0][1].prettyPrint(), 16), dialect=mac_unix_expanded
                 )
@@ -517,7 +522,12 @@ class OpenWRT(SNMP):
                 continue
             result.append(
                 self._dict(
-                    {'mac': str(mac), 'state': str(state), 'interface': str(interface)}
+                    {
+                        'mac': str(mac),
+                        'state': str(state),
+                        'interface': str(interface),
+                        'ip': str(ip),
+                    }
                 )
             )
         return result

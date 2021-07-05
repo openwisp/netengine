@@ -8,6 +8,8 @@ except ImportError:
 import binascii
 import logging
 
+import netaddr
+
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
 
@@ -56,6 +58,20 @@ class SNMP(BaseBackend):
                 [mac_address[slice(i, i + 2)] for i in range(0, 12, 2) if i != '']
             )
         return mac_address
+
+    def _ascii_blocks_to_ipv6(self, ascii_string):
+        """
+        converts an ascii representation into ipv6 address
+        """
+        blocks = ascii_string.split('.')
+        for b in range(len(blocks)):
+            blocks[b] = format(int(blocks[b]), '02x')
+        res = netaddr.IPAddress(
+            ':'.join(
+                [''.join(blocks[slice(i, i + 2)]) for i in range(0, len(blocks), 2)]
+            )
+        )
+        return res
 
     def _oid(self, oid):
         """
