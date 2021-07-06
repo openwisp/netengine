@@ -91,6 +91,9 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_RAM_cached(self):
         self.assertIsInstance(self.device.RAM_cached, int)
 
+    def test_RAM_used(self):
+        self.assertIsInstance(self.device.RAM_used, int)
+
     def test_RAM_free(self):
         self.assertIsInstance(self.device.RAM_free, int)
 

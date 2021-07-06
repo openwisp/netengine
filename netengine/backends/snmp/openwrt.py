@@ -15,6 +15,8 @@ from netaddr import EUI, mac_unix_expanded
 
 from netengine.backends.snmp import SNMP
 
+from .utils import ifTypes
+
 logger = logging.getLogger(__name__)
 
 
@@ -266,11 +268,6 @@ class OpenWRT(SNMP):
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
-            types = {
-                '6': 'ethernetCsmacd',
-                '24': 'softwareLoopback',
-                '131': 'tunnel',
-            }
             results = []
             starting = '1.3.6.1.2.1.2.2.1.2.'
             types_oid = '1.3.6.1.2.1.2.2.1.3.'
@@ -278,7 +275,9 @@ class OpenWRT(SNMP):
                 result = self._dict(
                     {
                         'name': self.get_value(starting + str(i)),
-                        'type': types[self.get_value(types_oid + str(i))],
+                        'type': ifTypes.get(
+                            self.get_value(types_oid + str(i)), 'unknown'
+                        ),
                     }
                 )
                 results.append(result)
@@ -435,13 +434,18 @@ class OpenWRT(SNMP):
         return int(self.get_value('1.3.6.1.2.1.25.2.3.1.5.7'))
 
     @property
+    def RAM_used(self):
+        """
+        returns the used RAM of the device
+        """
+        return int(self.get_value('1.3.6.1.2.1.25.2.3.1.6.1'))
+
+    @property
     def RAM_free(self):
         """
         returns the free RAM of the device
         """
-        RAM_used = int(self.get_value('1.3.6.1.2.1.25.2.3.1.6.1'))
-        RAM_free = self.RAM_total - (self.RAM_cached + RAM_used)
-        return RAM_free
+        return int(self.RAM_total - (self.RAM_used - self.RAM_cached))
 
     @property
     def SWAP_total(self):
@@ -477,6 +481,7 @@ class OpenWRT(SNMP):
                 'memory': {
                     'total': self.RAM_total,
                     'shared': self.RAM_shared,
+                    'used': self.RAM_used,
                     'free': self.RAM_free,
                     'cached': self.RAM_cached,
                 },
