@@ -65,7 +65,9 @@ class SNMP(BaseBackend):
         """
         blocks = ascii_string.split('.')
         for b in range(len(blocks)):
+            # convert each block of decimal into hexadecimal form without `0x` prefix
             blocks[b] = format(int(blocks[b]), '02x')
+        # join the obtained list into a valid IP string
         res = netaddr.IPAddress(
             ':'.join(
                 [''.join(blocks[slice(i, i + 2)]) for i in range(0, len(blocks), 2)]
