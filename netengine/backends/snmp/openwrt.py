@@ -505,10 +505,18 @@ class OpenWRT(SNMP):
             '7': 'INCOMPLETE',
         }
 
-        # TODO: find a way to extract IP address from the OID
-        neighbors = self.next('1.3.6.1.2.1.4.35.1.4')[3]
-        neighbor_states = self.next('1.3.6.1.2.1.4.35.1.7')[3]
+        neighbors_oid = '1.3.6.1.2.1.4.35.1.4'
+        neighbor_states_oid = '1.3.6.1.2.1.4.35.1.7'
+        neighbor_info = self.next('1.3.6.1.2.1.4.35.1')[3]
+        neighbors = []
+        neighbor_states = []
         result = []
+
+        for oid in neighbor_info:
+            if neighbors_oid in str(oid[0][0]):
+                neighbors.append(oid)
+            elif neighbor_states_oid in str(oid[0][0]):
+                neighbor_states.append(oid)
 
         for index, neighbor in enumerate(neighbors):
             try:
