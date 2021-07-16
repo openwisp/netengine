@@ -41,87 +41,87 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.nextcmd_patcher.start()
 
     def test_os(self):
-        self.assertIsInstance(self.device.os, tuple)
+        self.assertIsInstance(self.device.os(), tuple)
 
     def test_manufacturer(self):
-        self.assertIsNotNone(self.device.manufacturer)
+        self.assertIsNotNone(self.device.manufacturer())
 
     def test_name(self):
-        self.assertIsInstance(self.device.name, str)
+        self.assertIsInstance(self.device.name(), str)
 
     def test_uptime(self):
-        self.assertIsInstance(self.device.uptime, int)
+        self.assertIsInstance(self.device.uptime(), int)
 
     def test_uptime_tuple(self):
-        self.assertIsInstance(self.device.uptime_tuple, tuple)
+        self.assertIsInstance(self.device.uptime_tuple(), tuple)
 
     def test_get_interfaces(self):
         self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_interfaces_speed(self):
-        self.assertIsInstance(self.device.interfaces_speed, list)
+        self.assertIsInstance(self.device.interfaces_speed(), list)
 
     def test_interfaces_bytes(self):
-        self.assertIsInstance(self.device.interfaces_bytes, list)
+        self.assertIsInstance(self.device.interfaces_bytes(), list)
 
     def test_interfaces_MAC(self):
-        self.assertIsInstance(self.device.interfaces_MAC, list)
+        self.assertIsInstance(self.device.interfaces_MAC(), list)
 
     def test_interfaces_type(self):
-        self.assertIsInstance(self.device.interfaces_type, list)
+        self.assertIsInstance(self.device.interfaces_type(), list)
 
     def test_interfaces_mtu(self):
-        self.assertIsInstance(self.device.interfaces_mtu, list)
+        self.assertIsInstance(self.device.interfaces_mtu(), list)
 
     def test_interfaces_state(self):
-        self.assertIsInstance(self.device.interfaces_up, list)
+        self.assertIsInstance(self.device.interfaces_up(), list)
 
     def test_interfaces_to_dict(self):
-        self.assertIsInstance(self.device.interfaces_to_dict, list)
+        self.assertIsInstance(self.device.interfaces_to_dict(), list)
 
     def test_interface_addr_and_mask(self):
-        self.assertIsInstance(self.device.interface_addr_and_mask, dict)
+        self.assertIsInstance(self.device.interface_addr_and_mask(), dict)
 
     def test_RAM_total(self):
-        self.assertIsInstance(self.device.RAM_total, int)
+        self.assertIsInstance(self.device.RAM_total(), int)
 
     def test_RAM_shared(self):
-        self.assertIsInstance(self.device.RAM_shared, int)
+        self.assertIsInstance(self.device.RAM_shared(), int)
 
     def test_RAM_cached(self):
-        self.assertIsInstance(self.device.RAM_cached, int)
+        self.assertIsInstance(self.device.RAM_cached(), int)
 
     def test_RAM_used(self):
-        self.assertIsInstance(self.device.RAM_used, int)
+        self.assertIsInstance(self.device.RAM_used(), int)
 
     def test_RAM_free(self):
-        self.assertIsInstance(self.device.RAM_free, int)
+        self.assertIsInstance(self.device.RAM_free(), int)
 
     def test_SWAP_total(self):
-        self.assertIsInstance(self.device.SWAP_total, int)
+        self.assertIsInstance(self.device.SWAP_total(), int)
 
     def test_SWAP_free(self):
-        self.assertIsInstance(self.device.SWAP_free, int)
+        self.assertIsInstance(self.device.SWAP_free(), int)
 
     def test_CPU_count(self):
-        self.assertIsInstance(self.device.CPU_count, int)
+        self.assertIsInstance(self.device.CPU_count(), int)
 
     def test_neighbors(self):
-        self.assertIsInstance(self.device.neighbors, list)
+        self.assertIsInstance(self.device.neighbors(), list)
 
     def test_local_time(self):
-        self.assertIsInstance(self.device.local_time, int)
+        self.assertIsInstance(self.device.local_time(), int)
 
     def test_to_dict(self):
-        device_dict = self.device.to_dict()
+        device_dict = self.device.to_dict(autowalk=False)
         self.assertIsInstance(device_dict, dict)
         self.assertEqual(
             len(device_dict['interfaces']), len(self.device.get_interfaces()),
         )
 
     def test_netjson_compliance(self):
-        device_dict = self.device.to_dict()
-        device_json = self.device.to_json()
+        device_dict = self.device.to_dict(autowalk=False)
+        device_json = self.device.to_json(autowalk=False)
         validate(instance=device_dict, schema=schema)
         validate(instance=json.loads(device_json), schema=schema)
 

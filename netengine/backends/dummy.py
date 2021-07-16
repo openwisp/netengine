@@ -63,7 +63,7 @@ class Dummy(BaseBackend):
             },
         ]
 
-    def to_dict(self):
+    def to_dict(self, *args, **kwargs):
         return self._dict(
             {
                 'name': 'dummy',

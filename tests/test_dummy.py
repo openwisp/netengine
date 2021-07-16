@@ -24,6 +24,6 @@ class TestDummyBackend(unittest.TestCase):
         self.assertIn('Xensource, Inc.', str(self.dummy.get_manufacturer(dummy_addr)))
 
     def test_to_json(self):
-        json_string = self.dummy.to_json()
+        json_string = self.dummy.to_json(autowalk=False)
         self.assertTrue(isinstance(json_string, str))
         json.loads(json_string)
