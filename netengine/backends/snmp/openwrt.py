@@ -16,8 +16,6 @@ from pytrie import StringTrie as Trie
 
 from netengine.backends.snmp import SNMP
 
-from .utils import ifTypes
-
 logger = logging.getLogger(__name__)
 
 
@@ -279,11 +277,17 @@ class OpenWRT(SNMP):
             results = []
             starting = '1.3.6.1.2.1.2.2.1.2.'
             types_oid = '1.3.6.1.2.1.2.2.1.3.'
+            types = {
+                '6': 'ethernet',
+                '24': 'loopback',
+                '157': 'wireless',
+                '209': 'bridge',
+            }
             for i in self._value_to_retrieve(snmpdump=snmpdump):
                 result = self._dict(
                     {
                         'name': self.get_value(starting + str(i), snmpdump=snmpdump),
-                        'type': ifTypes.get(
+                        'type': types.get(
                             self.get_value(types_oid + str(i), snmpdump=snmpdump),
                             'unknown',
                         ),

@@ -284,7 +284,12 @@ class AirOS(SNMP):
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
-            types = {'6': 'ethernetCsmacd', '24': 'softwareLoopback'}
+            types = {
+                '6': 'ethernet',
+                '24': 'loopback',
+                '157': 'wireless',
+                '209': 'bridge',
+            }
             results = []
             starting = '1.3.6.1.2.1.2.2.1.2.'
             types_oid = '1.3.6.1.2.1.2.2.1.3.'
@@ -293,9 +298,10 @@ class AirOS(SNMP):
                 result = self._dict(
                     {
                         'name': self.get_value(starting + str(i), snmpdump=snmpdump),
-                        'type': types[
-                            self.get_value(types_oid + str(i), snmpdump=snmpdump)
-                        ],
+                        'type': types.get(
+                            self.get_value(types_oid + str(i), snmpdump=snmpdump),
+                            'unknown',
+                        ),
                     }
                 )
                 results.append(result)
