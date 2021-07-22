@@ -62,7 +62,7 @@ class OpenWRT(SNMP):
         """
         returns a string containing the device name
         """
-        return self.get_value('1.3.6.1.2.1.1.5.0', snmpdump=snmpdump)
+        return self.get_value('1.3.6.1.2.1.1.1.0', snmpdump=snmpdump).split()[1]
 
     def uptime(self, snmpdump=None):
         """
@@ -353,6 +353,12 @@ class OpenWRT(SNMP):
             up = self.interfaces_up(snmpdump=snmpdump)[i]['up']
             logger.info('... mtu ...')
             mtu = int(self.interfaces_mtu(snmpdump=snmpdump)[i]['mtu'])
+            logger.info('... if_ip ...')
+            if_ip = (
+                self.interface_addr_and_mask(snmpdump=snmpdump)
+                .get(name, {})
+                .get('address', '')
+            )
 
             result = self._dict(
                 {
@@ -364,6 +370,7 @@ class OpenWRT(SNMP):
                         'rx_bytes': rx_bytes,
                         'tx_bytes': tx_bytes,
                         "mtu": mtu,
+                        "ip": if_ip,
                     },
                 }
             )
@@ -568,8 +575,9 @@ class OpenWRT(SNMP):
             {
                 'type': 'DeviceMonitoring',
                 'general': {
+                    'name': self.name(snmpdump=snmpdump),
                     'uptime': self.uptime(snmpdump=snmpdump),
-                    "local_time": self.local_time(snmpdump=snmpdump),
+                    'local_time': self.local_time(snmpdump=snmpdump),
                 },
                 'resources': self.resources_to_dict(snmpdump=snmpdump),
                 'interfaces': self.interfaces_to_dict(snmpdump=snmpdump),
