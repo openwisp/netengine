@@ -160,9 +160,9 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         load = self.device.load()
         self.assertIsInstance(load, list)
         self.assertEqual(len(load), 3)
-        self.assertIsInstance(load[0], int)
-        self.assertIsInstance(load[1], int)
-        self.assertIsInstance(load[2], int)
+        self.assertIsInstance(load[0], float)
+        self.assertIsInstance(load[1], float)
+        self.assertIsInstance(load[2], float)
 
     def tearDown(self):
         patch.stopall()

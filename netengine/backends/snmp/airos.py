@@ -11,6 +11,8 @@ from datetime import datetime
 
 from pytrie import StringTrie as Trie
 
+from netengine.exceptions import NetEngineError
+
 from .base import SNMP
 
 logger = logging.getLogger(__name__)
@@ -278,6 +280,7 @@ class AirOS(SNMP):
         return self._interfaces_MAC
 
     _interfaces_type = None
+    _wireless_interfaces = None
 
     def interfaces_type(self, snmpdump=None):
         """
@@ -310,24 +313,59 @@ class AirOS(SNMP):
 
         return self._interfaces_type
 
+    def get_wireless_interfaces(self, snmpdump=None):
+        """
+        returns the list of all the wireless interfaces of the device
+        """
+        if self._wireless_interfaces is None:
+            interfaces = []
+            wireless_if_oid = '1.2.840.10036.1.1.1.1.'
+            interfaces_oid = '1.3.6.1.2.1.2.2.1.2.'
+
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
+                try:
+                    value_to_get1 = self.get_value(
+                        wireless_if_oid + str(i), snmpdump=snmpdump
+                    )
+
+                    if value_to_get1:
+                        interfaces.append(
+                            self.get_value(interfaces_oid + str(i), snmpdump=snmpdump)
+                        )
+                except (NetEngineError, KeyError):
+                    pass
+
+            self._wireless_interfaces = [_f for _f in interfaces if _f]
+
+        return self._wireless_interfaces
+
+    _interfaces_MAC = None
+
     def interfaces_to_dict(self, snmpdump=None):
         """
         Returns an ordered dict with all the information available about the interface
         """
         results = []
+        wireless_if = self.get_wireless_interfaces()
         for i in range(0, len(self.get_interfaces(snmpdump=snmpdump))):
             logger.info(f'===== {i} =====')
+            logger.info('... name ...')
+            name = self.interfaces_MAC(snmpdump=snmpdump)[i]['name']
+            logger.info('... if_type ...')
+            if_type = self.interfaces_type(snmpdump=snmpdump)[i]['type']
+            logger.info('... rx_bytes ...')
+            rx_bytes = int(self.interfaces_bytes(snmpdump=snmpdump)[i]['rx'])
+            logger.info('... tx_bytes ...')
+            tx_bytes = int(self.interfaces_bytes(snmpdump=snmpdump)[i]['tx'])
+
+            if name in wireless_if:
+                if_type = 'wireless'
+
             result = self._dict(
                 {
-                    'name': self.interfaces_MAC(snmpdump=snmpdump)[i]['name'],
-                    'statistics': {
-                        'rx_bytes': int(
-                            self.interfaces_bytes(snmpdump=snmpdump)[i]['rx']
-                        ),
-                        'tx_bytes': int(
-                            self.interfaces_bytes(snmpdump=snmpdump)[i]['tx']
-                        ),
-                    },
+                    'name': name,
+                    "type": if_type,
+                    'statistics': {'rx_bytes': rx_bytes, 'tx_bytes': tx_bytes},
                 }
             )
             results.append(result)
@@ -398,31 +436,31 @@ class AirOS(SNMP):
 
     def RAM_total(self, snmpdump=None):
         """
-        Returns the total RAM of the device
+        Returns the total RAM of the device in bytes
         """
         total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0', snmpdump=snmpdump)
-        return int(total)
+        return int(total) * 1024
 
     def RAM_free(self, snmpdump=None):
         """
-        Returns the free RAM of the device
+        Returns the free RAM of the device in bytes
         """
         free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0', snmpdump=snmpdump)
-        return int(free)
+        return int(free) * 1024
 
     def RAM_buffered(self, snmpdump=None):
         """
-        Returns the buffered RAM of the device
+        Returns the buffered RAM of the device in bytes
         """
         buffered = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.3.0', snmpdump=snmpdump)
-        return int(buffered)
+        return int(buffered) * 1024
 
     def RAM_cached(self, snmpdump=None):
         """
-        Returns the cached RAM of the device
+        Returns the cached RAM of the device in bytes
         """
         cached = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.4.0', snmpdump=snmpdump)
-        return int(cached)
+        return int(cached) * 1024
 
     def load(self, snmpdump=None):
         """
@@ -430,24 +468,24 @@ class AirOS(SNMP):
         minute, in the last 5 minutes and in the last 15 minutes
         """
         array = self.next('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.', snmpdump=snmpdump)[3]
-        one = int(array[0][0][1])
-        five = int(array[1][0][1])
-        fifteen = int(array[2][0][1])
+        one = float(array[0][0][1]) / 100
+        five = float(array[1][0][1]) / 100
+        fifteen = float(array[2][0][1]) / 100
         return [one, five, fifteen]
 
     def SWAP_total(self, snmpdump=None):
         """
-        Returns the total SWAP of the device
+        Returns the total SWAP of the device in bytes
         """
         total = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.1.0', snmpdump=snmpdump)
-        return int(total)
+        return int(total * 1024)
 
     def SWAP_free(self, snmpdump=None):
         """
-        Returns the free SWAP of the device
+        Returns the free SWAP of the device in bytes
         """
         free = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.2.0', snmpdump=snmpdump)
-        return int(free)
+        return int(free * 1024)
 
     def resources_to_dict(self, snmpdump=None):
         """

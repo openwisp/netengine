@@ -91,9 +91,6 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_RAM_cached(self):
         self.assertIsInstance(self.device.RAM_cached(), int)
 
-    def test_RAM_used(self):
-        self.assertIsInstance(self.device.RAM_used(), int)
-
     def test_RAM_free(self):
         self.assertIsInstance(self.device.RAM_free(), int)
 
@@ -124,6 +121,14 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         device_json = self.device.to_json(autowalk=False)
         validate(instance=device_dict, schema=schema)
         validate(instance=json.loads(device_json), schema=schema)
+
+    def test_load(self):
+        load = self.device.load()
+        self.assertIsInstance(load, list)
+        self.assertEqual(len(load), 3)
+        self.assertIsInstance(load[0], float)
+        self.assertIsInstance(load[1], float)
+        self.assertIsInstance(load[2], float)
 
     def tearDown(self):
         patch.stopall()

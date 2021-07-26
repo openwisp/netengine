@@ -74,6 +74,7 @@ class MockOutputMixin(object):
                 [[[MockOid('1.3.6.1.2.1.4.35.1.4')]], OctetString('0x040e3cca555f')],
                 [[[MockOid('1.3.6.1.2.1.4.35.1.7')]], 1],
             ],
+            '1.3.6.1.4.1.2021.10.1.3.': [[[0, '0.87']], [[0, '0.37']], [[0, '0.14']]],
         }
         oid = args[2]
         return _get_nextcmd_list(res[oid])
