@@ -12,7 +12,6 @@ from datetime import timedelta
 
 import pytz
 from netaddr import EUI, mac_unix_expanded
-from pytrie import StringTrie as Trie
 
 from netengine.backends.snmp import SNMP
 from netengine.exceptions import NetEngineError
@@ -606,7 +605,7 @@ class OpenWRT(SNMP):
 
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
-            snmpdump = Trie(self.walk('1.2'))
+            snmpdump = self.walk('1.2')
         result = self._dict(
             {
                 'type': 'DeviceMonitoring',

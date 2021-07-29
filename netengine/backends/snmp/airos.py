@@ -9,8 +9,6 @@ import binascii
 import logging
 from datetime import datetime
 
-from pytrie import StringTrie as Trie
-
 from netengine.exceptions import NetEngineError
 
 from .base import SNMP
@@ -510,7 +508,7 @@ class AirOS(SNMP):
 
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
-            snmpdump = Trie(self.walk('1.3.6'))
+            snmpdump = self.walk('1.3.6')
         result = self._dict(
             {
                 'type': 'DeviceMonitoring',

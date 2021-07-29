@@ -10,6 +10,7 @@ import logging
 
 import netaddr
 from pysnmp.hlapi import ContextData, ObjectIdentity, ObjectType, SnmpEngine, nextCmd
+from pytrie import StringTrie
 
 from netengine.backends import BaseBackend
 from netengine.exceptions import NetEngineError
@@ -96,7 +97,7 @@ class SNMP(BaseBackend):
         return str(oid)
 
     def walk(self, oid):
-        result = dict()
+        result = StringTrie()
         for (errorIndication, errorStatus, errorIndex, varBinds) in nextCmd(
             SnmpEngine(),
             self.community,
