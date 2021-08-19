@@ -399,14 +399,14 @@ class OpenWRT(SNMP):
             result = self._dict(
                 {
                     'name': name,
+                    'type': if_type,
                     'statistics': {
-                        "mac": mac_address,
-                        "type": if_type,
-                        "up": up,
+                        'mac': mac_address,
+                        'up': up,
                         'rx_bytes': rx_bytes,
                         'tx_bytes': tx_bytes,
-                        "mtu": mtu,
-                        "addresses": addresses,
+                        'mtu': mtu,
+                        'addresses': addresses,
                     },
                 }
             )
