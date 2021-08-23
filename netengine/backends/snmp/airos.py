@@ -485,6 +485,20 @@ class AirOS(SNMP):
         free = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.2.0', snmpdump=snmpdump)
         return int(free * 1024)
 
+    def CPU_count(self, snmpdump=None):
+        """
+        Returns the number of CPU cores for which load information is returned
+        """
+        loadEntry = len(
+            self.next('1.3.6.1.4.1.10002.1.1.1.4.2.1.', snmpdump=snmpdump)[3]
+        )
+        loadNumber = int(
+            self.get_value('1.3.6.1.4.1.10002.1.1.1.4.1.0', snmpdump=snmpdump)
+        )
+        # for each loadNumber, 3 types of load values
+        # are returned: loadIndex, loadDescr, loadValue
+        return int(loadEntry // (3 * loadNumber))
+
     def resources_to_dict(self, snmpdump=None):
         """
         returns an ordered dict with hardware resources information
@@ -492,6 +506,7 @@ class AirOS(SNMP):
         result = self._dict(
             {
                 'load': self.load(snmpdump=snmpdump),
+                'cpus': self.CPU_count(snmpdump=snmpdump),
                 'memory': {
                     'total': self.RAM_total(snmpdump=snmpdump),
                     'buffered': self.RAM_buffered(snmpdump=snmpdump),

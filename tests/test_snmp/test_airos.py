@@ -153,6 +153,9 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_SWAP_free(self):
         self.assertIsInstance(self.device.SWAP_free(), int)
 
+    def test_CPU_count(self):
+        self.assertIsInstance(self.device.CPU_count(), int)
+
     def test_local_time(self):
         self.assertIsInstance(self.device.local_time(), int)
 
