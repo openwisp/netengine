@@ -13,6 +13,7 @@ class TestSNMP(unittest.TestCase):
         self.host = settings['base-snmp']['host']
         self.community = settings['base-snmp']['community']
         self.port = settings['base-snmp'].get('port', 161)
+        self.device = SNMP(self.host, self.community, self.port)
 
     def test_instantiation(self):
         device = SNMP(self.host, self.community, self.port)
@@ -65,3 +66,17 @@ class TestSNMP(unittest.TestCase):
         # now we expect a different kind of error
         with self.assertRaises(IndexError):
             device._value_to_retrieve()
+
+    def test_octet_to_mac(self):
+        self.assertEqual(
+            self.device._octet_to_mac('\x04\x0e<\xcaU_'), '04:0e:3c:c3:8a:55'
+        )
+
+    def test_oid(self):
+        self.assertEqual(self.device._oid('1,3,6,1,2,1,1,5,0'), '1.3.6.1.2.1.1.5.0')
+        self.assertEqual(
+            self.device._oid('1, 3, 6, 1, 2, 1, 1, 5, 0'), '1.3.6.1.2.1.1.5.0',
+        )
+        self.assertEqual(
+            self.device._oid([1, 3, 6, 1, 2, 1, 1, 5, 0]), '1.3.6.1.2.1.1.5.0',
+        )
