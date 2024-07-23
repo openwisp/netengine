@@ -35,22 +35,22 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Upgrade python system packages
-      run: pip install -U wheel setuptools
-
-    - name: Install netengine
-      run: pip install -e .
-
-    - name: Install test dependencies
-      run: pip install -U -r requirements-test.txt
+    - name: Install Dependencies
+      id: deps
+      run: |
+        pip install -U wheel setuptools
+        pip install -e .
+        pip install -U -r requirements-test.txt
 
     - name: Run QA Checks
       run: ./run-qa-checks
 
     - name: Run tests
+      if: ${{ !cancelled() && steps.deps.conclusion == 'success' }}
       run: coverage run --source=netengine ./runtests.py
 
     - name: Upload Coverage
+      if: ${{ success() }}
       run: coveralls --service=github
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
