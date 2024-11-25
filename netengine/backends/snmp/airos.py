@@ -7,7 +7,9 @@ __all__ = ['AirOS']
 
 import binascii
 import logging
-from datetime import timedelta
+from datetime import datetime
+
+from netengine.exceptions import NetEngineError
 
 from .base import SNMP
 
@@ -19,56 +21,54 @@ class AirOS(SNMP):
     Ubiquiti AirOS SNMP backend
     """
 
-    _oid_to_retrieve = '1.3.6.1.2.1.1.9.1.1'
+    _oid_to_retrieve = '1.3.6.1.2.1.1.9.1.1.'
 
-    def __str__(self):
+    def __str__(self, snmpdump=None):
         """print a human readable object description"""
         return f'<SNMP (Ubiquity AirOS): {self.host}>'
 
-    def validate(self):
+    def validate(self, snmpdump=None):
         """
         raises NetEngineError exception if anything is wrong with the connection
         for example: wrong host, invalid community
         """
         # this triggers a connection which
         # will raise an exception if anything is wrong
-        return self.name
+        return self.name(snmpdump=snmpdump)
 
-    @property
-    def os(self):
+    def os(self, snmpdump=None):
         """
         returns (os_name, os_version)
         """
         os_name = 'AirOS'
-        os_version = self.get_value('1.3.6.1.2.1.1.1.0').split('#')[0].strip()
+        os_version = (
+            self.get_value('1.3.6.1.2.1.1.1.0', snmpdump=snmpdump).split('#')[0].strip()
+        )
         return os_name, os_version
 
-    @property
-    def name(self):
+    def name(self, snmpdump=None):
         """
         returns a string containing the device name
         """
-        return self.get_value('1.3.6.1.2.1.1.5.0')
+        return self.get_value('1.3.6.1.2.1.1.5.0', snmpdump=snmpdump)
 
-    @property
-    def model(self):
+    def model(self, snmpdump=None):
         """
         returns a string containing the device model
         """
         oids = ['1.2.840.10036.3.1.2.1.3.5', '1.2.840.10036.3.1.2.1.3.8']
         for oid in oids:
-            model = self.get_value(oid)
+            model = self.get_value(oid, snmpdump=snmpdump)
             if model != '':
                 return model
 
-    @property
-    def firmware(self):
+    def firmware(self, snmpdump=None):
         """
         returns a string containing the device firmware
         """
         oids = ['1.2.840.10036.3.1.2.1.4.5', '1.2.840.10036.3.1.2.1.4.8']
         for oid in oids:
-            tmp = self.get_value(oid).split('.')
+            tmp = self.get_value(oid, snmpdump=snmpdump).split('.')
             if tmp is not None:
                 length = len(tmp)
                 i = 0
@@ -77,46 +77,35 @@ class AirOS(SNMP):
                         return 'AirOS ' + '.'.join(tmp[i:length])
                     i = i + 1
 
-    @property
-    def manufacturer(self):
-        return self.get_manufacturer(self.interfaces_MAC[1]['mac_address'])
+    def manufacturer(self, snmpdump=None):
+        return self.get_manufacturer(
+            self.interfaces_MAC(snmpdump=snmpdump)[1]['mac_address']
+        )
 
-    @property
-    def ssid(self):
+    def ssid(self, snmpdump=None):
         """
         returns a string containing the wireless ssid
         """
         oids = ['1.2.840.10036.1.1.1.9.5', '1.2.840.10036.1.1.1.9.8']
         for oid in oids:
-            if self.get_value(oid) != '':
-                return self.get_value(oid)
+            if self.get_value(oid, snmpdump=snmpdump) != '':
+                return self.get_value(oid, snmpdump=snmpdump)
 
-    @property
-    def uptime(self):
+    def uptime(self, snmpdump=None):
         """
         returns an integer representing the number of seconds of uptime
         """
-        return int(self.get_value('1.3.6.1.2.1.1.3.0')) // 100
+        return int(self.get_value('1.3.6.1.2.1.1.3.0', snmpdump=snmpdump)) // 100
 
-    @property
-    def uptime_tuple(self):
-        """
-        returns (days, hours, minutes)
-        """
-        td = timedelta(seconds=self.uptime)
-
-        return td.days, td.seconds // 3600, (td.seconds // 60) % 60
-
-    @property
-    def interfaces_number(self):
+    def interfaces_number(self, snmpdump=None):
         """
         Returns the number of the network interfaces
         """
-        return int(self.get_value('1.3.6.1.2.1.2.1.0'))
+        return int(self.get_value('1.3.6.1.2.1.2.1.0', snmpdump=snmpdump))
 
     _interfaces = None
 
-    def get_interfaces(self):
+    def get_interfaces(self, snmpdump=None):
         """
         returns the list of all the interfaces of the device
         """
@@ -124,10 +113,10 @@ class AirOS(SNMP):
             interfaces = []
             value_to_get = '1.3.6.1.2.1.2.2.1.2.'
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 value_to_get1 = value_to_get + str(i)
                 if value_to_get1:
-                    interfaces.append(self.get_value(value_to_get1))
+                    interfaces.append(self.get_value(value_to_get1, snmpdump=snmpdump))
 
             self._interfaces = interfaces
 
@@ -135,8 +124,7 @@ class AirOS(SNMP):
 
     _interfaces_mtu = None
 
-    @property
-    def interfaces_mtu(self):
+    def interfaces_mtu(self, snmpdump=None):
         """
         Returns an ordereed dict with the interface and its MTU
         """
@@ -147,11 +135,11 @@ class AirOS(SNMP):
             tmp[18] = str(4)
             to = ''.join(tmp)
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 result = self._dict(
                     {
-                        'name': self.get_value(starting + str(i)),
-                        'mtu': int(self.get_value(to + str(i))),
+                        'name': self.get_value(starting + str(i), snmpdump=snmpdump),
+                        'mtu': int(self.get_value(to + str(i), snmpdump=snmpdump)),
                     }
                 )
                 results.append(result)
@@ -162,8 +150,7 @@ class AirOS(SNMP):
 
     _interfaces_state = None
 
-    @property
-    def interfaces_state(self):
+    def interfaces_state(self, snmpdump=None):
         """
         Returns an ordereed dict with the interfaces and their state (up, down)
         """
@@ -173,20 +160,27 @@ class AirOS(SNMP):
             operative = '1.3.6.1.2.1.2.2.1.8.'
             tmp = list(starting)
             tmp[18] = str(4)
-            for i in self._value_to_retrieve():
-                if self.get_value(starting + str(i)) != '':
-                    if int(self.get_value(operative + str(i))) == 1:
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
+                if self.get_value(starting + str(i), snmpdump=snmpdump) != '':
+                    if int(self.get_value(operative + str(i), snmpdump=snmpdump)) == 1:
                         result = self._dict(
-                            {'name': self.get_value(starting + str(i)), 'state': 'up'}
+                            {
+                                'name': self.get_value(
+                                    starting + str(i), snmpdump=snmpdump
+                                ),
+                                'state': 'up',
+                            }
                         )
                     else:
                         result = self._dict(
                             {
-                                'name': self.get_value(starting + str(i)),
+                                'name': self.get_value(
+                                    starting + str(i), snmpdump=snmpdump
+                                ),
                                 'state': 'down',
                             }
                         )
-                elif self.get_value(starting + str(i)) == '':
+                elif self.get_value(starting + str(i), snmpdump=snmpdump) == '':
                     result = self._dict({'name': '', 'state': ''})
                 # append result to list
                 results.append(result)
@@ -197,8 +191,7 @@ class AirOS(SNMP):
 
     _interfaces_speed = None
 
-    @property
-    def interfaces_speed(self):
+    def interfaces_speed(self, snmpdump=None):
         """
         Returns an ordered dict with the interface and ist speed in bps
         """
@@ -207,11 +200,13 @@ class AirOS(SNMP):
             starting = '1.3.6.1.2.1.2.2.1.2.'
             starting_speed = '1.3.6.1.2.1.2.2.1.5.'
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 result = self._dict(
                     {
-                        'name': self.get_value(starting + str(i)),
-                        'speed': int(self.get_value(starting_speed + str(i))),
+                        'name': self.get_value(starting + str(i), snmpdump=snmpdump),
+                        'speed': int(
+                            self.get_value(starting_speed + str(i), snmpdump=snmpdump)
+                        ),
                     }
                 )
                 results.append(result)
@@ -222,8 +217,7 @@ class AirOS(SNMP):
 
     _interfaces_bytes = None
 
-    @property
-    def interfaces_bytes(self):
+    def interfaces_bytes(self, snmpdump=None):
         """
         Returns an ordereed dict with the interface and its tx and rx octets (1 octet = 1 byte = 8 bits)
         """
@@ -233,12 +227,16 @@ class AirOS(SNMP):
             starting_rx = '1.3.6.1.2.1.2.2.1.10.'
             starting_tx = '1.3.6.1.2.1.2.2.1.16.'
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 result = self._dict(
                     {
-                        'name': self.get_value(starting + str(i)),
-                        'tx': int(self.get_value(starting_tx + str(i))),
-                        'rx': int(self.get_value(starting_rx + str(i))),
+                        'name': self.get_value(starting + str(i), snmpdump=snmpdump),
+                        'tx': int(
+                            self.get_value(starting_tx + str(i), snmpdump=snmpdump)
+                        ),
+                        'rx': int(
+                            self.get_value(starting_rx + str(i), snmpdump=snmpdump)
+                        ),
                     }
                 )
                 results.append(result)
@@ -248,8 +246,7 @@ class AirOS(SNMP):
 
     _interfaces_MAC = None
 
-    @property
-    def interfaces_MAC(self):
+    def interfaces_MAC(self, snmpdump=None):
         """
         Returns an ordered dict with the hardware address of every interface
         """
@@ -258,9 +255,9 @@ class AirOS(SNMP):
             starting = '1.3.6.1.2.1.2.2.1.2.'
             starting_mac = '1.3.6.1.2.1.2.2.1.6.'
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 mac = binascii.b2a_hex(
-                    self.get_value(starting_mac + str(i)).encode()
+                    self.get_value(starting_mac + str(i), snmpdump=snmpdump).encode()
                 ).decode()
                 # now we are going to format mac as the canonical way as a MAC
                 # address is intended by inserting ':' every two chars of mac
@@ -270,7 +267,7 @@ class AirOS(SNMP):
                 )
                 result = self._dict(
                     {
-                        'name': self.get_value(starting + str(i)),
+                        'name': self.get_value(starting + str(i), snmpdump=snmpdump),
                         'mac_address': mac_transformed,
                     }
                 )
@@ -281,23 +278,31 @@ class AirOS(SNMP):
         return self._interfaces_MAC
 
     _interfaces_type = None
+    _wireless_interfaces = None
 
-    @property
-    def interfaces_type(self):
+    def interfaces_type(self, snmpdump=None):
         """
         Returns an ordered dict with the interface type (e.g Ethernet, loopback)
         """
         if self._interfaces_type is None:
-            types = {'6': 'ethernetCsmacd', '24': 'softwareLoopback'}
+            types = {
+                '6': 'ethernet',
+                '24': 'loopback',
+                '157': 'wireless',
+                '209': 'bridge',
+            }
             results = []
             starting = '1.3.6.1.2.1.2.2.1.2.'
             types_oid = '1.3.6.1.2.1.2.2.1.3.'
 
-            for i in self._value_to_retrieve():
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
                 result = self._dict(
                     {
-                        'name': self.get_value(starting + str(i)),
-                        'type': types[self.get_value(types_oid + str(i))],
+                        'name': self.get_value(starting + str(i), snmpdump=snmpdump),
+                        'type': types.get(
+                            self.get_value(types_oid + str(i), snmpdump=snmpdump),
+                            'unknown',
+                        ),
                     }
                 )
                 results.append(result)
@@ -306,48 +311,83 @@ class AirOS(SNMP):
 
         return self._interfaces_type
 
-    @property
-    def interfaces_to_dict(self):
+    def get_wireless_interfaces(self, snmpdump=None):
+        """
+        returns the list of all the wireless interfaces of the device
+        """
+        if self._wireless_interfaces is None:
+            interfaces = []
+            wireless_if_oid = '1.2.840.10036.1.1.1.1.'
+            interfaces_oid = '1.3.6.1.2.1.2.2.1.2.'
+
+            for i in self._value_to_retrieve(snmpdump=snmpdump):
+                try:
+                    value_to_get1 = self.get_value(
+                        wireless_if_oid + str(i), snmpdump=snmpdump
+                    )
+
+                    if value_to_get1:
+                        interfaces.append(
+                            self.get_value(interfaces_oid + str(i), snmpdump=snmpdump)
+                        )
+                except (NetEngineError, KeyError):
+                    pass
+
+            self._wireless_interfaces = [_f for _f in interfaces if _f]
+
+        return self._wireless_interfaces
+
+    _interfaces_MAC = None
+
+    def interfaces_to_dict(self, snmpdump=None):
         """
         Returns an ordered dict with all the information available about the interface
         """
         results = []
-        for i in range(0, len(self.get_interfaces())):
+        wireless_if = self.get_wireless_interfaces()
+        for i in range(0, len(self.get_interfaces(snmpdump=snmpdump))):
             logger.info(f'===== {i} =====')
+            logger.info('... name ...')
+            name = self.interfaces_MAC(snmpdump=snmpdump)[i]['name']
+            logger.info('... if_type ...')
+            if_type = self.interfaces_type(snmpdump=snmpdump)[i]['type']
+            logger.info('... rx_bytes ...')
+            rx_bytes = int(self.interfaces_bytes(snmpdump=snmpdump)[i]['rx'])
+            logger.info('... tx_bytes ...')
+            tx_bytes = int(self.interfaces_bytes(snmpdump=snmpdump)[i]['tx'])
+
+            if name in wireless_if:
+                if_type = 'wireless'
+
             result = self._dict(
                 {
-                    'name': self.interfaces_MAC[i]['name'],
-                    'type': self.interfaces_type[i]['type'],
-                    'mac_address': self.interfaces_MAC[i]['mac_address'],
-                    'rx_bytes': int(self.interfaces_bytes[i]['rx']),
-                    'tx_bytes': int(self.interfaces_bytes[i]['tx']),
-                    'state': self.interfaces_state[i]['state'],
-                    'mtu': int(self.interfaces_mtu[i]['mtu']),
-                    'speed': int(self.interfaces_speed[i]['speed']),
+                    'name': name,
+                    "type": if_type,
+                    'statistics': {'rx_bytes': rx_bytes, 'tx_bytes': tx_bytes},
                 }
             )
             results.append(result)
         return results
 
-    @property
-    def wireless_dbm(self):
+    def wireless_dbm(self, snmpdump=None):
         """
         returns a list with the wireless signal (dbm) of the link/s
         """
-        res = self.next('1.3.6.1.4.1.14988.1.1.1.2.1.3.0')
+        res = self.next('1.3.6.1.4.1.14988.1.1.1.2.1.3.0.', snmpdump=snmpdump)
         dbm = []
         for i in range(0, len(res[3])):
             dbm.append(int(res[3][i][0][1]))
         return dbm
 
-    @property
-    def wireless_links(self):
+    def wireless_links(self, snmpdump=None):
         '''
         Returns an ordered dict with all the infos about the wireless link/s
         '''
         final = []
-        results = self.next('1.3.6.1.4.1.14988.1.1.1.2.1')
-        link_number = len(self.next('1.3.6.1.4.1.14988.1.1.1.2.1.3')[3])
+        results = self.next('1.3.6.1.4.1.14988.1.1.1.2.1.', snmpdump=snmpdump)
+        link_number = len(
+            self.next('1.3.6.1.4.1.14988.1.1.1.2.1.3.', snmpdump=snmpdump)[3]
+        )
         separated_by_meaning = []
         dbm = []
         tx_bytes = []
@@ -384,39 +424,115 @@ class AirOS(SNMP):
             final.append(result)
         return final
 
-    @property
-    def RAM_total(self):
+    def local_time(self, snmpdump=None):
         """
-        Returns the total RAM of the device
+        returns the local time of the host device as a timestamp
         """
-        total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0')
-        return int(total)
+        epoch = str(self.get('1.3.6.1.4.1.41112.1.4.8.1.0', snmpdump=snmpdump)[3][0][1])
+        timestamp = int(datetime.strptime(epoch, '%Y-%m-%d %H:%M:%S').timestamp())
+        return timestamp
 
-    @property
-    def RAM_free(self):
+    def RAM_total(self, snmpdump=None):
         """
-        Returns the free RAM of the device
+        Returns the total RAM of the device in bytes
         """
-        free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0')
-        return int(free)
+        total = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.1.0', snmpdump=snmpdump)
+        return int(total) * 1024
 
-    def to_dict(self):
-        return self._dict(
+    def RAM_free(self, snmpdump=None):
+        """
+        Returns the free RAM of the device in bytes
+        """
+        free = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.2.0', snmpdump=snmpdump)
+        return int(free) * 1024
+
+    def RAM_buffered(self, snmpdump=None):
+        """
+        Returns the buffered RAM of the device in bytes
+        """
+        buffered = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.3.0', snmpdump=snmpdump)
+        return int(buffered) * 1024
+
+    def RAM_cached(self, snmpdump=None):
+        """
+        Returns the cached RAM of the device in bytes
+        """
+        cached = self.get_value('1.3.6.1.4.1.10002.1.1.1.1.4.0', snmpdump=snmpdump)
+        return int(cached) * 1024
+
+    def load(self, snmpdump=None):
+        """
+        Returns an array with load average values respectively in the last
+        minute, in the last 5 minutes and in the last 15 minutes
+        """
+        array = self.next('1.3.6.1.4.1.10002.1.1.1.4.2.1.3.', snmpdump=snmpdump)[3]
+        one = float(array[0][0][1]) / 100
+        five = float(array[1][0][1]) / 100
+        fifteen = float(array[2][0][1]) / 100
+        return [one, five, fifteen]
+
+    def SWAP_total(self, snmpdump=None):
+        """
+        Returns the total SWAP of the device in bytes
+        """
+        total = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.1.0', snmpdump=snmpdump)
+        return int(total * 1024)
+
+    def SWAP_free(self, snmpdump=None):
+        """
+        Returns the free SWAP of the device in bytes
+        """
+        free = self.get_value('1.3.6.1.4.1.10002.1.1.1.2.2.0', snmpdump=snmpdump)
+        return int(free * 1024)
+
+    def CPU_count(self, snmpdump=None):
+        """
+        Returns the number of CPU cores for which load information is returned
+        """
+        loadEntry = len(
+            self.next('1.3.6.1.4.1.10002.1.1.1.4.2.1.', snmpdump=snmpdump)[3]
+        )
+        loadNumber = int(
+            self.get_value('1.3.6.1.4.1.10002.1.1.1.4.1.0', snmpdump=snmpdump)
+        )
+        # for each loadNumber, 3 types of load values
+        # are returned: loadIndex, loadDescr, loadValue
+        return int(loadEntry // (3 * loadNumber))
+
+    def resources_to_dict(self, snmpdump=None):
+        """
+        returns an ordered dict with hardware resources information
+        """
+        result = self._dict(
             {
-                'name': self.name,
-                'type': 'radio',
-                'os': self.os[0],
-                'os_version': self.os[1],
-                'manufacturer': self.manufacturer,
-                'model': self.model,
-                'RAM_total': self.RAM_total,
-                'RAM_free': self.RAM_free,
-                'uptime': self.uptime,
-                'uptime_tuple': self.uptime_tuple,
-                'interfaces': self.interfaces_to_dict,
-                'antennas': [],
-                'wireless_dbm': self.wireless_dbm,
-                'wireless_links': self.wireless_links,
-                'routing_protocols': None,
+                'load': self.load(snmpdump=snmpdump),
+                'cpus': self.CPU_count(snmpdump=snmpdump),
+                'memory': {
+                    'total': self.RAM_total(snmpdump=snmpdump),
+                    'buffered': self.RAM_buffered(snmpdump=snmpdump),
+                    'free': self.RAM_free(snmpdump=snmpdump),
+                    'cached': self.RAM_cached(snmpdump=snmpdump),
+                },
+                'swap': {
+                    'total': self.SWAP_total(snmpdump=snmpdump),
+                    'free': self.SWAP_free(snmpdump=snmpdump),
+                },
             }
         )
+        return result
+
+    def to_dict(self, snmpdump=None, autowalk=True):
+        if autowalk:
+            snmpdump = self.walk('1.3.6')
+        result = self._dict(
+            {
+                'type': 'DeviceMonitoring',
+                'general': {
+                    'uptime': self.uptime(snmpdump=snmpdump),
+                    'local_time': self.local_time(snmpdump=snmpdump),
+                },
+                'resources': self.resources_to_dict(snmpdump=snmpdump),
+                'interfaces': self.interfaces_to_dict(snmpdump=snmpdump),
+            }
+        )
+        return result

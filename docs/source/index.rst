@@ -62,8 +62,8 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
+    /topics/backends/snmp
     /topics/usage
-    /topics/snmp
 
 Indices and tables
 ==================
