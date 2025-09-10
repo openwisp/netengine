@@ -1,8 +1,19 @@
+import codecs
 import json
 import os
 from unittest import mock
 
+from pysnmp.hlapi import OctetString
+
 from .settings import settings
+
+
+class MockOid:
+    def getOid(self):
+        return self.oid
+
+    def __init__(self, oid):
+        self.oid = oid
 
 
 class SpyMock:
@@ -32,17 +43,39 @@ class MockOutputMixin(object):
     def _get_mocked_getcmd(data, input):
         oid = input[2]
         result = data[oid]
-        if type(result) == list:
+        if type(result) == dict:
+            _type = result['type']
+            _value = result['value']
+            if _type == 'bytes':
+                result = codecs.escape_decode(_value)[0]
+        elif type(result) == list:
             result = '\n'.join(result[0:])
         return [0, 0, 0, [[0, result]]]
 
     @staticmethod
-    def _get_mocked_wireless_links(data):
-        oid = data[2]
-        return_data = {
-            '1.3.6.1.4.1.14988.1.1.1.2.1': [0, 0, 0, [[[0, 0], 0]] * 28],
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3': [0, 0, 0, [0, 0]],
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0': [None, 0, 0, []],
-            '1.3.6.1.2.1.1.9.1.1': [0, 0, 0, [[[0, 1]]] * 5],
+    def _get_mocked_nextcmd(*args, **kwargs):
+        def _get_nextcmd_list(return_value):
+            # pass `None` as the data we don't use
+            return [None, None, None, return_value]
+
+        res = {
+            '1.3.6.1.4.1.14988.1.1.1.2.1.': [[[0, 0], 0]] * 28,
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3.': [0, 0],
+            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0.': [],
+            '1.3.6.1.2.1.1.9.1.1.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.2.2.1.6.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.2.2.1.1.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            '1.3.6.1.2.1.4.20.1.1.': [[[0, OctetString('127.0.0.1')]]],
+            '1.3.6.1.2.1.4.20.1.2.': [[[0, 1]]],
+            '1.3.6.1.2.1.25.3.3.1.2.': [0, 2],
+            '1.3.6.1.2.1.4.20.1.3.': [[[0, OctetString('192.168.0.1')]]],
+            '1.3.6.1.4.1.10002.1.1.1.4.2.1.3.': [[[0, 51]], [[0, 18]], [[0, 24]]],
+            '1.3.6.1.2.1.4.35.1.': [
+                [[[MockOid('1.3.6.1.2.1.4.35.1.4')]], OctetString('0x040e3cca555f')],
+                [[[MockOid('1.3.6.1.2.1.4.35.1.7')]], 1],
+            ],
+            '1.3.6.1.4.1.2021.10.1.3.': [[[0, '0.87']], [[0, '0.37']], [[0, '0.14']]],
+            '1.3.6.1.4.1.10002.1.1.1.4.2.1.': [0, 0, 0, [[0, 0, 0] * 3]],
         }
-        return return_data[oid]
+        oid = args[2]
+        return _get_nextcmd_list(res[oid])

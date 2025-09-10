@@ -1,8 +1,11 @@
+import json
 import unittest
 from unittest.mock import patch
 
+from jsonschema import validate
 from pysnmp.entity.rfc3413.oneliner import cmdgen
 
+from netengine.backends.schema import schema
 from netengine.backends.snmp import OpenWRT
 
 from ..settings import settings
@@ -24,7 +27,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             target=cmdgen.CommandGenerator,
             attribute='nextCmd',
             wrap_obj=self.device._command,
-            return_value=[0, 0, 0, [[[0, 1]]] * 5],
+            side_effect=self._get_mocked_nextcmd,
         )
         self.getcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
@@ -35,76 +38,97 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             ),
         )
         self.getcmd_patcher.start()
+        self.nextcmd_patcher.start()
 
     def test_os(self):
-        self.assertIsInstance(self.device.os, tuple)
+        self.assertIsInstance(self.device.os(), tuple)
 
     def test_manufacturer(self):
-        with self.nextcmd_patcher:
-            self.assertIsNotNone(self.device.manufacturer)
+        self.assertIsNotNone(self.device.manufacturer())
 
     def test_name(self):
-        self.assertIsInstance(self.device.name, str)
+        self.assertIsInstance(self.device.name(), str)
 
     def test_uptime(self):
-        self.assertIsInstance(self.device.uptime, int)
+        self.assertIsInstance(self.device.uptime(), int)
 
     def test_uptime_tuple(self):
-        self.assertIsInstance(self.device.uptime_tuple, tuple)
+        self.assertIsInstance(self.device.uptime_tuple(), tuple)
 
     def test_get_interfaces(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.get_interfaces(), list)
+        self.assertIsInstance(self.device.get_interfaces(), list)
 
     def test_interfaces_speed(self):
-        self.assertIsInstance(self.device.interfaces_speed, list)
+        self.assertIsInstance(self.device.interfaces_speed(), list)
 
     def test_interfaces_bytes(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_bytes, list)
+        self.assertIsInstance(self.device.interfaces_bytes(), list)
 
     def test_interfaces_MAC(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_MAC, list)
+        self.assertIsInstance(self.device.interfaces_MAC(), list)
 
     def test_interfaces_type(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_type, list)
+        self.assertIsInstance(self.device.interfaces_type(), list)
 
     def test_interfaces_mtu(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_mtu, list)
+        self.assertIsInstance(self.device.interfaces_mtu(), list)
 
     def test_interfaces_state(self):
-        with self.nextcmd_patcher:
-            self.assertIsInstance(self.device.interfaces_state, list)
+        self.assertIsInstance(self.device.interfaces_up(), list)
 
     def test_interfaces_to_dict(self):
-        with self.nextcmd_patcher as p:
-            p.return_value = (0, 0, 0, [])
-            self.assertIsInstance(self.device.interfaces_to_dict, list)
+        self.assertIsInstance(self.device.interfaces_to_dict(), list)
 
     def test_interface_addr_and_mask(self):
-        with self.nextcmd_patcher as p:
-            p.return_value = (0, 0, 0, [])
-            self.assertIsInstance(self.device.interface_addr_and_mask, dict)
+        self.assertIsInstance(self.device.interface_addr_and_mask(), dict)
 
     def test_RAM_total(self):
-        self.assertIsInstance(self.device.RAM_total, int)
+        self.assertIsInstance(self.device.RAM_total(), int)
+
+    def test_RAM_shared(self):
+        self.assertIsInstance(self.device.RAM_shared(), int)
+
+    def test_RAM_cached(self):
+        self.assertIsInstance(self.device.RAM_cached(), int)
+
+    def test_RAM_free(self):
+        self.assertIsInstance(self.device.RAM_free(), int)
+
+    def test_SWAP_total(self):
+        self.assertIsInstance(self.device.SWAP_total(), int)
+
+    def test_SWAP_free(self):
+        self.assertIsInstance(self.device.SWAP_free(), int)
+
+    def test_CPU_count(self):
+        self.assertIsInstance(self.device.CPU_count(), int)
+
+    def test_neighbors(self):
+        self.assertIsInstance(self.device.neighbors(), list)
+
+    def test_local_time(self):
+        self.assertIsInstance(self.device.local_time(), int)
 
     def test_to_dict(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
-            device_dict = self.device.to_dict()
-            self.assertTrue(isinstance(device_dict, dict))
-            self.assertEqual(
-                len(device_dict['interfaces']), len(self.device.get_interfaces()),
-            )
+        device_dict = self.device.to_dict(autowalk=False)
+        self.assertIsInstance(device_dict, dict)
+        self.assertEqual(
+            len(device_dict['interfaces']), len(self.device.get_interfaces()),
+        )
 
-    def test_manufacturer_to_dict(self):
-        with self.nextcmd_patcher as p:
-            SpyMock._update_patch(p, _mock_return_value=[0, 0, 0, [[[0, 1]]] * 5])
-            self.assertIsNotNone(self.device.to_dict()['manufacturer'])
+    def test_netjson_compliance(self):
+        device_dict = self.device.to_dict(autowalk=False)
+        device_json = self.device.to_json(autowalk=False)
+        validate(instance=device_dict, schema=schema)
+        validate(instance=json.loads(device_json), schema=schema)
+
+    def test_load(self):
+        load = self.device.load()
+        self.assertIsInstance(load, list)
+        self.assertEqual(len(load), 3)
+        self.assertIsInstance(load[0], float)
+        self.assertIsInstance(load[1], float)
+        self.assertIsInstance(load[2], float)
 
     def tearDown(self):
         patch.stopall()

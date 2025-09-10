@@ -21,14 +21,14 @@ class BaseBackend(object):
         """returns unicode string represantation"""
         return self.__str__()
 
-    def validate(self):
+    def validate(self, *args, **kwargs):
         raise NotImplementedError('Not implemented')
 
-    def to_dict(self):
+    def to_dict(self, autowalk=True):
         raise NotImplementedError('Not implemented')
 
-    def to_json(self, **kwargs):
-        dictionary = self.to_dict()
+    def to_json(self, autowalk=True, **kwargs):
+        dictionary = self.to_dict(autowalk=autowalk)
         return json.dumps(dictionary, **kwargs)
 
     @property
