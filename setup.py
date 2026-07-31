@@ -6,17 +6,15 @@ from netengine import get_version
 
 
 def get_install_requires():
-    """
-    parse requirements.txt, ignore links, exclude comments
-    """
+    """parse requirements.txt, ignore links, exclude comments"""
     requirements = []
-    for line in open('requirements.txt').readlines():
+    for line in open("requirements.txt").readlines():
         # skip to next iteration if comment or empty line
         if (
-            line.startswith('#')
-            or line == ''
-            or line.startswith('http')
-            or line.startswith('git')
+            line.startswith("#")
+            or line == ""
+            or line.startswith("http")
+            or line.startswith("git")
         ):
             continue
         # add line to requirements
@@ -25,25 +23,30 @@ def get_install_requires():
 
 
 setup(
-    name='netengine',
+    name="netengine",
     version=get_version(),
-    description='Abstraction layer for extracting information from network devices.',
-    long_description=open('README.rst').read(),
-    author='OpenWISP and Ninux.org Contributors',
-    author_email='support@openwisp.io',
-    license='MIT',
-    url='https://github.com/openwisp/netengine',
-    packages=find_packages(exclude=['tests', 'tests.*', 'docs', 'docs.*']),
+    description="Abstraction layer for extracting information from network devices.",
+    long_description=open("README.rst").read(),
+    author="OpenWISP and Ninux.org Contributors",
+    author_email="support@openwisp.io",
+    license="MIT",
+    url="https://github.com/openwisp/netengine",
+    packages=find_packages(exclude=["tests", "tests.*", "docs", "docs.*"]),
     install_requires=get_install_requires(),
+    python_requires=">=3.10",
     zip_safe=False,
     classifiers=[
-        'Development Status :: 1 - Planning',
-        'Environment :: Console',
-        'Intended Audience :: Developers',
-        'License :: OSI Approved :: MIT License',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python',
-        'Topic :: System :: Networking',
+        "Development Status :: 1 - Planning",
+        "Environment :: Console",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Topic :: System :: Networking",
     ],
-    test_suite='nose2.collector.collector',
+    test_suite="nose2.collector.collector",
 )
