@@ -68,8 +68,8 @@ interfaces Each interface is listed with the following information:
            - type
            - statistics:
 
-               - rx_bytes
-               - tx_bytes
+                 - rx_bytes
+                 - tx_bytes
 ========== ===============================================================
 
 AirOS example
@@ -114,17 +114,17 @@ interfaces Each interface is listed with the following information:
            - name: name of the interface (example: "eth0")
            - statistics:
 
-               - mac
-               - type
-               - up
-               - rx_bytes
-               - tx_bytes
-               - mtu
-               - addresses:
+                 - mac
+                 - type
+                 - up
+                 - rx_bytes
+                 - tx_bytes
+                 - mtu
+                 - addresses:
 
-                   - family
-                   - address
-                   - mask
+                       - family
+                       - address
+                       - mask
 neighbors  Each neighbor is listed with the following information: - mac:
            mac address of the neighbor - state: state of the neighbor
            (REACHABLE/STALE/DELAY) - interface: interface of the neighbor

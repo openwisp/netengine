@@ -12,58 +12,61 @@ on:
 jobs:
   build:
     name: Python==${{ matrix.python-version }}
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
 
     strategy:
       fail-fast: false
       matrix:
         python-version:
-          - 3.6
-          - 3.7
-          - 3.8
-          - 3.9
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          cache-dependency-path: |
+            **/requirements*.txt
 
-      - name: Upgrade python system packages
-        run: pip install -U wheel setuptools
-
-      - name: Install netengine
-        run: pip install -e .
-
-      - name: Install test dependencies
-        run: pip install -U -r requirements-test.txt
+      - name: Install Dependencies
+        id: deps
+        run: |
+          pip install -U pip wheel setuptools
+          pip install -U -r requirements-test.txt
+          pip install -U -e .
 
       - name: Run QA Checks
         run: ./run-qa-checks
 
       - name: Run tests
-        run: coverage run --source=netengine ./runtests.py
+        if: ${{ !cancelled() && steps.deps.conclusion == 'success' }}
+        run: |
+          coverage run runtests.py
+          coverage combine
+          coverage xml
 
       - name: Upload Coverage
-        run: coveralls --service=github
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_FLAG_NAME: python-${{ matrix.python-version }}
-          COVERALLS_PARALLEL: true
+        if: ${{ success() }}
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel: true
+          format: cobertura
+          flag-name: python-${{ matrix.python-version }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
   coveralls:
-    name: Finish Coveralls
     needs: build
     runs-on: ubuntu-latest
-    container: python:3-slim
     steps:
-      - name: Finished
-        run: |
-          python3 -m pip install --upgrade coveralls
-          coveralls --finish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Coveralls Finished
+        uses: coverallsapp/github-action@v2
+        with:
+          parallel-finished: true

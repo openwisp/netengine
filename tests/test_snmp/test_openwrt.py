@@ -3,13 +3,12 @@ import unittest
 from unittest.mock import patch
 
 from jsonschema import validate
-from pysnmp.entity.rfc3413.oneliner import cmdgen
 
 from netengine.backends.schema import schema
 from netengine.backends.snmp import OpenWRT
 
 from ..settings import settings
-from ..utils import MockOutputMixin, SpyMock
+from ..utils import MockOutputMixin
 
 __all__ = ["TestSNMPOpenWRT"]
 
@@ -27,16 +26,14 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
         # mock calls being made to devices
         self.oid_mock_data = self._load_mock_json("/static/test-openwrt-snmp-oid.json")
-        self.nextcmd_patcher = SpyMock._patch(
-            target=cmdgen.CommandGenerator,
-            attribute="nextCmd",
-            wrap_obj=self.device._command,
-            side_effect=self._get_mocked_nextcmd,
+        self.nextcmd_patcher = patch(
+            "netengine.backends.snmp.base.walk_cmd",
+            side_effect=lambda *args: self._get_mocked_walkcmd(
+                self._get_mocked_nextcmd(*args)
+            ),
         )
-        self.getcmd_patcher = SpyMock._patch(
-            target=cmdgen.CommandGenerator,
-            attribute="getCmd",
-            wrap_obj=self.device._command,
+        self.getcmd_patcher = patch(
+            "netengine.backends.snmp.base.get_cmd",
             side_effect=lambda *args: self._get_mocked_getcmd(
                 data=self.oid_mock_data, input=args
             ),

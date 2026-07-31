@@ -3,7 +3,7 @@ import json
 import os
 from unittest import mock
 
-from pysnmp.hlapi import OctetString
+from pysnmp.proto.rfc1902 import OctetString
 
 from .settings import settings
 
@@ -33,6 +33,13 @@ class SpyMock:
 
 class MockOutputMixin(object):
     @staticmethod
+    def _get_oid(input):
+        var_bind = input[-1]
+        return var_bind.__dict__["_ObjectType__args"][0].__dict__[
+            "_ObjectIdentity__args"
+        ][0]
+
+    @staticmethod
     def _load_mock_json(file):
         base_dir = os.path.dirname(os.path.abspath(__file__))
         with open(base_dir + file) as f:
@@ -41,14 +48,14 @@ class MockOutputMixin(object):
 
     @staticmethod
     def _get_mocked_getcmd(data, input):
-        oid = input[2]
+        oid = MockOutputMixin._get_oid(input)
         result = data[oid]
-        if type(result) == dict:
+        if isinstance(result, dict):
             _type = result["type"]
             _value = result["value"]
             if _type == "bytes":
                 result = codecs.escape_decode(_value)[0]
-        elif type(result) == list:
+        elif isinstance(result, list):
             result = "\n".join(result[0:])
         return [0, 0, 0, [[0, result]]]
 
@@ -77,5 +84,10 @@ class MockOutputMixin(object):
             "1.3.6.1.4.1.2021.10.1.3.": [[[0, "0.87"]], [[0, "0.37"]], [[0, "0.14"]]],
             "1.3.6.1.4.1.10002.1.1.1.4.2.1.": [0, 0, 0, [[0, 0, 0] * 3]],
         }
-        oid = args[2]
+        oid = MockOutputMixin._get_oid(args)
         return _get_nextcmd_list(res[oid])
+
+    @staticmethod
+    async def _get_mocked_walkcmd(result):
+        for row in result[3]:
+            yield result[0], result[1], result[2], row

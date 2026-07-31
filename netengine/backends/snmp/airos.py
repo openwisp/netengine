@@ -24,7 +24,7 @@ class AirOS(SNMP):
         return f"<SNMP (Ubiquity AirOS): {self.host}>"
 
     def validate(self, snmpdump=None):
-        """raises NetEngineError exception if anything is wrong with the connection for example: wrong host, invalid community"""
+        """Raise NetEngineError when the connection is invalid."""
         # this triggers a connection which
         # will raise an exception if anything is wrong
         return self.name(snmpdump=snmpdump)
@@ -408,7 +408,7 @@ class AirOS(SNMP):
         return int(cached) * 1024
 
     def load(self, snmpdump=None):
-        """Returns an array with load average values respectively in the last minute, in the last 5 minutes and in the last 15 minutes"""
+        """Return the load averages for the last 1, 5, and 15 minutes."""
         array = self.next("1.3.6.1.4.1.10002.1.1.1.4.2.1.3.", snmpdump=snmpdump)[3]
         one = float(array[0][0][1]) / 100
         five = float(array[1][0][1]) / 100

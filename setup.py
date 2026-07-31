@@ -33,6 +33,7 @@ setup(
     url="https://github.com/openwisp/netengine",
     packages=find_packages(exclude=["tests", "tests.*", "docs", "docs.*"]),
     install_requires=get_install_requires(),
+    python_requires=">=3.10",
     zip_safe=False,
     classifiers=[
         "Development Status :: 1 - Planning",
@@ -41,6 +42,10 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "Topic :: System :: Networking",
     ],
     test_suite="nose2.collector.collector",

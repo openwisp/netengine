@@ -20,6 +20,11 @@ Abstraction layer for extracting information from network devices.
 
 Documentation: http://netengine.rtfd.org
 
+Supported Python Versions
+-------------------------
+
+NetEngine supports Python 3.10, 3.11, 3.12, and 3.13.
+
 Contribute
 ----------
 

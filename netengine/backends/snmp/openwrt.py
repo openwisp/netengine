@@ -8,7 +8,6 @@ import logging
 import struct
 from datetime import timedelta
 
-import pytz
 from netaddr import EUI, mac_unix_expanded
 
 from netengine.backends.snmp import SNMP
@@ -28,7 +27,7 @@ class OpenWRT(SNMP):
         return f"<SNMP (OpenWRT): {self.host}>"
 
     def validate(self, snmpdump=None):
-        """raises NetEngineError exception if anything is wrong with the connection for example: wrong host, invalid community"""
+        """Raise NetEngineError when the connection is invalid."""
         # this triggers a connection which
         # will raise an exception if anything is wrong
         return self.name(snmpdump=snmpdump)
@@ -402,7 +401,7 @@ class OpenWRT(SNMP):
                     minutes,
                     seconds,
                     deci_seconds * 100_000,
-                    tzinfo=pytz.utc,
+                    tzinfo=datetime.timezone.utc,
                 ).timestamp()
             )
         elif size == 11:
@@ -430,7 +429,7 @@ class OpenWRT(SNMP):
                     minutes,
                     seconds,
                     deci_seconds * 100_000,
-                    tzinfo=pytz.utc,
+                    tzinfo=datetime.timezone.utc,
                 ).timestamp()
             )
 
@@ -467,7 +466,7 @@ class OpenWRT(SNMP):
         return len(self.next("1.3.6.1.2.1.25.3.3.1.2.", snmpdump=snmpdump)[3])
 
     def load(self, snmpdump=None):
-        """Returns an array with load average values respectively in the last minute, in the last 5 minutes and in the last 15 minutes"""
+        """Return the load averages for the last 1, 5, and 15 minutes."""
         array = self.next("1.3.6.1.4.1.2021.10.1.3.", snmpdump=snmpdump)[3]
         one = float(array[0][0][1])
         five = float(array[1][0][1])

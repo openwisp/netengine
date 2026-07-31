@@ -10,7 +10,7 @@ class Dummy(BaseBackend):
         self.port = port
 
     def validate(self):
-        """raises NetEngineError exception if anything is wrong with the connection for example: wrong host, invalid credentials"""
+        """Raise NetEngineError when the connection is invalid."""
         pass
 
     def __str__(self):
