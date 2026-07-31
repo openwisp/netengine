@@ -323,6 +323,7 @@ class AirOS(SNMP):
             result = self._dict(
                 {
                     "name": name,
+                    "mac": self.interfaces_MAC(snmpdump=snmpdump)[i]["mac_address"],
                     "type": if_type,
                     "statistics": {"rx_bytes": rx_bytes, "tx_bytes": tx_bytes},
                 }
@@ -460,12 +461,20 @@ class AirOS(SNMP):
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
             snmpdump = self.walk("1.3.6")
+        os_name, os_description = self.os(snmpdump=snmpdump)
         result = self._dict(
             {
                 "type": "DeviceMonitoring",
                 "general": {
                     "uptime": self.uptime(snmpdump=snmpdump),
                     "local_time": self.local_time(snmpdump=snmpdump),
+                    "hostname": self.name(snmpdump=snmpdump),
+                },
+                "hardware": {"model": self.model(snmpdump=snmpdump)},
+                "operating_system": {
+                    "name": os_name,
+                    "description": os_description,
+                    "version": self.firmware(snmpdump=snmpdump),
                 },
                 "resources": self.resources_to_dict(snmpdump=snmpdump),
                 "interfaces": self.interfaces_to_dict(snmpdump=snmpdump),

@@ -120,6 +120,25 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(autowalk=False), dict))
 
+    def test_to_dict_includes_hostname_and_interface_macs(self):
+        device_dict = self.device.to_dict(autowalk=False)
+        self.assertEqual(device_dict["general"]["hostname"], "DeviceName")
+        self.assertEqual(device_dict["hardware"]["model"], "NanoStation Loco M2")
+        self.assertEqual(device_dict["operating_system"]["name"], "AirOS")
+        self.assertEqual(
+            device_dict["operating_system"]["description"],
+            "Linux DeviceName 2.6.32.71",
+        )
+        self.assertEqual(
+            device_dict["operating_system"]["version"],
+            "AirOS v5.5.12536.120406.1455",
+        )
+        self.assertEqual(
+            [interface["mac"] for interface in device_dict["interfaces"]],
+            [interface["mac_address"] for interface in self.device.interfaces_MAC()],
+        )
+        self.assertNotIn("system_info", device_dict)
+
     def test_netjson_compliance(self):
         device_dict = self.device.to_dict(autowalk=False)
         device_json = self.device.to_json(autowalk=False)
