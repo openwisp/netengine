@@ -11,8 +11,11 @@ except ImportError:
     """
     raise ImportError(message)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     file_path = os.path.abspath(__file__)
-    tests_path = os.path.join(os.path.abspath(os.path.dirname(file_path)), 'tests',)
+    tests_path = os.path.join(
+        os.path.abspath(os.path.dirname(file_path)),
+        "tests",
+    )
     nose2.discover()
     result = nose2.main()

@@ -5,7 +5,7 @@ from netaddr import AddrFormatError
 from netengine import __version__, get_version
 from netengine.backends import BaseBackend
 
-__all__ = ['TestBaseBackend']
+__all__ = ["TestBaseBackend"]
 
 
 class TestBaseBackend(unittest.TestCase):
@@ -86,4 +86,4 @@ class TestBaseBackend(unittest.TestCase):
     def test_get_manufacturer_unicode(self):
         device = BaseBackend()
         with self.assertRaises(AddrFormatError):
-            device.get_manufacturer('wrong MAC')
+            device.get_manufacturer("wrong MAC")
