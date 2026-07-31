@@ -19,14 +19,14 @@ class MockOid:
 class SpyMock:
     @staticmethod
     def _patch(*args, **kwargs):
-        if not settings['disable_mocks']:
+        if not settings["disable_mocks"]:
             return mock.patch.object(*args, **kwargs)
-        wraps = getattr(kwargs['wrap_obj'], kwargs['attribute'])
-        return mock.patch.object(kwargs['target'], kwargs['attribute'], wraps=wraps)
+        wraps = getattr(kwargs["wrap_obj"], kwargs["attribute"])
+        return mock.patch.object(kwargs["target"], kwargs["attribute"], wraps=wraps)
 
     @staticmethod
     def _update_patch(mock_obj, *args, **kwargs):
-        if settings['disable_mocks']:
+        if settings["disable_mocks"]:
             return
         mock_obj.__dict__.update(*args, **kwargs)
 
@@ -44,12 +44,12 @@ class MockOutputMixin(object):
         oid = input[2]
         result = data[oid]
         if type(result) == dict:
-            _type = result['type']
-            _value = result['value']
-            if _type == 'bytes':
+            _type = result["type"]
+            _value = result["value"]
+            if _type == "bytes":
                 result = codecs.escape_decode(_value)[0]
         elif type(result) == list:
-            result = '\n'.join(result[0:])
+            result = "\n".join(result[0:])
         return [0, 0, 0, [[0, result]]]
 
     @staticmethod
@@ -59,23 +59,23 @@ class MockOutputMixin(object):
             return [None, None, None, return_value]
 
         res = {
-            '1.3.6.1.4.1.14988.1.1.1.2.1.': [[[0, 0], 0]] * 28,
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3.': [0, 0],
-            '1.3.6.1.4.1.14988.1.1.1.2.1.3.0.': [],
-            '1.3.6.1.2.1.1.9.1.1.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
-            '1.3.6.1.2.1.2.2.1.6.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
-            '1.3.6.1.2.1.2.2.1.1.': [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
-            '1.3.6.1.2.1.4.20.1.1.': [[[0, OctetString('127.0.0.1')]]],
-            '1.3.6.1.2.1.4.20.1.2.': [[[0, 1]]],
-            '1.3.6.1.2.1.25.3.3.1.2.': [0, 2],
-            '1.3.6.1.2.1.4.20.1.3.': [[[0, OctetString('192.168.0.1')]]],
-            '1.3.6.1.4.1.10002.1.1.1.4.2.1.3.': [[[0, 51]], [[0, 18]], [[0, 24]]],
-            '1.3.6.1.2.1.4.35.1.': [
-                [[[MockOid('1.3.6.1.2.1.4.35.1.4')]], OctetString('0x040e3cca555f')],
-                [[[MockOid('1.3.6.1.2.1.4.35.1.7')]], 1],
+            "1.3.6.1.4.1.14988.1.1.1.2.1.": [[[0, 0], 0]] * 28,
+            "1.3.6.1.4.1.14988.1.1.1.2.1.3.": [0, 0],
+            "1.3.6.1.4.1.14988.1.1.1.2.1.3.0.": [],
+            "1.3.6.1.2.1.1.9.1.1.": [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            "1.3.6.1.2.1.2.2.1.6.": [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            "1.3.6.1.2.1.2.2.1.1.": [[[0, 1]], [[0, 2]], [[0, 3]], [[0, 4]], [[0, 5]]],
+            "1.3.6.1.2.1.4.20.1.1.": [[[0, OctetString("127.0.0.1")]]],
+            "1.3.6.1.2.1.4.20.1.2.": [[[0, 1]]],
+            "1.3.6.1.2.1.25.3.3.1.2.": [0, 2],
+            "1.3.6.1.2.1.4.20.1.3.": [[[0, OctetString("192.168.0.1")]]],
+            "1.3.6.1.4.1.10002.1.1.1.4.2.1.3.": [[[0, 51]], [[0, 18]], [[0, 24]]],
+            "1.3.6.1.2.1.4.35.1.": [
+                [[[MockOid("1.3.6.1.2.1.4.35.1.4")]], OctetString("0x040e3cca555f")],
+                [[[MockOid("1.3.6.1.2.1.4.35.1.7")]], 1],
             ],
-            '1.3.6.1.4.1.2021.10.1.3.': [[[0, '0.87']], [[0, '0.37']], [[0, '0.14']]],
-            '1.3.6.1.4.1.10002.1.1.1.4.2.1.': [0, 0, 0, [[0, 0, 0] * 3]],
+            "1.3.6.1.4.1.2021.10.1.3.": [[[0, "0.87"]], [[0, "0.37"]], [[0, "0.14"]]],
+            "1.3.6.1.4.1.10002.1.1.1.4.2.1.": [0, 0, 0, [[0, 0, 0] * 3]],
         }
         oid = args[2]
         return _get_nextcmd_list(res[oid])

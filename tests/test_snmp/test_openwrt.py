@@ -11,27 +11,31 @@ from netengine.backends.snmp import OpenWRT
 from ..settings import settings
 from ..utils import MockOutputMixin, SpyMock
 
-__all__ = ['TestSNMPOpenWRT']
+__all__ = ["TestSNMPOpenWRT"]
 
 
 class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def setUp(self):
-        self.host = settings['openwrt-snmp']['host']
-        self.community = settings['openwrt-snmp']['community']
-        self.port = settings['openwrt-snmp'].get('port', 161)
-        self.device = OpenWRT(host=self.host, community=self.community, port=self.port,)
+        self.host = settings["openwrt-snmp"]["host"]
+        self.community = settings["openwrt-snmp"]["community"]
+        self.port = settings["openwrt-snmp"].get("port", 161)
+        self.device = OpenWRT(
+            host=self.host,
+            community=self.community,
+            port=self.port,
+        )
 
         # mock calls being made to devices
-        self.oid_mock_data = self._load_mock_json('/static/test-openwrt-snmp-oid.json')
+        self.oid_mock_data = self._load_mock_json("/static/test-openwrt-snmp-oid.json")
         self.nextcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
-            attribute='nextCmd',
+            attribute="nextCmd",
             wrap_obj=self.device._command,
             side_effect=self._get_mocked_nextcmd,
         )
         self.getcmd_patcher = SpyMock._patch(
             target=cmdgen.CommandGenerator,
-            attribute='getCmd',
+            attribute="getCmd",
             wrap_obj=self.device._command,
             side_effect=lambda *args: self._get_mocked_getcmd(
                 data=self.oid_mock_data, input=args
@@ -113,7 +117,8 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         device_dict = self.device.to_dict(autowalk=False)
         self.assertIsInstance(device_dict, dict)
         self.assertEqual(
-            len(device_dict['interfaces']), len(self.device.get_interfaces()),
+            len(device_dict["interfaces"]),
+            len(self.device.get_interfaces()),
         )
 
     def test_netjson_compliance(self):
