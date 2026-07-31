@@ -166,6 +166,20 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_SWAP_total(self):
         self.assertIsInstance(self.device.SWAP_total(), int)
 
+    def test_SWAP_values_are_converted_from_kibibytes_to_bytes(self):
+        self.oid_mock_data["1.3.6.1.4.1.10002.1.1.1.2.1.0"] = "2"
+        self.oid_mock_data["1.3.6.1.4.1.10002.1.1.1.2.2.0"] = "3"
+        self.assertEqual(
+            self.device.SWAP_total(),
+            2048,
+            "AirOS SWAP total must convert KiB to bytes",
+        )
+        self.assertEqual(
+            self.device.SWAP_free(),
+            3072,
+            "AirOS SWAP free must convert KiB to bytes",
+        )
+
     def test_SWAP_free(self):
         self.assertIsInstance(self.device.SWAP_free(), int)
 

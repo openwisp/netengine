@@ -48,7 +48,7 @@ class OpenWRT(SNMP):
 
     def name(self, snmpdump=None):
         """returns a string containing the device name"""
-        return self.get_value("1.3.6.1.2.1.1.1.0", snmpdump=snmpdump).split()[1]
+        return self.get_value("1.3.6.1.2.1.1.5.0", snmpdump=snmpdump)
 
     def uptime(self, snmpdump=None):
         """returns an integer representing the number of seconds of uptime"""
@@ -429,7 +429,7 @@ class OpenWRT(SNMP):
                     minutes,
                     seconds,
                     deci_seconds * 100_000,
-                    tzinfo=datetime.timezone.utc,
+                    tzinfo=datetime.timezone(offset),
                 ).timestamp()
             )
 

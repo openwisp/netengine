@@ -419,12 +419,12 @@ class AirOS(SNMP):
     def SWAP_total(self, snmpdump=None):
         """Returns the total SWAP of the device in bytes"""
         total = self.get_value("1.3.6.1.4.1.10002.1.1.1.2.1.0", snmpdump=snmpdump)
-        return int(total * 1024)
+        return int(total) * 1024
 
     def SWAP_free(self, snmpdump=None):
         """Returns the free SWAP of the device in bytes"""
         free = self.get_value("1.3.6.1.4.1.10002.1.1.1.2.2.0", snmpdump=snmpdump)
-        return int(free * 1024)
+        return int(free) * 1024
 
     def CPU_count(self, snmpdump=None):
         """Returns the number of CPU cores for which load information is returned"""

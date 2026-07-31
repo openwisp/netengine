@@ -48,7 +48,11 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.assertIsNotNone(self.device.manufacturer())
 
     def test_name(self):
-        self.assertIsInstance(self.device.name(), str)
+        self.assertEqual(
+            self.device.name(),
+            "HeartOfGold",
+            "OpenWRT device name must come from SNMP sysName",
+        )
 
     def test_uptime(self):
         self.assertIsInstance(self.device.uptime(), int)
@@ -109,6 +113,17 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def test_local_time(self):
         self.assertIsInstance(self.device.local_time(), int)
+
+    def test_local_time_applies_snmp_timezone_offset(self):
+        self.oid_mock_data["1.3.6.1.2.1.25.1.2.0"] = {
+            "type": "bytes",
+            "value": "\\x07\\xe5\\x06\\x0b\\x06\\x00\\r\\x00-\\x05\\x1e",
+        }
+        self.assertEqual(
+            self.device.local_time(),
+            1623411013,
+            "OpenWRT local time must apply the SNMP UTC offset",
+        )
 
     def test_to_dict(self):
         device_dict = self.device.to_dict(autowalk=False)
