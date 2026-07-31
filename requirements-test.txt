@@ -1,5 +1,4 @@
-nose2~=0.10.0
-coverage~=5.5
-sphinx~=4.0.2
-openwisp-utils[qa]~=0.7.4
-pylinkvalidator~=0.3.0
+nose2[coverage_plugin]>=0.16.0
+coveralls
+sphinx
+openwisp-utils[qa] @ https://github.com/openwisp/openwisp-utils/archive/refs/heads/1.3.tar.gz
