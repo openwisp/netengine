@@ -1,6 +1,6 @@
 import json
 import unittest
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 from jsonschema import validate
 from pysnmp.proto.rfc1902 import OctetString
@@ -86,6 +86,39 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_interfaces_MAC(self):
         self.assertIsInstance(self.device.interfaces_MAC(), list)
 
+    def test_mac_indexes(self):
+        """MAC lookups must use actual SNMP interface indexes."""
+        values = {
+            "1.3.6.1.2.1.2.2.1.6.1": "\x00\x11\x22\x33\x44\x55",
+            "1.3.6.1.2.1.2.2.1.6.3": "\x00\x11\x22\x33\x44\x66",
+        }
+        with patch.object(self.device, "_value_to_retrieve", return_value=[1, 3]):
+            with patch.object(
+                self.device, "get_interfaces", return_value=["eth0", "eth1"]
+            ):
+                with patch.object(
+                    self.device,
+                    "next",
+                    return_value=[None, 0, 0, [[None], [None]]],
+                ):
+                    with patch.object(
+                        self.device,
+                        "get_value",
+                        side_effect=lambda oid, **kwargs: values[oid],
+                    ) as get_value:
+                        self.assertEqual(
+                            self.device.interfaces_MAC(),
+                            [
+                                {"name": "eth0", "mac_address": "00:11:22:33:44:55"},
+                                {"name": "eth1", "mac_address": "00:11:22:33:44:66"},
+                            ],
+                        )
+        self.assertNotIn(
+            "1.3.6.1.2.1.2.2.1.6.2",
+            [call.args[0] for call in get_value.call_args_list],
+            "MAC collection must not query indexes absent from the SNMP table",
+        )
+
     def test_interfaces_type(self):
         self.assertIsInstance(self.device.interfaces_type(), list)
 
@@ -107,6 +140,19 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def test_interfaces_to_dict(self):
         self.assertIsInstance(self.device.interfaces_to_dict(), list)
+
+    def test_interface_fields(self):
+        """Monitoring interface fields must match the NetJSON placement used by AirOS."""
+        interface = self.device.interfaces_to_dict()[0]
+        self.assertIn("mac", interface, "MAC addresses belong on the interface")
+        self.assertIn("up", interface, "Interface state belongs on the interface")
+        self.assertIn("mtu", interface, "MTU belongs on the interface")
+        self.assertIn("addresses", interface, "Addresses belong on the interface")
+        self.assertNotIn(
+            "mac",
+            interface["statistics"],
+            "Interface metadata must not be nested in statistics",
+        )
 
     def test_dump_forwarding(self):
         """Dump-backed serialization must not make live SNMP requests."""
@@ -233,7 +279,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         )
 
     def test_autowalk_root(self):
-        """OpenWRT metrics are collected from the standard SNMP root."""
+        """OpenWRT metrics require standard and vendor OID roots."""
         with patch.object(self.device, "walk", return_value={}) as walk:
             with patch.object(self.device, "name", return_value="device"):
                 with patch.object(self.device, "uptime", return_value=0):
@@ -248,7 +294,11 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
                                     self.device, "neighbors", return_value=[]
                                 ):
                                     self.device.to_dict()
-        walk.assert_called_once_with("1.3.6.1")
+        self.assertEqual(
+            walk.call_args_list,
+            [call("1.3.6.1"), call("1.2.840.10036")],
+            "OpenWRT autowalk must include standard and wireless vendor OID roots",
+        )
 
     def test_interface_state(self):
         """Address-to-interface mappings belong to a single device instance."""

@@ -112,21 +112,17 @@ class OpenWRT(SNMP):
         """Returns an ordered dict with the hardware address of every interface"""
         if self._interfaces_MAC is None:
             results = []
-            mac1 = []
-            mac = self.next("1.3.6.1.2.1.2.2.1.6.", snmpdump=snmpdump)[3]
-            for i in range(1, len(mac) + 1):
-                mac1.append(
-                    self.get_value("1.3.6.1.2.1.2.2.1.6." + str(i), snmpdump=snmpdump)
-                )
-            mac_trans = []
-            for i in mac1:
-                mac_string = self._octet_to_mac(i)
-                mac_trans.append(mac_string)
-            for i in range(0, len(self.get_interfaces(snmpdump=snmpdump))):
+            indexes = self._value_to_retrieve(snmpdump=snmpdump)
+            interfaces = self.get_interfaces(snmpdump=snmpdump)
+            for index, name in zip(indexes, interfaces):
                 result = self._dict(
                     {
-                        "name": self.get_interfaces(snmpdump=snmpdump)[i],
-                        "mac_address": mac_trans[i],
+                        "name": name,
+                        "mac_address": self._octet_to_mac(
+                            self.get_value(
+                                f"1.3.6.1.2.1.2.2.1.6.{index}", snmpdump=snmpdump
+                            )
+                        ),
                     }
                 )
                 results.append(result)
@@ -364,14 +360,14 @@ class OpenWRT(SNMP):
             result = self._dict(
                 {
                     "name": name,
+                    "mac": mac_address,
                     "type": if_type,
+                    "up": up,
+                    "mtu": mtu,
+                    "addresses": addresses,
                     "statistics": {
-                        "mac": mac_address,
-                        "up": up,
                         "rx_bytes": rx_bytes,
                         "tx_bytes": tx_bytes,
-                        "mtu": mtu,
-                        "addresses": addresses,
                     },
                 }
             )
@@ -554,6 +550,7 @@ class OpenWRT(SNMP):
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
             snmpdump = self.walk("1.3.6.1")
+            snmpdump.update(self.walk("1.2.840.10036"))
         result = self._dict(
             {
                 "type": "DeviceMonitoring",
