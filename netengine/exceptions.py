@@ -1,6 +1,4 @@
-"""
-netengine exception classes.
-"""
+"""netengine exception classes."""
 
 
 class NetEngineError(Exception):
