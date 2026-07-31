@@ -3,12 +3,14 @@ import unittest
 from unittest.mock import patch
 
 from jsonschema import validate
+from pysnmp.proto.rfc1902 import OctetString
 
 from netengine.backends.schema import schema
 from netengine.backends.snmp import OpenWRT
+from netengine.exceptions import NetEngineError
 
 from ..settings import settings
-from ..utils import MockOutputMixin
+from ..utils import MockOid, MockOutputMixin
 
 __all__ = ["TestSNMPOpenWRT"]
 
@@ -42,7 +44,10 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.nextcmd_patcher.start()
 
     def test_os(self):
-        self.assertIsInstance(self.device.os(), tuple)
+        self.assertEqual(
+            self.device.os(),
+            ("OpenWRT", "Linux 08-00-27-0A-F7-6A 4.14.221"),
+        )
 
     def test_manufacturer(self):
         self.assertIsNotNone(self.device.manufacturer())
@@ -55,13 +60,22 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         )
 
     def test_uptime(self):
-        self.assertIsInstance(self.device.uptime(), int)
+        self.assertEqual(self.device.uptime(), 10339)
 
     def test_uptime_tuple(self):
-        self.assertIsInstance(self.device.uptime_tuple(), tuple)
+        self.assertEqual(self.device.uptime_tuple(), (0, 2, 52))
 
     def test_get_interfaces(self):
-        self.assertIsInstance(self.device.get_interfaces(), list)
+        self.assertEqual(
+            self.device.get_interfaces(),
+            [
+                "lo",
+                "Device 8086:100e",
+                "Device 8086:100e",
+                "Device 8086:100e",
+                "br-lan",
+            ],
+        )
 
     def test_interfaces_speed(self):
         self.assertIsInstance(self.device.interfaces_speed(), list)
@@ -81,40 +95,102 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_interfaces_state(self):
         self.assertIsInstance(self.device.interfaces_up(), list)
 
+    def test_empty_interface(self):
+        """Fallback interface records retain the boolean state consumed by serialization."""
+        with patch.object(self.device, "_value_to_retrieve", return_value=[1]):
+            with patch.object(self.device, "get_value", return_value=""):
+                self.assertEqual(
+                    self.device.interfaces_up(),
+                    [{"name": "", "up": False}],
+                    "Empty interface records must preserve the boolean up field",
+                )
+
     def test_interfaces_to_dict(self):
         self.assertIsInstance(self.device.interfaces_to_dict(), list)
+
+    def test_dump_forwarding(self):
+        """Dump-backed serialization must not make live SNMP requests."""
+        snmpdump = {"unused": "dump"}
+        with patch.object(self.device, "get_interfaces", return_value=[]):
+            with patch.object(
+                self.device, "get_wireless_interfaces", return_value=[]
+            ) as method:
+                self.device.interfaces_to_dict(snmpdump=snmpdump)
+        method.assert_called_once_with(snmpdump=snmpdump)
 
     def test_interface_addr_and_mask(self):
         self.assertIsInstance(self.device.interface_addr_and_mask(), dict)
 
     def test_RAM_total(self):
-        self.assertIsInstance(self.device.RAM_total(), int)
+        self.assertEqual(self.device.RAM_total(), 61452288)
 
     def test_RAM_shared(self):
-        self.assertIsInstance(self.device.RAM_shared(), int)
+        self.assertEqual(self.device.RAM_shared(), 98304)
 
     def test_RAM_cached(self):
-        self.assertIsInstance(self.device.RAM_cached(), int)
+        self.assertEqual(self.device.RAM_cached(), 7782400)
 
     def test_RAM_free(self):
-        self.assertIsInstance(self.device.RAM_free(), int)
+        self.assertEqual(self.device.RAM_free(), 33722368)
 
     def test_SWAP_total(self):
-        self.assertIsInstance(self.device.SWAP_total(), int)
+        self.assertEqual(self.device.SWAP_total(), 0)
 
     def test_SWAP_free(self):
-        self.assertIsInstance(self.device.SWAP_free(), int)
+        self.assertEqual(self.device.SWAP_free(), 0)
 
     def test_CPU_count(self):
-        self.assertIsInstance(self.device.CPU_count(), int)
+        self.assertEqual(self.device.CPU_count(), 2)
 
     def test_neighbors(self):
-        self.assertIsInstance(self.device.neighbors(), list)
+        self.assertEqual(
+            self.device.neighbors(),
+            [
+                {
+                    "mac": "04:0e:3c:ca:55:5f",
+                    "state": "REACHABLE",
+                    "interface": "br-lan",
+                    "ip": "192.168.1.1",
+                }
+            ],
+        )
+
+    def test_unknown_neighbor_state(self):
+        """Unknown neighbor states must not discard an otherwise valid neighbor."""
+        neighbor_info = [
+            [
+                [
+                    MockOid("1.3.6.1.2.1.4.35.1.4.5.1.4.192.168.1.1"),
+                    OctetString("0x040e3cca555f"),
+                ]
+            ],
+            [[MockOid("1.3.6.1.2.1.4.35.1.7.5.1.4.192.168.1.1"), 99]],
+        ]
+        with patch.object(
+            self.device, "next", return_value=[None, 0, 0, neighbor_info]
+        ):
+            with patch.object(
+                self.device,
+                "get",
+                return_value=[None, 0, 0, [[None, "br-lan"]]],
+            ):
+                self.assertEqual(
+                    self.device.neighbors(),
+                    [
+                        {
+                            "mac": "04:0e:3c:ca:55:5f",
+                            "state": "UNKNOWN",
+                            "interface": "br-lan",
+                            "ip": "192.168.1.1",
+                        }
+                    ],
+                )
 
     def test_local_time(self):
-        self.assertIsInstance(self.device.local_time(), int)
+        self.assertEqual(self.device.local_time(), 1623391213)
 
-    def test_local_time_applies_snmp_timezone_offset(self):
+    def test_local_time_offset(self):
+        """Timezone-aware SNMP DateAndTime values convert to UTC timestamps."""
         self.oid_mock_data["1.3.6.1.2.1.25.1.2.0"] = {
             "type": "bytes",
             "value": "\\x07\\xe5\\x06\\x0b\\x06\\x00\\r\\x00-\\x05\\x1e",
@@ -125,12 +201,63 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             "OpenWRT local time must apply the SNMP UTC offset",
         )
 
+    def test_invalid_local_time(self):
+        """SNMP DateAndTime supports only 8-byte and 11-byte values."""
+        self.oid_mock_data["1.3.6.1.2.1.25.1.2.0"] = {
+            "type": "bytes",
+            "value": "\\x07\\xe5",
+        }
+        with self.assertRaisesRegex(
+            NetEngineError,
+            "unexpected DateAndTime length from SNMP: 2 bytes",
+            msg="Unsupported SNMP DateAndTime values must report their size",
+        ):
+            self.device.local_time()
+
     def test_to_dict(self):
         device_dict = self.device.to_dict(autowalk=False)
         self.assertIsInstance(device_dict, dict)
         self.assertEqual(
             len(device_dict["interfaces"]),
             len(self.device.get_interfaces()),
+        )
+
+    def test_unnamed_interface(self):
+        """Unnamed interfaces must not shift later interface metrics."""
+        self.oid_mock_data["1.3.6.1.2.1.2.2.1.2.2"] = ""
+        interfaces = self.device.to_dict(autowalk=False)["interfaces"]
+        self.assertEqual(
+            [interface["name"] for interface in interfaces],
+            ["lo", "Device 8086:100e", "Device 8086:100e", "br-lan"],
+            "Unnamed interfaces must not shift subsequent interface metrics",
+        )
+
+    def test_autowalk_root(self):
+        """OpenWRT metrics are collected from the standard SNMP root."""
+        with patch.object(self.device, "walk", return_value={}) as walk:
+            with patch.object(self.device, "name", return_value="device"):
+                with patch.object(self.device, "uptime", return_value=0):
+                    with patch.object(self.device, "local_time", return_value=0):
+                        with patch.object(
+                            self.device, "resources_to_dict", return_value={}
+                        ):
+                            with patch.object(
+                                self.device, "interfaces_to_dict", return_value=[]
+                            ):
+                                with patch.object(
+                                    self.device, "neighbors", return_value=[]
+                                ):
+                                    self.device.to_dict()
+        walk.assert_called_once_with("1.3.6.1")
+
+    def test_interface_state(self):
+        """Address-to-interface mappings belong to a single device instance."""
+        other_device = OpenWRT(self.host, self.community, port=self.port)
+        self.device._interface_dict[1] = "first-device-interface"
+        self.assertNotIn(
+            1,
+            other_device._interface_dict,
+            "OpenWRT interface address state must be isolated per device",
         )
 
     def test_netjson_compliance(self):
@@ -140,12 +267,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         validate(instance=json.loads(device_json), schema=schema)
 
     def test_load(self):
-        load = self.device.load()
-        self.assertIsInstance(load, list)
-        self.assertEqual(len(load), 3)
-        self.assertIsInstance(load[0], float)
-        self.assertIsInstance(load[1], float)
-        self.assertIsInstance(load[2], float)
+        self.assertEqual(self.device.load(), [0.87, 0.37, 0.14])
 
     def tearDown(self):
         patch.stopall()

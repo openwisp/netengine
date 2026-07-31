@@ -73,7 +73,7 @@ class SNMP(BaseBackend):
 
     def _octet_to_mac(self, octet_mac):
         """Return a MAC address from an SNMP octet string."""
-        mac_address = binascii.b2a_hex(octet_mac.encode()).decode()
+        mac_address = binascii.b2a_hex(octet_mac.encode("latin-1")).decode()
         if mac_address:
             mac_address = ":".join(
                 mac_address[slice(i, i + 2)] for i in range(0, 12, 2)
@@ -139,7 +139,8 @@ class SNMP(BaseBackend):
         """Return the OID value or raise NetEngineError."""
         result = self.get(oid, snmpdump=snmpdump)
         try:
-            return str(result[3][0][1])
+            value = result[3][0][1]
+            return value.decode("latin-1") if isinstance(value, bytes) else str(value)
         except IndexError as exc:
             raise NetEngineError(str(result[0])) from exc
 

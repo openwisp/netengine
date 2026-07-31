@@ -26,7 +26,9 @@ schema = {
             "properties": {
                 "load": {
                     "type": "array",
-                    "items": {"type": "number", "minItems": 3, "maxItems": 3},
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {"type": "number"},
                 },
                 "memory": {
                     "id": "memory",

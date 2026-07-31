@@ -1,9 +1,11 @@
 import unittest
 
+from jsonschema import ValidationError, validate
 from netaddr import AddrFormatError
 
 from netengine import __version__, get_version
 from netengine.backends import BaseBackend
+from netengine.backends.schema import schema
 
 __all__ = ["TestBaseBackend"]
 
@@ -87,3 +89,18 @@ class TestBaseBackend(unittest.TestCase):
         device = BaseBackend()
         with self.assertRaises(AddrFormatError):
             device.get_manufacturer("wrong MAC")
+
+    def test_load_length(self):
+        """DeviceMonitoring load values represent the 1, 5, and 15 minute averages."""
+        with self.assertRaisesRegex(
+            ValidationError,
+            "is too short",
+            msg="DeviceMonitoring load must contain three values",
+        ):
+            validate(
+                instance={
+                    "type": "DeviceMonitoring",
+                    "resources": {"load": [0.1, 0.2]},
+                },
+                schema=schema,
+            )

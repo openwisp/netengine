@@ -13,7 +13,10 @@ class MockOid:
         return self.oid
 
     def __init__(self, oid):
-        self.oid = oid
+        self.oid = tuple(int(value) for value in oid.split("."))
+
+    def __str__(self):
+        return ".".join(str(value) for value in self.oid)
 
 
 class SpyMock:
@@ -78,8 +81,13 @@ class MockOutputMixin(object):
             "1.3.6.1.2.1.4.20.1.3.": [[[0, OctetString("192.168.0.1")]]],
             "1.3.6.1.4.1.10002.1.1.1.4.2.1.3.": [[[0, 51]], [[0, 18]], [[0, 24]]],
             "1.3.6.1.2.1.4.35.1.": [
-                [[[MockOid("1.3.6.1.2.1.4.35.1.4")]], OctetString("0x040e3cca555f")],
-                [[[MockOid("1.3.6.1.2.1.4.35.1.7")]], 1],
+                [
+                    [
+                        MockOid("1.3.6.1.2.1.4.35.1.4.5.1.4.192.168.1.1"),
+                        OctetString("0x040e3cca555f"),
+                    ]
+                ],
+                [[MockOid("1.3.6.1.2.1.4.35.1.7.5.1.4.192.168.1.1"), 1]],
             ],
             "1.3.6.1.4.1.2021.10.1.3.": [[[0, "0.87"]], [[0, "0.37"]], [[0, "0.14"]]],
             "1.3.6.1.4.1.10002.1.1.1.4.2.1.": [0, 0, 0, [[0, 0, 0] * 3]],

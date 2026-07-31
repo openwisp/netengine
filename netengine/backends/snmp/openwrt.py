@@ -20,7 +20,10 @@ class OpenWRT(SNMP):
     """OpenWRT SNMP backend"""
 
     _oid_to_retrieve = "1.3.6.1.2.1.2.2.1.1."
-    _interface_dict = {}
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._interface_dict = {}
 
     def __str__(self):
         """print a human readable object description"""
@@ -75,7 +78,7 @@ class OpenWRT(SNMP):
                 if value_to_get1:
                     interfaces.append(self.get_value(value_to_get1, snmpdump=snmpdump))
 
-            self._interfaces = [_f for _f in interfaces if _f]
+            self._interfaces = interfaces
 
         return self._interfaces
 
@@ -229,7 +232,7 @@ class OpenWRT(SNMP):
                     )
                     results.append(result)
                 elif self.get_value(starting + str(i), snmpdump=snmpdump) == "":
-                    result = self._dict({"name": "", "state": ""})
+                    result = self._dict({"name": "", "up": False})
                     results.append(result)
 
             self._interfaces_up = results
@@ -299,11 +302,10 @@ class OpenWRT(SNMP):
         """TODO: this method needs to be simplified and explained"""
         if self._interface_addr_and_mask is None:
             interface_name = self.get_interfaces(snmpdump=snmpdump)
+            indexes = self._value_to_retrieve(snmpdump=snmpdump)
 
             for i in range(0, len(interface_name)):
-                self._interface_dict[self._value_to_retrieve(snmpdump=snmpdump)[i]] = (
-                    interface_name[i]
-                )
+                self._interface_dict[indexes[i]] = interface_name[i]
 
             interface_ip_address = self.next(
                 "1.3.6.1.2.1.4.20.1.1.", snmpdump=snmpdump
@@ -334,13 +336,12 @@ class OpenWRT(SNMP):
     def interfaces_to_dict(self, snmpdump=None):
         """Returns an ordered dict with all the information available about the interface"""
         results = []
-        wireless_if = self.get_wireless_interfaces()
-        for i in range(0, len(self.get_interfaces(snmpdump=snmpdump))):
-
+        wireless_if = self.get_wireless_interfaces(snmpdump=snmpdump)
+        for i, name in enumerate(self.get_interfaces(snmpdump=snmpdump)):
+            if not name:
+                continue
             logger.info(f"====== {i} ======")
-
             logger.info("... name ...")
-            name = self.interfaces_MAC(snmpdump=snmpdump)[i]["name"]
             logger.info("... if_type ...")
             if_type = self.interfaces_type(snmpdump=snmpdump)[i]["type"]
             logger.info("... mac_address ...")
@@ -404,7 +405,7 @@ class OpenWRT(SNMP):
                     tzinfo=datetime.timezone.utc,
                 ).timestamp()
             )
-        elif size == 11:
+        if size == 11:
             (
                 year,
                 month,
@@ -432,6 +433,7 @@ class OpenWRT(SNMP):
                     tzinfo=datetime.timezone(offset),
                 ).timestamp()
             )
+        raise NetEngineError(f"unexpected DateAndTime length from SNMP: {size} bytes")
 
     def RAM_total(self, snmpdump=None):
         """returns the total RAM of the device in bytes"""
@@ -522,10 +524,11 @@ class OpenWRT(SNMP):
         for index, neighbor in enumerate(neighbors):
             try:
                 oid = neighbor[0][0].getOid()
+                address = ".".join(str(value) for value in oid[13:])
                 if oid[12] == 4:
-                    ip = oid[13:]
+                    ip = address
                 else:
-                    ip = self._ascii_blocks_to_ipv6(str(oid[13:]))
+                    ip = self._ascii_blocks_to_ipv6(address)
                 mac = EUI(
                     int(neighbor[0][1].prettyPrint(), 16), dialect=mac_unix_expanded
                 )
@@ -533,8 +536,8 @@ class OpenWRT(SNMP):
                 interface = self.get(
                     f"1.3.6.1.2.1.31.1.1.1.1.{interface_num}", snmpdump=snmpdump
                 )[3][0][1]
-                state = states_map[str(neighbor_states[index][0][1])]
-            except (IndexError, TypeError, ValueError):
+                state = states_map.get(str(neighbor_states[index][0][1]), "UNKNOWN")
+            except (IndexError, TypeError, ValueError, KeyError):
                 continue
             result.append(
                 self._dict(
@@ -550,7 +553,7 @@ class OpenWRT(SNMP):
 
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
-            snmpdump = self.walk("1.2")
+            snmpdump = self.walk("1.3.6.1")
         result = self._dict(
             {
                 "type": "DeviceMonitoring",

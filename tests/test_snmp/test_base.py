@@ -56,3 +56,11 @@ class TestSNMP(unittest.TestCase):
         self.assertEqual(
             self.device._oid([1, 3, 6, 1, 2, 1, 1, 5, 0]), "1.3.6.1.2.1.1.5.0"
         )
+
+    def test_mac_bytes(self):
+        """MAC octets must be encoded one byte at a time."""
+        self.assertEqual(
+            self.device._octet_to_mac("\x08\x00\x27\x27\x80\x10"),
+            "08:00:27:27:80:10",
+            "SNMP octets must not be expanded by UTF-8 encoding",
+        )

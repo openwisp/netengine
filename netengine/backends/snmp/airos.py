@@ -3,9 +3,8 @@
 __all__ = ["AirOS"]
 
 
-import binascii
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 
 from netengine.exceptions import NetEngineError
 
@@ -223,19 +222,12 @@ class AirOS(SNMP):
             starting_mac = "1.3.6.1.2.1.2.2.1.6."
 
             for i in self._value_to_retrieve(snmpdump=snmpdump):
-                mac = binascii.b2a_hex(
-                    self.get_value(starting_mac + str(i), snmpdump=snmpdump).encode()
-                ).decode()
-                # now we are going to format mac as the canonical way as a MAC
-                # address is intended by inserting ':' every two chars of mac
-                # to obtain something as 00:11:22:22:33:44:55
-                mac_transformed = ":".join(
-                    mac[slice(j, j + 2)] for j in range(0, 12, 2) if mac != ""
-                )
                 result = self._dict(
                     {
                         "name": self.get_value(starting + str(i), snmpdump=snmpdump),
-                        "mac_address": mac_transformed,
+                        "mac_address": self._octet_to_mac(
+                            self.get_value(starting_mac + str(i), snmpdump=snmpdump)
+                        ),
                     }
                 )
                 results.append(result)
@@ -305,7 +297,7 @@ class AirOS(SNMP):
     def interfaces_to_dict(self, snmpdump=None):
         """Returns an ordered dict with all the information available about the interface"""
         results = []
-        wireless_if = self.get_wireless_interfaces()
+        wireless_if = self.get_wireless_interfaces(snmpdump=snmpdump)
         for i in range(0, len(self.get_interfaces(snmpdump=snmpdump))):
             logger.info(f"===== {i} =====")
             logger.info("... name ...")
@@ -385,7 +377,14 @@ class AirOS(SNMP):
     def local_time(self, snmpdump=None):
         """returns the local time of the host device as a timestamp"""
         epoch = str(self.get("1.3.6.1.4.1.41112.1.4.8.1.0", snmpdump=snmpdump)[3][0][1])
-        timestamp = int(datetime.strptime(epoch, "%Y-%m-%d %H:%M:%S").timestamp())
+        # WARNING: AirOS does not expose a timezone for this device-local value.
+        # Treat it as UTC to prevent netengine host timezone from changing the result.
+        # Track an authoritative timezone source in https://github.com/openwisp/netengine/issues/79.
+        timestamp = int(
+            datetime.strptime(epoch, "%Y-%m-%d %H:%M:%S")
+            .replace(tzinfo=timezone.utc)
+            .timestamp()
+        )
         return timestamp
 
     def RAM_total(self, snmpdump=None):
@@ -461,6 +460,7 @@ class AirOS(SNMP):
     def to_dict(self, snmpdump=None, autowalk=True):
         if autowalk:
             snmpdump = self.walk("1.3.6")
+            snmpdump.update(self.walk("1.2.840.10036"))
         os_name, os_description = self.os(snmpdump=snmpdump)
         result = self._dict(
             {

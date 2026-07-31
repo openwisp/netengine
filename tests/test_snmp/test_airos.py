@@ -1,6 +1,7 @@
 import json
 import unittest
-from unittest.mock import patch
+from datetime import timezone
+from unittest.mock import call, patch
 
 from jsonschema import validate
 from pysnmp.smi.error import NoSuchObjectError
@@ -45,10 +46,13 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             self.device.get_value(".")
 
     def test_validate_negative_result(self):
-        self.getcmd_patcher.stop()
         wrong = AirOS("10.40.0.254", "wrong", "wrong")
-        with self.assertRaises(NetEngineError):
-            wrong.validate()
+        with patch(
+            "netengine.backends.snmp.base.get_cmd",
+            return_value=(Exception("request timed out"), 0, 0, []),
+        ):
+            with self.assertRaisesRegex(NetEngineError, "request timed out"):
+                wrong.validate()
 
     def test_validate_positive_result(self):
         self.device.validate()
@@ -73,10 +77,10 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         device.uptime()
 
     def test_name(self):
-        self.assertIsInstance(self.device.name(), str)
+        self.assertEqual(self.device.name(), "DeviceName")
 
     def test_os(self):
-        self.assertIsInstance(self.device.os(), tuple)
+        self.assertEqual(self.device.os(), ("AirOS", "Linux DeviceName 2.6.32.71"))
 
     def test_get_interfaces(self):
         self.assertIsInstance(self.device.get_interfaces(), list)
@@ -102,25 +106,66 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_interfaces_to_dict(self):
         self.assertIsInstance(self.device.interfaces_to_dict(), list)
 
+    def test_dump_forwarding(self):
+        """Dump-backed serialization must not make live SNMP requests."""
+        snmpdump = {"unused": "dump"}
+        with patch.object(self.device, "get_interfaces", return_value=[]):
+            with patch.object(
+                self.device, "get_wireless_interfaces", return_value=[]
+            ) as method:
+                self.device.interfaces_to_dict(snmpdump=snmpdump)
+        method.assert_called_once_with(snmpdump=snmpdump)
+
     def test_wireless_dbm(self):
         self.assertIsInstance(self.device.wireless_dbm(), list)
 
     def test_interfaces_number(self):
-        self.assertIsInstance(self.device.interfaces_number(), int)
+        self.assertEqual(self.device.interfaces_number(), 5)
 
     def test_wireless_to_dict(self):
         self.assertIsInstance(self.device.wireless_links(), list)
 
     def test_RAM_free(self):
-        self.assertIsInstance(self.device.RAM_free(), int)
+        self.assertEqual(self.device.RAM_free(), 67076096)
 
     def test_RAM_total(self):
-        self.assertIsInstance(self.device.RAM_total(), int)
+        self.assertEqual(self.device.RAM_total(), 129302528)
 
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(autowalk=False), dict))
 
-    def test_to_dict_includes_hostname_and_interface_macs(self):
+    def test_autowalk_roots(self):
+        """AirOS metadata is split between standard and vendor OID roots."""
+        with patch.object(self.device, "walk", return_value={}) as walk:
+            with patch.object(self.device, "uptime", return_value=0):
+                with patch.object(self.device, "local_time", return_value=0):
+                    with patch.object(self.device, "name", return_value="device"):
+                        with patch.object(self.device, "model", return_value="model"):
+                            with patch.object(
+                                self.device, "os", return_value=("AirOS", "Linux")
+                            ):
+                                with patch.object(
+                                    self.device, "firmware", return_value="AirOS v1"
+                                ):
+                                    with patch.object(
+                                        self.device,
+                                        "resources_to_dict",
+                                        return_value={},
+                                    ):
+                                        with patch.object(
+                                            self.device,
+                                            "interfaces_to_dict",
+                                            return_value=[],
+                                        ):
+                                            self.device.to_dict()
+        self.assertEqual(
+            walk.call_args_list,
+            [call("1.3.6"), call("1.2.840.10036")],
+            "AirOS autowalk must include standard and vendor OID roots",
+        )
+
+    def test_monitoring_metadata(self):
+        """Serialized monitoring data follows the NetJSON metadata placement."""
         device_dict = self.device.to_dict(autowalk=False)
         self.assertEqual(device_dict["general"]["hostname"], "DeviceName")
         self.assertEqual(device_dict["hardware"]["model"], "NanoStation Loco M2")
@@ -149,24 +194,25 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.assertIsNotNone(self.device.manufacturer())
 
     def test_model(self):
-        self.assertIsInstance(self.device.model(), str)
+        self.assertEqual(self.device.model(), "NanoStation Loco M2")
 
     def test_firmware(self):
-        self.assertIsInstance(self.device.firmware(), str)
+        self.assertEqual(self.device.firmware(), "AirOS v5.5.12536.120406.1455")
 
     def test_uptime(self):
-        self.assertIsInstance(self.device.uptime(), int)
+        self.assertEqual(self.device.uptime(), 373)
 
     def test_RAM_buffered(self):
-        self.assertIsInstance(self.device.RAM_buffered(), int)
+        self.assertEqual(self.device.RAM_buffered(), 2711552)
 
     def test_RAM_cached(self):
-        self.assertIsInstance(self.device.RAM_cached(), int)
+        self.assertEqual(self.device.RAM_cached(), 0)
 
     def test_SWAP_total(self):
-        self.assertIsInstance(self.device.SWAP_total(), int)
+        self.assertEqual(self.device.SWAP_total(), 0)
 
-    def test_SWAP_values_are_converted_from_kibibytes_to_bytes(self):
+    def test_swap_conversion(self):
+        """AirOS reports swap values in KiB."""
         self.oid_mock_data["1.3.6.1.4.1.10002.1.1.1.2.1.0"] = "2"
         self.oid_mock_data["1.3.6.1.4.1.10002.1.1.1.2.2.0"] = "3"
         self.assertEqual(
@@ -181,21 +227,23 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         )
 
     def test_SWAP_free(self):
-        self.assertIsInstance(self.device.SWAP_free(), int)
+        self.assertEqual(self.device.SWAP_free(), 0)
 
     def test_CPU_count(self):
-        self.assertIsInstance(self.device.CPU_count(), int)
+        self.assertEqual(self.device.CPU_count(), 0)
 
     def test_local_time(self):
-        self.assertIsInstance(self.device.local_time(), int)
+        self.assertEqual(self.device.local_time(), 1580734874)
+
+    def test_local_time_utc(self):
+        """AirOS does not expose a timezone, so timestamps use the UTC assumption."""
+        with patch("netengine.backends.snmp.airos.datetime") as datetime:
+            parsed_time = datetime.strptime.return_value
+            self.device.local_time()
+        parsed_time.replace.assert_called_once_with(tzinfo=timezone.utc)
 
     def test_load(self):
-        load = self.device.load()
-        self.assertIsInstance(load, list)
-        self.assertEqual(len(load), 3)
-        self.assertIsInstance(load[0], float)
-        self.assertIsInstance(load[1], float)
-        self.assertIsInstance(load[2], float)
+        self.assertEqual(self.device.load(), [0.51, 0.18, 0.24])
 
     def tearDown(self):
         patch.stopall()
