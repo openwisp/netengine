@@ -1,4 +1,3 @@
-=========
 netengine
 =========
 
@@ -13,7 +12,7 @@ netengine
 .. image:: https://badge.fury.io/py/netengine.svg
     :target: http://badge.fury.io/py/netengine
 
-------------------------------
+----
 
 .. image:: https://raw.githubusercontent.com/openwisp/netengine/master/docs/source/images/netengine-logo.png
 
@@ -21,8 +20,13 @@ Abstraction layer for extracting information from network devices.
 
 Documentation: http://netengine.rtfd.org
 
+Supported Python Versions
+-------------------------
+
+NetEngine supports Python 3.10, 3.11, 3.12, and 3.13.
+
 Contribute
-==========
+----------
 
 1. Join the `OpenWISP mailing list`_
 2. Fork this repo
@@ -34,5 +38,6 @@ Contribute
 8. Document your changes
 9. Send pull request
 
-.. _PEP8, Style Guide for Python Code: http://www.python.org/dev/peps/pep-0008/
-.. _OpenWISP mailing list: https://groups.google.com/g/openwisp
+.. _openwisp mailing list: https://groups.google.com/g/openwisp
+
+.. _pep8, style guide for python code: http://www.python.org/dev/peps/pep-0008/
