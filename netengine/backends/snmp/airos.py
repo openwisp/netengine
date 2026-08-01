@@ -472,7 +472,7 @@ class AirOS(SNMP):
         ):
             setattr(self, attribute, None)
 
-    def to_dict(self, snmpdump=None, autowalk=True):
+    def to_dict(self, autowalk=True, snmpdump=None):
         self._reset_memoized_properties()
         if snmpdump is None and autowalk:
             snmpdump = self.walk("1.3.6")

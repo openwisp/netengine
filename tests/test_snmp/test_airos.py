@@ -139,6 +139,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
 
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(autowalk=False), dict))
+        self.assertTrue(isinstance(self.device.to_dict(False), dict))
 
     def test_memory_cache(self):
         """NetJSON names cached memory ``cache``."""

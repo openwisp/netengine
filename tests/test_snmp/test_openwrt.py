@@ -295,6 +295,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_to_dict(self):
         device_dict = self.device.to_dict(autowalk=False)
         self.assertIsInstance(device_dict, dict)
+        self.assertIsInstance(self.device.to_dict(False), dict)
         self.assertEqual(
             len(device_dict["interfaces"]),
             len(self.device.get_interfaces()),
