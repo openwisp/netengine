@@ -134,6 +134,11 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_to_dict(self):
         self.assertTrue(isinstance(self.device.to_dict(autowalk=False), dict))
 
+    def test_memory_cache(self):
+        """NetJSON names cached memory ``cache``."""
+        memory = self.device.to_dict(autowalk=False)["resources"]["memory"]
+        self.assertIn("cache", memory, "Memory output must use the NetJSON cache key")
+
     def test_autowalk_roots(self):
         """AirOS metadata is split between standard and vendor OID roots."""
         with patch.object(self.device, "walk", return_value={}) as walk:

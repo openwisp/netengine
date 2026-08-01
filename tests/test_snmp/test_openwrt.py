@@ -268,6 +268,11 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             len(self.device.get_interfaces()),
         )
 
+    def test_memory_cache(self):
+        """NetJSON names cached memory ``cache``."""
+        memory = self.device.to_dict(autowalk=False)["resources"]["memory"]
+        self.assertIn("cache", memory, "Memory output must use the NetJSON cache key")
+
     def test_unnamed_interface(self):
         """Unnamed interfaces must not shift later interface metrics."""
         self.oid_mock_data["1.3.6.1.2.1.2.2.1.2.2"] = ""

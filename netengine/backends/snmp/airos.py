@@ -447,7 +447,7 @@ class AirOS(SNMP):
                     "total": self.RAM_total(snmpdump=snmpdump),
                     "buffered": self.RAM_buffered(snmpdump=snmpdump),
                     "free": self.RAM_free(snmpdump=snmpdump),
-                    "cached": self.RAM_cached(snmpdump=snmpdump),
+                    "cache": self.RAM_cached(snmpdump=snmpdump),
                 },
                 "swap": {
                     "total": self.SWAP_total(snmpdump=snmpdump),
