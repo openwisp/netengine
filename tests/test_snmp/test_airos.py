@@ -139,6 +139,14 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         memory = self.device.to_dict(autowalk=False)["resources"]["memory"]
         self.assertIn("cache", memory, "Memory output must use the NetJSON cache key")
 
+    def test_fresh_snapshot(self):
+        """Consecutive serializations must not reuse interface counters."""
+        first = self.device.to_dict(autowalk=False)
+        self.oid_mock_data["1.3.6.1.2.1.2.2.1.16.1"] = "42"
+        second = self.device.to_dict(autowalk=False)
+        self.assertEqual(first["interfaces"][0]["statistics"]["tx_bytes"], 3214378817)
+        self.assertEqual(second["interfaces"][0]["statistics"]["tx_bytes"], 42)
+
     def test_autowalk_roots(self):
         """AirOS metadata is split between standard and vendor OID roots."""
         with patch.object(self.device, "walk", return_value={}) as walk:

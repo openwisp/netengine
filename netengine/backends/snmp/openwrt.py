@@ -492,6 +492,21 @@ class OpenWRT(SNMP):
         )
         return result
 
+    def _reset_memoized_properties(self):
+        for attribute in (
+            "_interfaces",
+            "_wireless_interfaces",
+            "_interfaces_MAC",
+            "_interfaces_mtu",
+            "_interfaces_speed",
+            "_interfaces_up",
+            "_interfaces_bytes",
+            "_interfaces_type",
+            "_interface_addr_and_mask",
+        ):
+            setattr(self, attribute, None)
+        self._interface_dict = {}
+
     def neighbors(self, snmpdump=None):
         """returns a dict with neighbors information"""
         states_map = {
@@ -548,6 +563,7 @@ class OpenWRT(SNMP):
         return result
 
     def to_dict(self, snmpdump=None, autowalk=True):
+        self._reset_memoized_properties()
         if autowalk:
             snmpdump = self.walk("1.3.6.1")
             snmpdump.update(self.walk("1.2.840.10036"))

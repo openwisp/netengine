@@ -457,7 +457,21 @@ class AirOS(SNMP):
         )
         return result
 
+    def _reset_memoized_properties(self):
+        for attribute in (
+            "_interfaces",
+            "_interfaces_mtu",
+            "_interfaces_state",
+            "_interfaces_speed",
+            "_interfaces_bytes",
+            "_interfaces_MAC",
+            "_interfaces_type",
+            "_wireless_interfaces",
+        ):
+            setattr(self, attribute, None)
+
     def to_dict(self, snmpdump=None, autowalk=True):
+        self._reset_memoized_properties()
         if autowalk:
             snmpdump = self.walk("1.3.6")
             snmpdump.update(self.walk("1.2.840.10036"))
