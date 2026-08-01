@@ -21,10 +21,6 @@ class OpenWRT(SNMP):
 
     _oid_to_retrieve = "1.3.6.1.2.1.2.2.1.1."
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._interface_dict = {}
-
     def __str__(self):
         """print a human readable object description"""
         return f"<SNMP (OpenWRT): {self.host}>"
@@ -306,12 +302,6 @@ class OpenWRT(SNMP):
         """TODO: this method needs to be simplified and explained"""
         self._ensure_memoized_properties_source(snmpdump)
         if self._interface_addr_and_mask is None:
-            interface_name = self.get_interfaces(snmpdump=snmpdump)
-            indexes = self._value_to_retrieve(snmpdump=snmpdump)
-
-            for i in range(0, len(interface_name)):
-                self._interface_dict[indexes[i]] = interface_name[i]
-
             interface_ip_address = self.next(
                 "1.3.6.1.2.1.4.20.1.1.", snmpdump=snmpdump
             )[3]
@@ -518,7 +508,6 @@ class OpenWRT(SNMP):
             "_interface_addr_and_mask",
         ):
             setattr(self, attribute, None)
-        self._interface_dict = {}
 
     def _ensure_memoized_properties_source(self, snmpdump):
         if getattr(self, "_memoized_snmpdump", object()) is not snmpdump:

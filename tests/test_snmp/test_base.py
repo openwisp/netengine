@@ -34,15 +34,18 @@ class TestSNMP(unittest.TestCase):
             self.assertEqual(self.device._value_to_retrieve(), [])
 
     def test_next_collects_walk_responses(self):
-        async def walk_response(*args):
+        async def walk_response(*args, **kwargs):
             yield None, 0, 0, ((0, 1),)
             yield None, 0, 0, ((0, 2),)
 
-        with patch("netengine.backends.snmp.base.walk_cmd", side_effect=walk_response):
+        with patch(
+            "netengine.backends.snmp.base.walk_cmd", side_effect=walk_response
+        ) as walk:
             self.assertEqual(
                 self.device.next("1.3.6.1.2.1.1.5.0"),
                 (None, 0, 0, [((0, 1),), ((0, 2),)]),
             )
+        self.assertFalse(walk.call_args.kwargs["lexicographicMode"])
 
     def test_raised_exception(self):
         class WrongSNMPBackend(SNMP):

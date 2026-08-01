@@ -64,6 +64,7 @@ class SNMP(BaseBackend):
             transport,
             ContextData(),
             ObjectType(ObjectIdentity(oid)),
+            lexicographicMode=False,
         ):
             result = (error_indication, error_status, error_index, result[3])
             if error_indication or error_status:

@@ -12,3 +12,4 @@ build
 test-settings.json
 *.#
 python
+docs/_build

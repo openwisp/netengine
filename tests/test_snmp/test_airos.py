@@ -27,7 +27,7 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
         self.oid_mock_data = self._load_mock_json("/static/test-airos-snmp.json")
         self.nextcmd_patcher = patch(
             "netengine.backends.snmp.base.walk_cmd",
-            side_effect=lambda *args: self._get_mocked_walkcmd(
+            side_effect=lambda *args, **kwargs: self._get_mocked_walkcmd(
                 self._get_mocked_nextcmd(*args)
             ),
         )
@@ -84,6 +84,13 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
 
     def test_get_interfaces(self):
         self.assertIsInstance(self.device.get_interfaces(), list)
+
+    def test_interface_indexes_come_from_if_mib(self):
+        with patch.object(
+            self.device, "next", return_value=[None, 0, 0, [[[None, 1]]]]
+        ) as next:
+            self.assertEqual(self.device._value_to_retrieve(), [1])
+        next.assert_called_once_with("1.3.6.1.2.1.2.2.1.1.", snmpdump=None)
 
     def test_memoized_accessors_use_the_current_dump(self):
         first_dump = {}
@@ -198,6 +205,38 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
             [call("1.3.6"), call("1.2.840.10036")],
             "AirOS must preserve supplied dumps and autowalk both OID roots",
         )
+
+    def test_autowalk_continues_without_vendor_data(self):
+        with patch.object(
+            self.device, "walk", side_effect=[{}, NetEngineError("unsupported")]
+        ) as walk:
+            with patch.object(self.device, "uptime", return_value=0):
+                with patch.object(self.device, "local_time", return_value=0):
+                    with patch.object(self.device, "name", return_value="device"):
+                        with patch.object(self.device, "model", return_value="model"):
+                            with patch.object(
+                                self.device, "os", return_value=("AirOS", "Linux")
+                            ):
+                                with patch.object(
+                                    self.device, "firmware", return_value="AirOS v1"
+                                ):
+                                    with patch.object(
+                                        self.device,
+                                        "resources_to_dict",
+                                        return_value={},
+                                    ):
+                                        with patch.object(
+                                            self.device,
+                                            "interfaces_to_dict",
+                                            return_value=[],
+                                        ):
+                                            with self.assertLogs(
+                                                "netengine.backends.snmp.airos",
+                                                "WARNING",
+                                            ):
+                                                result = self.device.to_dict()
+        self.assertEqual(result["general"]["hostname"], "device")
+        self.assertEqual(walk.call_args_list, [call("1.3.6"), call("1.2.840.10036")])
 
     def test_monitoring_metadata(self):
         """Serialized monitoring data follows the NetJSON metadata placement."""

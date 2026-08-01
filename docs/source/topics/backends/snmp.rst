@@ -19,7 +19,7 @@ methods are not documented and are subject to change in the future):
 **to_json**  Calls the `to_dict` method and returns a JSON string of the
              dict
 **validate** Checks if connection with the device is working and raises
-             `NetengineError` in case something is wrong
+                 `NetEngineError` in case something is wrong
 ============ =============================================================
 
 ``to_dict`` and ``to_json`` enable ``autowalk`` by default, collecting the
@@ -27,13 +27,15 @@ required OIDs before serializing the result. To serialize an existing SNMP
 dump without querying the device, call ``to_dict(snmpdump=dump,
 autowalk=False)``.
 
-Initializing an SNMP backend class requires the following arguments:
+Initializing an SNMP backend class requires a host. The optional arguments
+are:
 
 ============= ==========================================================
 **host**      Management ip or hostname of the device
 **community** Community string for the SNMP connection. Default value is
               'public'
-**agent**     Agent string for the SNMP connection
+**agent**     Agent string for the SNMP connection. Default value is
+              'my-agent'
 **port**      Port for the SNMP connection. Default value is `161`
 ============= ==========================================================
 

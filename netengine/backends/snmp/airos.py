@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class AirOS(SNMP):
     """Ubiquiti AirOS SNMP backend"""
 
-    _oid_to_retrieve = "1.3.6.1.2.1.1.9.1.1."
+    _oid_to_retrieve = "1.3.6.1.2.1.2.2.1.1."
 
     def __str__(self, snmpdump=None):
         """print a human readable object description"""
@@ -489,7 +489,10 @@ class AirOS(SNMP):
         self._reset_memoized_properties()
         if snmpdump is None and autowalk:
             snmpdump = self.walk("1.3.6")
-            snmpdump.update(self.walk("1.2.840.10036"))
+            try:
+                snmpdump.update(self.walk("1.2.840.10036"))
+            except NetEngineError as exc:
+                logger.warning("Unable to collect optional vendor SNMP data: %s", exc)
         os_name, os_description = self.os(snmpdump=snmpdump)
         result = self._dict(
             {

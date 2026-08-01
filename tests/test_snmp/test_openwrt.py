@@ -1,5 +1,6 @@
 import json
 import unittest
+from contextlib import ExitStack
 from unittest.mock import call, patch
 
 from jsonschema import validate
@@ -30,7 +31,7 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
         self.oid_mock_data = self._load_mock_json("/static/test-openwrt-snmp-oid.json")
         self.nextcmd_patcher = patch(
             "netengine.backends.snmp.base.walk_cmd",
-            side_effect=lambda *args: self._get_mocked_walkcmd(
+            side_effect=lambda *args, **kwargs: self._get_mocked_walkcmd(
                 self._get_mocked_nextcmd(*args)
             ),
         )
@@ -136,6 +137,12 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
     def test_interfaces_type(self):
         self.assertIsInstance(self.device.interfaces_type(), list)
 
+    def test_unknown_interface_type(self):
+        """Unsupported IANA ifType values must not abort serialization."""
+        self.oid_mock_data["1.3.6.1.2.1.2.2.1.3.2"] = "1"
+        interface = self.device.to_dict(autowalk=False)["interfaces"][1]
+        self.assertEqual(interface["type"], "unknown")
+
     def test_interfaces_mtu(self):
         self.assertIsInstance(self.device.interfaces_mtu(), list)
 
@@ -236,49 +243,66 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             ],
             7: [{"family": "ipv4", "address": "198.51.100.1", "mask": "255.255.255.0"}],
         }
-        with patch.object(self.device, "_value_to_retrieve", return_value=[3, 7]):
-            with patch.object(
-                self.device, "get_interfaces", return_value=["duplicate", "duplicate"]
-            ):
-                with patch.object(
-                    self.device, "get_wireless_interfaces", return_value=[]
-                ):
-                    with patch.object(
-                        self.device,
-                        "interfaces_type",
-                        return_value=[{"type": "ethernet"}] * 2,
-                    ):
-                        with patch.object(
-                            self.device,
-                            "interfaces_MAC",
-                            return_value=[
-                                {"mac_address": "00:00:00:00:00:03"},
-                                {"mac_address": "00:00:00:00:00:07"},
-                            ],
-                        ):
-                            with patch.object(
-                                self.device,
-                                "interfaces_bytes",
-                                return_value=[{"rx": 0, "tx": 0}] * 2,
-                            ):
-                                with patch.object(
-                                    self.device,
-                                    "interfaces_up",
-                                    return_value=[{"up": True}] * 2,
-                                ):
-                                    with patch.object(
-                                        self.device,
-                                        "interfaces_mtu",
-                                        return_value=[{"mtu": 1500}] * 2,
-                                    ):
-                                        with patch.object(
-                                            self.device,
-                                            "interface_addr_and_mask",
-                                            return_value=addresses,
-                                        ):
-                                            interfaces = (
-                                                self.device.interfaces_to_dict()
-                                            )
+        with ExitStack() as stack:
+            stack.enter_context(
+                patch.object(self.device, "_value_to_retrieve", return_value=[3, 7])
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "get_interfaces",
+                    return_value=["duplicate", "duplicate"],
+                )
+            )
+            stack.enter_context(
+                patch.object(self.device, "get_wireless_interfaces", return_value=[])
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interfaces_type",
+                    return_value=[{"type": "ethernet"}] * 2,
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interfaces_MAC",
+                    return_value=[
+                        {"mac_address": "00:00:00:00:00:03"},
+                        {"mac_address": "00:00:00:00:00:07"},
+                    ],
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interfaces_bytes",
+                    return_value=[{"rx": 0, "tx": 0}] * 2,
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interfaces_up",
+                    return_value=[{"up": True}] * 2,
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interfaces_mtu",
+                    return_value=[{"mtu": 1500}] * 2,
+                )
+            )
+            stack.enter_context(
+                patch.object(
+                    self.device,
+                    "interface_addr_and_mask",
+                    return_value=addresses,
+                )
+            )
+            interfaces = self.device.interfaces_to_dict()
         self.assertEqual(interfaces[0]["addresses"], addresses[3])
         self.assertEqual(interfaces[1]["addresses"], addresses[7])
 
@@ -484,16 +508,6 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
                                         result = self.device.to_dict()
         self.assertEqual(result["general"]["hostname"], "device")
         self.assertEqual(walk.call_args_list, [call("1.3.6.1"), call("1.2.840.10036")])
-
-    def test_interface_state(self):
-        """Address-to-interface mappings belong to a single device instance."""
-        other_device = OpenWRT(self.host, self.community, port=self.port)
-        self.device._interface_dict[1] = "first-device-interface"
-        self.assertNotIn(
-            1,
-            other_device._interface_dict,
-            "OpenWRT interface address state must be isolated per device",
-        )
 
     def test_netjson_compliance(self):
         device_dict = self.device.to_dict(autowalk=False)
