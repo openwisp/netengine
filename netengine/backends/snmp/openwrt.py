@@ -68,6 +68,7 @@ class OpenWRT(SNMP):
 
     def get_interfaces(self, snmpdump=None):
         """returns the list of all the interfaces of the device"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces is None:
             interfaces = []
             value_to_get = "1.3.6.1.2.1.2.2.1.2."
@@ -84,6 +85,7 @@ class OpenWRT(SNMP):
 
     def get_wireless_interfaces(self, snmpdump=None):
         """returns the list of all the wireless interfaces of the device"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._wireless_interfaces is None:
             interfaces = []
             wireless_if_oid = "1.2.840.10036.1.1.1.1."
@@ -110,6 +112,7 @@ class OpenWRT(SNMP):
 
     def interfaces_MAC(self, snmpdump=None):
         """Returns an ordered dict with the hardware address of every interface"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_MAC is None:
             results = []
             indexes = self._value_to_retrieve(snmpdump=snmpdump)
@@ -135,6 +138,7 @@ class OpenWRT(SNMP):
 
     def interfaces_mtu(self, snmpdump=None):
         """Returns an ordereed dict with the interface and its MTU"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_mtu is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -159,6 +163,7 @@ class OpenWRT(SNMP):
 
     def interfaces_speed(self, snmpdump=None):
         """Returns an ordered dict with the interface and ist speed in bps"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_speed is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -207,6 +212,7 @@ class OpenWRT(SNMP):
 
     def interfaces_up(self, snmpdump=None):
         """Returns an ordereed dict with the interfaces and their state (up: true/false)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_up is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -239,6 +245,7 @@ class OpenWRT(SNMP):
 
     def interfaces_bytes(self, snmpdump=None):
         """Returns an ordereed dict with the interface and its tx and rx octets (1 octet = 1 byte = 8 bits)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_bytes is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -267,6 +274,7 @@ class OpenWRT(SNMP):
 
     def interfaces_type(self, snmpdump=None):
         """Returns an ordered dict with the interface type (e.g Ethernet, loopback)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_type is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -296,6 +304,7 @@ class OpenWRT(SNMP):
 
     def interface_addr_and_mask(self, snmpdump=None):
         """TODO: this method needs to be simplified and explained"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interface_addr_and_mask is None:
             interface_name = self.get_interfaces(snmpdump=snmpdump)
             indexes = self._value_to_retrieve(snmpdump=snmpdump)
@@ -318,12 +327,14 @@ class OpenWRT(SNMP):
                 b = interface_netmask[i][0][1].asNumbers()
                 netmask = ".".join(str(b[i]) for i in range(0, len(b)))
 
-                name = self._interface_dict[int(interface_index[i][0][1])]
-                results[name] = {
-                    "family": "ipv4",
-                    "address": ip_address,
-                    "mask": netmask,
-                }
+                index = int(interface_index[i][0][1])
+                results.setdefault(index, []).append(
+                    {
+                        "family": "ipv4",
+                        "address": ip_address,
+                        "mask": netmask,
+                    }
+                )
 
             self._interface_addr_and_mask = results
 
@@ -333,7 +344,10 @@ class OpenWRT(SNMP):
         """Returns an ordered dict with all the information available about the interface"""
         results = []
         wireless_if = self.get_wireless_interfaces(snmpdump=snmpdump)
-        for i, name in enumerate(self.get_interfaces(snmpdump=snmpdump)):
+        indexes = self._value_to_retrieve(snmpdump=snmpdump)
+        for i, (index, name) in enumerate(
+            zip(indexes, self.get_interfaces(snmpdump=snmpdump))
+        ):
             if not name:
                 continue
             logger.info(f"====== {i} ======")
@@ -351,8 +365,7 @@ class OpenWRT(SNMP):
             logger.info("... mtu ...")
             mtu = int(self.interfaces_mtu(snmpdump=snmpdump)[i]["mtu"])
             logger.info("... if_ip ...")
-            addr = self.interface_addr_and_mask(snmpdump=snmpdump).get(name)
-            addresses = [addr] if addr is not None else []
+            addresses = self.interface_addr_and_mask(snmpdump=snmpdump).get(index, [])
 
             if name in wireless_if:
                 if_type = "wireless"
@@ -507,6 +520,11 @@ class OpenWRT(SNMP):
             setattr(self, attribute, None)
         self._interface_dict = {}
 
+    def _ensure_memoized_properties_source(self, snmpdump):
+        if getattr(self, "_memoized_snmpdump", object()) is not snmpdump:
+            self._reset_memoized_properties()
+            self._memoized_snmpdump = snmpdump
+
     def neighbors(self, snmpdump=None):
         """returns a dict with neighbors information"""
         states_map = {
@@ -573,7 +591,10 @@ class OpenWRT(SNMP):
         self._reset_memoized_properties()
         if snmpdump is None and autowalk:
             snmpdump = self.walk("1.3.6.1")
-            snmpdump.update(self.walk("1.2.840.10036"))
+            try:
+                snmpdump.update(self.walk("1.2.840.10036"))
+            except NetEngineError as exc:
+                logger.warning("Unable to collect optional vendor SNMP data: %s", exc)
         result = self._dict(
             {
                 "type": "DeviceMonitoring",

@@ -85,6 +85,7 @@ class AirOS(SNMP):
 
     def get_interfaces(self, snmpdump=None):
         """returns the list of all the interfaces of the device"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces is None:
             interfaces = []
             value_to_get = "1.3.6.1.2.1.2.2.1.2."
@@ -102,6 +103,7 @@ class AirOS(SNMP):
 
     def interfaces_mtu(self, snmpdump=None):
         """Returns an ordereed dict with the interface and its MTU"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_mtu is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -126,6 +128,7 @@ class AirOS(SNMP):
 
     def interfaces_state(self, snmpdump=None):
         """Returns an ordereed dict with the interfaces and their state (up, down)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_state is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -165,6 +168,7 @@ class AirOS(SNMP):
 
     def interfaces_speed(self, snmpdump=None):
         """Returns an ordered dict with the interface and ist speed in bps"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_speed is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -189,6 +193,7 @@ class AirOS(SNMP):
 
     def interfaces_bytes(self, snmpdump=None):
         """Returns an ordereed dict with the interface and its tx and rx octets (1 octet = 1 byte = 8 bits)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_bytes is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -216,6 +221,7 @@ class AirOS(SNMP):
 
     def interfaces_MAC(self, snmpdump=None):
         """Returns an ordered dict with the hardware address of every interface"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_MAC is None:
             results = []
             starting = "1.3.6.1.2.1.2.2.1.2."
@@ -241,6 +247,7 @@ class AirOS(SNMP):
 
     def interfaces_type(self, snmpdump=None):
         """Returns an ordered dict with the interface type (e.g Ethernet, loopback)"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._interfaces_type is None:
             types = {
                 "6": "ethernet",
@@ -270,6 +277,7 @@ class AirOS(SNMP):
 
     def get_wireless_interfaces(self, snmpdump=None):
         """returns the list of all the wireless interfaces of the device"""
+        self._ensure_memoized_properties_source(snmpdump)
         if self._wireless_interfaces is None:
             interfaces = []
             wireless_if_oid = "1.2.840.10036.1.1.1.1."
@@ -471,6 +479,11 @@ class AirOS(SNMP):
             "_wireless_interfaces",
         ):
             setattr(self, attribute, None)
+
+    def _ensure_memoized_properties_source(self, snmpdump):
+        if getattr(self, "_memoized_snmpdump", object()) is not snmpdump:
+            self._reset_memoized_properties()
+            self._memoized_snmpdump = snmpdump
 
     def to_dict(self, autowalk=True, snmpdump=None):
         self._reset_memoized_properties()

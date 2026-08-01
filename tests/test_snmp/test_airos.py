@@ -85,6 +85,20 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_get_interfaces(self):
         self.assertIsInstance(self.device.get_interfaces(), list)
 
+    def test_memoized_accessors_use_the_current_dump(self):
+        first_dump = {}
+        second_dump = {}
+        with patch.object(self.device, "_value_to_retrieve", return_value=[1]):
+            with patch.object(
+                self.device,
+                "get_value",
+                side_effect=lambda oid, snmpdump: (
+                    "first" if snmpdump is first_dump else "second"
+                ),
+            ):
+                self.assertEqual(self.device.get_interfaces(first_dump), ["first"])
+                self.assertEqual(self.device.get_interfaces(second_dump), ["second"])
+
     def test_get_interfaces_mtu(self):
         self.assertIsInstance(self.device.interfaces_mtu(), list)
 

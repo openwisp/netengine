@@ -77,6 +77,20 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             ],
         )
 
+    def test_memoized_accessors_use_the_current_dump(self):
+        first_dump = {}
+        second_dump = {}
+        with patch.object(self.device, "_value_to_retrieve", return_value=[1]):
+            with patch.object(
+                self.device,
+                "get_value",
+                side_effect=lambda oid, snmpdump: (
+                    "first" if snmpdump is first_dump else "second"
+                ),
+            ):
+                self.assertEqual(self.device.get_interfaces(first_dump), ["first"])
+                self.assertEqual(self.device.get_interfaces(second_dump), ["second"])
+
     def test_interfaces_speed(self):
         self.assertIsInstance(self.device.interfaces_speed(), list)
 
@@ -166,6 +180,107 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
 
     def test_interface_addr_and_mask(self):
         self.assertIsInstance(self.device.interface_addr_and_mask(), dict)
+
+    def test_interface_addr_and_mask_preserves_addresses_by_index(self):
+        addresses = [
+            [[None, OctetString(hexValue="c0000201")]],
+            [[None, OctetString(hexValue="c0000202")]],
+            [[None, OctetString(hexValue="c6336401")]],
+        ]
+        indexes = [[[None, 3]], [[None, 3]], [[None, 7]]]
+        masks = [[[None, OctetString(hexValue="ffffff00")]]] * 3
+        with patch.object(self.device, "_value_to_retrieve", return_value=[3, 7]):
+            with patch.object(
+                self.device, "get_interfaces", return_value=["duplicate", "duplicate"]
+            ):
+                with patch.object(
+                    self.device,
+                    "next",
+                    side_effect=[
+                        [None, 0, 0, addresses],
+                        [None, 0, 0, indexes],
+                        [None, 0, 0, masks],
+                    ],
+                ):
+                    result = self.device.interface_addr_and_mask()
+        self.assertEqual(
+            result,
+            {
+                3: [
+                    {
+                        "family": "ipv4",
+                        "address": "192.0.2.1",
+                        "mask": "255.255.255.0",
+                    },
+                    {
+                        "family": "ipv4",
+                        "address": "192.0.2.2",
+                        "mask": "255.255.255.0",
+                    },
+                ],
+                7: [
+                    {
+                        "family": "ipv4",
+                        "address": "198.51.100.1",
+                        "mask": "255.255.255.0",
+                    }
+                ],
+            },
+        )
+
+    def test_interface_addresses_use_indexes_and_preserve_duplicates(self):
+        addresses = {
+            3: [
+                {"family": "ipv4", "address": "192.0.2.1", "mask": "255.255.255.0"},
+                {"family": "ipv4", "address": "192.0.2.2", "mask": "255.255.255.0"},
+            ],
+            7: [{"family": "ipv4", "address": "198.51.100.1", "mask": "255.255.255.0"}],
+        }
+        with patch.object(self.device, "_value_to_retrieve", return_value=[3, 7]):
+            with patch.object(
+                self.device, "get_interfaces", return_value=["duplicate", "duplicate"]
+            ):
+                with patch.object(
+                    self.device, "get_wireless_interfaces", return_value=[]
+                ):
+                    with patch.object(
+                        self.device,
+                        "interfaces_type",
+                        return_value=[{"type": "ethernet"}] * 2,
+                    ):
+                        with patch.object(
+                            self.device,
+                            "interfaces_MAC",
+                            return_value=[
+                                {"mac_address": "00:00:00:00:00:03"},
+                                {"mac_address": "00:00:00:00:00:07"},
+                            ],
+                        ):
+                            with patch.object(
+                                self.device,
+                                "interfaces_bytes",
+                                return_value=[{"rx": 0, "tx": 0}] * 2,
+                            ):
+                                with patch.object(
+                                    self.device,
+                                    "interfaces_up",
+                                    return_value=[{"up": True}] * 2,
+                                ):
+                                    with patch.object(
+                                        self.device,
+                                        "interfaces_mtu",
+                                        return_value=[{"mtu": 1500}] * 2,
+                                    ):
+                                        with patch.object(
+                                            self.device,
+                                            "interface_addr_and_mask",
+                                            return_value=addresses,
+                                        ):
+                                            interfaces = (
+                                                self.device.interfaces_to_dict()
+                                            )
+        self.assertEqual(interfaces[0]["addresses"], addresses[3])
+        self.assertEqual(interfaces[1]["addresses"], addresses[7])
 
     def test_RAM_total(self):
         self.assertEqual(self.device.RAM_total(), 61452288)
@@ -346,6 +461,29 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
             [call("1.3.6.1"), call("1.2.840.10036")],
             "OpenWRT must preserve supplied dumps and autowalk both OID roots",
         )
+
+    def test_autowalk_continues_without_vendor_data(self):
+        with patch.object(
+            self.device, "walk", side_effect=[{}, NetEngineError("unsupported")]
+        ) as walk:
+            with patch.object(self.device, "name", return_value="device"):
+                with patch.object(self.device, "uptime", return_value=0):
+                    with patch.object(self.device, "local_time", return_value=0):
+                        with patch.object(
+                            self.device, "resources_to_dict", return_value={}
+                        ):
+                            with patch.object(
+                                self.device, "interfaces_to_dict", return_value=[]
+                            ):
+                                with patch.object(
+                                    self.device, "neighbors", return_value=[]
+                                ):
+                                    with self.assertLogs(
+                                        "netengine.backends.snmp.openwrt", "WARNING"
+                                    ):
+                                        result = self.device.to_dict()
+        self.assertEqual(result["general"]["hostname"], "device")
+        self.assertEqual(walk.call_args_list, [call("1.3.6.1"), call("1.2.840.10036")])
 
     def test_interface_state(self):
         """Address-to-interface mappings belong to a single device instance."""
