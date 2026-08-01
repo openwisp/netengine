@@ -106,6 +106,12 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
     def test_interfaces_to_dict(self):
         self.assertIsInstance(self.device.interfaces_to_dict(), list)
 
+    def test_unnamed_interface(self):
+        """Unnamed interfaces must not be included in monitoring output."""
+        self.oid_mock_data["1.3.6.1.2.1.2.2.1.2.2"] = ""
+        interfaces = self.device.interfaces_to_dict()
+        self.assertNotIn("", [interface["name"] for interface in interfaces])
+
     def test_dump_forwarding(self):
         """Dump-backed serialization must not make live SNMP requests."""
         snmpdump = {"unused": "dump"}
@@ -171,10 +177,11 @@ class TestSNMPAirOS(unittest.TestCase, MockOutputMixin):
                                             return_value=[],
                                         ):
                                             self.device.to_dict()
+                                            self.device.to_dict(snmpdump={})
         self.assertEqual(
             walk.call_args_list,
             [call("1.3.6"), call("1.2.840.10036")],
-            "AirOS autowalk must include standard and vendor OID roots",
+            "AirOS must preserve supplied dumps and autowalk both OID roots",
         )
 
     def test_monitoring_metadata(self):

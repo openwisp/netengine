@@ -302,6 +302,8 @@ class AirOS(SNMP):
             logger.info(f"===== {i} =====")
             logger.info("... name ...")
             name = self.interfaces_MAC(snmpdump=snmpdump)[i]["name"]
+            if not name:
+                continue
             logger.info("... if_type ...")
             if_type = self.interfaces_type(snmpdump=snmpdump)[i]["type"]
             logger.info("... rx_bytes ...")
@@ -472,7 +474,7 @@ class AirOS(SNMP):
 
     def to_dict(self, snmpdump=None, autowalk=True):
         self._reset_memoized_properties()
-        if autowalk:
+        if snmpdump is None and autowalk:
             snmpdump = self.walk("1.3.6")
             snmpdump.update(self.walk("1.2.840.10036"))
         os_name, os_description = self.os(snmpdump=snmpdump)

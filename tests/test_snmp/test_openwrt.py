@@ -232,6 +232,38 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
                     ],
                 )
 
+    def test_neighbor_state_order(self):
+        """Neighbor states must be matched by their OID suffix."""
+        neighbor_info = [
+            [
+                [
+                    MockOid("1.3.6.1.2.1.4.35.1.4.5.1.4.192.168.1.1"),
+                    OctetString("0x040e3cca555f"),
+                ]
+            ],
+            [
+                [
+                    MockOid("1.3.6.1.2.1.4.35.1.4.5.1.4.192.168.1.2"),
+                    OctetString("0x040e3cca5560"),
+                ]
+            ],
+            [[MockOid("1.3.6.1.2.1.4.35.1.7.5.1.4.192.168.1.2"), 2]],
+            [[MockOid("1.3.6.1.2.1.4.35.1.7.5.1.4.192.168.1.1"), 1]],
+        ]
+        with patch.object(
+            self.device, "next", return_value=[None, 0, 0, neighbor_info]
+        ):
+            with patch.object(
+                self.device,
+                "get",
+                return_value=[None, 0, 0, [[None, "br-lan"]]],
+            ):
+                neighbors = self.device.neighbors()
+        self.assertEqual(
+            [neighbor["state"] for neighbor in neighbors],
+            ["REACHABLE", "STALE"],
+        )
+
     def test_local_time(self):
         self.assertEqual(self.device.local_time(), 1623391213)
 
@@ -307,10 +339,11 @@ class TestSNMPOpenWRT(unittest.TestCase, MockOutputMixin):
                                     self.device, "neighbors", return_value=[]
                                 ):
                                     self.device.to_dict()
+                                    self.device.to_dict(snmpdump={})
         self.assertEqual(
             walk.call_args_list,
             [call("1.3.6.1"), call("1.2.840.10036")],
-            "OpenWRT autowalk must include standard and wireless vendor OID roots",
+            "OpenWRT must preserve supplied dumps and autowalk both OID roots",
         )
 
     def test_interface_state(self):

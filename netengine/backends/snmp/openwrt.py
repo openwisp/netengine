@@ -523,18 +523,20 @@ class OpenWRT(SNMP):
         neighbor_states_oid = "1.3.6.1.2.1.4.35.1.7"
         neighbor_info = self.next("1.3.6.1.2.1.4.35.1.", snmpdump=snmpdump)[3]
         neighbors = []
-        neighbor_states = []
+        neighbor_states = {}
         result = []
 
         for oid in neighbor_info:
             if neighbors_oid in str(oid[0][0]):
                 neighbors.append(oid)
             elif neighbor_states_oid in str(oid[0][0]):
-                neighbor_states.append(oid)
+                suffix = tuple(oid[0][0].getOid()[10:])
+                neighbor_states[suffix] = oid
 
-        for index, neighbor in enumerate(neighbors):
+        for neighbor in neighbors:
             try:
                 oid = neighbor[0][0].getOid()
+                suffix = tuple(oid[10:])
                 address = ".".join(str(value) for value in oid[13:])
                 if oid[12] == 4:
                     ip = address
@@ -547,7 +549,12 @@ class OpenWRT(SNMP):
                 interface = self.get(
                     f"1.3.6.1.2.1.31.1.1.1.1.{interface_num}", snmpdump=snmpdump
                 )[3][0][1]
-                state = states_map.get(str(neighbor_states[index][0][1]), "UNKNOWN")
+                state_entry = neighbor_states.get(suffix)
+                state = (
+                    states_map.get(str(state_entry[0][1]), "UNKNOWN")
+                    if state_entry is not None
+                    else "UNKNOWN"
+                )
             except (IndexError, TypeError, ValueError, KeyError):
                 continue
             result.append(
@@ -564,7 +571,7 @@ class OpenWRT(SNMP):
 
     def to_dict(self, snmpdump=None, autowalk=True):
         self._reset_memoized_properties()
-        if autowalk:
+        if snmpdump is None and autowalk:
             snmpdump = self.walk("1.3.6.1")
             snmpdump.update(self.walk("1.2.840.10036"))
         result = self._dict(
