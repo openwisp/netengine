@@ -49,8 +49,6 @@ official documentation next, and this file is supplemental.
 
 ## Testing and QA
 
-- For bug fixes, write a regression test first, run it against the unfixed code,
-  and confirm it fails for the expected reason before implementing the fix.
 - When separate tests cover different cases of the same feature, share almost identical setup, and primarily vary in input or expected outcome, group them in one test method with subTest. Keep each subtest's setup explicit and independent, and retain separate test methods when cases exercise genuinely distinct behavior. Leave one blank line immediately before each with self.subTest(...): call.
 - Prefer method decorators for context managers that apply to the entire test method and would otherwise create unnecessary nesting, unless decorator ordering conflicts or the context manager requires data unavailable when the method is defined.
 - Use targeted tests while iterating. Run `./runtests.py` before considering a
