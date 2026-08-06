@@ -57,6 +57,7 @@ official documentation next, and this file is supplemental.
   change complete.
 - This repository has no Selenium tests. Do not set Selenium environment variables.
 - Prefer in-process tests so coverage tools can measure changed code.
+- Keep helpers and classes used by only one test method inside that method. Promote them to class or module scope only when genuinely reused.
 
 ## Security Notes
 
