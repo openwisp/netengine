@@ -58,6 +58,7 @@ official documentation next, and this file is supplemental.
 - This repository has no Selenium tests. Do not set Selenium environment variables.
 - Prefer in-process tests so coverage tools can measure changed code.
 - Keep helpers and classes used by only one test method inside that method. Promote them to class or module scope only when genuinely reused.
+- Keep tests quiet on success. When code under test writes to stdout or stderr, use `capture_stdout`, `capture_stderr`, or `capture_any_output` from `openwisp_utils.tests` and assert the expected output. Do not leave unasserted output, logs, or warnings in test runs.
 
 ## Security Notes
 
