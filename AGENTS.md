@@ -39,6 +39,7 @@ official documentation next, and this file is supplemental.
 
 ## Development Notes
 
+- Respect module boundaries and encapsulation. The module that owns a model, stored state, lifecycle, or domain invariant must expose the cohesive public operation that reads or changes it. Integrations must use that operation, not write its fields, coordinate multi-step changes to its internal state, or depend on its storage representation. Prefer behavior-oriented public APIs over setters for internal flags. When an integration needs a missing capability, add it to the owning module with invariant tests, then call it from the integration.
 - Follow the DRY principle: do not duplicate information or code across files.
 - Preserve public APIs, NetJSON output formats, schema validation, SNMP dump
   behavior, and backend compatibility unless explicitly required.
