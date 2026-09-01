@@ -1,2 +1,2 @@
 netaddr~=1.3.0
-pysnmp~=7.1.28
+pysnmp~=7.1.29
