@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-#
 # netengine documentation build configuration file, created by
 # sphinx-quickstart on Fri Aug  8 15:35:40 2014.
 #
