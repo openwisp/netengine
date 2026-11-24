@@ -8,9 +8,10 @@ from unittest import TestCase
 
 
 def main():
-    # Only test modules and TestCase classes may be selected by name.
+    # Limit the package prefix so a module cannot hide a non-TestCase callable.
     pattern = re.compile(
-        r"(?P<module>tests(?:\.test_\w+)+)" r"(?:\.(?P<class>[A-Z]\w*)(?:\.test_\w+)?)?"
+        r"(?P<module>tests(?:\.test_snmp)?\.test_\w+)"
+        r"(?:\.(?P<class>[A-Z]\w*)(?:\.test_\w+)?)?"
     )
     for argument in sys.argv[1:]:
         if argument in ("-v", "-q", "-F", "--verbose", "--quiet", "--fail-fast"):

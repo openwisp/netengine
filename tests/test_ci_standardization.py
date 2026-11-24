@@ -17,6 +17,7 @@ class CiStandardizationTests(unittest.TestCase):
             "--config=other",
             "os.system",
             "tests.test_x:TestX",
+            "tests.test_dummy.test_escape",
         ):
             with self.subTest(argument=argument):
                 result = subprocess.run(
@@ -32,10 +33,10 @@ class CiStandardizationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             shutil.copy2(ROOT / "runtests", root / "runtests")
-            (root / "tests" / "test_nested").mkdir(parents=True)
+            (root / "tests" / "test_snmp").mkdir(parents=True)
             (root / "tests" / "__init__.py").touch()
-            (root / "tests" / "test_nested" / "__init__.py").touch()
-            (root / "tests" / "test_nested" / "test_probe.py").write_text(
+            (root / "tests" / "test_snmp" / "__init__.py").touch()
+            (root / "tests" / "test_snmp" / "test_probe.py").write_text(
                 "import unittest\n"
                 "class TestProbe(unittest.TestCase):\n    def test_ok(self): pass\n"
                 "class Helper:\n    def test_bad(self): pass\n"
@@ -47,7 +48,7 @@ class CiStandardizationTests(unittest.TestCase):
             valid = subprocess.run(
                 [
                     str(root / "runtests"),
-                    "tests.test_nested.test_probe.TestProbe.test_ok",
+                    "tests.test_snmp.test_probe.TestProbe.test_ok",
                     "-v",
                 ],
                 cwd=root,
@@ -58,7 +59,7 @@ class CiStandardizationTests(unittest.TestCase):
             invalid = subprocess.run(
                 [
                     str(root / "runtests"),
-                    "tests.test_nested.test_probe.Helper.test_bad",
+                    "tests.test_snmp.test_probe.Helper.test_bad",
                 ],
                 cwd=root,
                 env=env,
@@ -67,7 +68,7 @@ class CiStandardizationTests(unittest.TestCase):
             )
         self.assertEqual(valid.returncode, 0, valid.stderr)
         self.assertEqual(
-            valid.stdout.strip(), "tests.test_nested.test_probe.TestProbe.test_ok|-v"
+            valid.stdout.strip(), "tests.test_snmp.test_probe.TestProbe.test_ok|-v"
         )
         self.assertEqual(invalid.returncode, 2)
         self.assertNotIn("test_bad", invalid.stdout)
