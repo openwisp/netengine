@@ -72,3 +72,20 @@ class CiStandardizationTests(unittest.TestCase):
         )
         self.assertEqual(invalid.returncode, 2)
         self.assertNotIn("test_bad", invalid.stdout)
+
+    def test_rejects_callable_in_place_of_test_module(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            shutil.copy2(ROOT / "runtests", root / "runtests")
+            (root / "tests").mkdir()
+            (root / "tests" / "__init__.py").write_text(
+                'def test_action(): print("unexpected execution")\n'
+            )
+            result = subprocess.run(
+                [str(root / "runtests"), "tests.test_action"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+            )
+        self.assertEqual(result.returncode, 2, result.stderr)
+        self.assertNotIn("unexpected execution", result.stdout)
