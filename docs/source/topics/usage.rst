@@ -51,7 +51,7 @@ Clone repo:
 
     git clone git://github.com/openwisp/netengine
 
-    ./runtests.py
+    ./runtests
 
 To run tests on real devices, first copy the settings file:
 
@@ -63,7 +63,7 @@ Then change the credentials accordingly, now run tests with:
 
 ::
 
-    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests.py
+    DISABLE_MOCKS=1 TEST_SETTINGS_FILE='test-settings.json' ./runtests
 
 See test coverage with:
 
